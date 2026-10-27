@@ -13,18 +13,19 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-      - name: Setup Gradle
+      - name: Setup Gradle 8.4
         uses: gradle/actions/setup-gradle@v3
-      - name: Grant execute permission
-        run: chmod +x gradlew || echo "no gradlew"
-      - name: Build Debug APK
+        with:
+          gradle-version: '8.4'
+      - name: Generate Wrapper if missing
         run: |
-          if [ -f gradlew ]; then
-            ./gradlew assembleDebug --stacktrace
-          else
+          if [ ! -f gradle/wrapper/gradle-wrapper.jar ]; then
             gradle wrapper --gradle-version 8.4
-            ./gradlew assembleDebug --stacktrace
           fi
+      - name: Grant execute permission
+        run: chmod +x gradlew
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug --stacktrace
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
