@@ -1,0 +1,6 @@
+
+<resources>
+    <style name="Theme.SudaTaxi" parent="Theme.Material3.DayNight">
+        <item name="colorPrimary">#FF6D00</item>
+    </style>
+</resources>
