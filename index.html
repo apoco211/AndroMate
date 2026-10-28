@@ -20,11 +20,11 @@
   font-family: "Optimistic Mono", ui-monospace, monospace;
 }
 </style>
-<!-- v1.3.5 원칙: 검색 실패 시 빈 화면, 가짜 데이터 생성 금지 -->
+<!-- v1.3.6 원칙: 검색 실패 시 빈 화면, 가짜 데이터 생성 금지 -->
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>AndroMate v1.3.5</title>
+<title>AndroMate v1.3.6</title>
 <!-- PWA & iOS 설정 -->
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -174,7 +174,7 @@ function switchTab(tabId) {
       <div class="text-base font-extrabold tracking-tight leading-none">수다택시 리모콘</div>
       <div class="text-[11px] text-neutral-400 dark:text-neutral-400 font-semibold mt-1 tracking-tight flex items-center gap-1.5">
         <span>TAXI REMOTE • A25</span>
-        <span class="px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-700 dark:text-blue-300 text-[9px] font-extrabold">v1.3.5</span>
+        <span class="px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-700 dark:text-blue-300 text-[9px] font-extrabold">v1.3.6</span>
       </div>
     </div>
   </div>
@@ -801,7 +801,7 @@ function toggleInlinePreview() {
 }
 
 function renderRealVideoList() {
-  // v1.3.5: 가짜 데이터 완전 제거, 빈 상태 처리
+  // v1.3.6: 가짜 데이터 완전 제거, 빈 상태 처리
   const emptyEl = document.getElementById('yt-empty-guide');
   if (currentRealVideos.length === 0) {
     if (emptyEl) emptyEl.classList.remove('hidden');
@@ -865,7 +865,7 @@ function playRealVideo(index) {
 
 function sendDirectPlayA25() {
   const v = currentPlayingVideo;
-  // v1.3.5: v1.2.1 구형 브릿지 호환 + 신형 호환 이중 payload
+  // v1.3.6: v1.2.1 구형 브릿지 호환 + 신형 호환 이중 payload
   const payloadNew = { action: "play", videoId: v.id, title: v.title, channel: v.channel, url: "https://www.youtube.com/watch?v=" + v.id, intent: "vnd.youtube:" + v.id, timestamp: Date.now() };
   const payloadOld = { action: "play_youtube", actionCompat: "play", videoId: v.id, query: v.title, searchUrl: "https://www.youtube.com/watch?v=" + v.id, timestamp: Date.now() };
   
@@ -884,7 +884,7 @@ function sendDirectPlayA25() {
   console.log('YT Play payload', payloadNew);
 }
 
-// v1.3.5 실시간 검색 로직 - A25 검색 제거, iOS CORS 우회, YouTube Data API 지원
+// v1.3.6 실시간 검색 - 가짜 0개, 실제 YouTube HTML 파싱 + Piped + Invidious 다중 백업
 async function executeRealSearch() {
   const q = document.getElementById('yt-search-input').value.trim();
   if (!q) { showToast('검색할 키워드를 입력하세요'); return; }
@@ -892,19 +892,21 @@ async function executeRealSearch() {
   const spinner = document.getElementById('yt-loading-spinner');
   const listEl = document.getElementById('real-video-list');
   const label = document.getElementById('yt-search-status-label');
+  const countEl = document.getElementById('yt-result-count');
   if (spinner) spinner.classList.remove('hidden');
   if (listEl) listEl.classList.add('opacity-40');
   if (label) label.innerText = '"' + q + '" 실시간 검색 중...';
-
-  // v1.3.5: A25로 search 명령 보내지 않음 - 카카오T 가림 방지, 아이폰에서만 검색
+  if (countEl) countEl.innerText = "...";
 
   let success = false;
-  // 1) YouTube Data API 키가 있으면 최우선 사용 (localStorage: YT_API_KEY)
+  let lastError = '';
+
+  // 1) YouTube Data API 키 있으면 최우선 (100% 정확)
   const ytKey = localStorage.getItem('YT_API_KEY') || '';
   if (ytKey) {
     try {
       const apiUrl = 'https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=10&q=' + encodeURIComponent(q) + '&key=' + ytKey;
-      const res = await fetch(apiUrl, { signal: AbortSignal.timeout(5000) });
+      const res = await fetch(apiUrl, { signal: AbortSignal.timeout(7000) });
       if (res.ok) {
         const data = await res.json();
         if (data.items && data.items.length > 0) {
@@ -917,69 +919,146 @@ async function executeRealSearch() {
           }));
           success = true;
         }
-      }
-    } catch(err) { console.log('YT API fail', err); }
+      } else { lastError = 'YT API ' + res.status; }
+    } catch(err) { lastError = 'YT API 오류'; }
   }
 
-  // 2) Invidious 3중 + CORS 프록시 우회 (iOS 사파리 대응)
+  // 2) Piped API 다중 인스턴스 (CORS 허용)
   if (!success) {
-    const invBases = [
-      'https://inv.tux.pizza/api/v1/search?q=',
-      'https://invidious.protokolla.fi/api/v1/search?q=',
-      'https://yewtu.be/api/v1/search?q='
+    const pipedHosts = [
+      'https://pipedapi.kavin.rocks/search?q=',
+      'https://pipedapi.adminforge.de/search?q=',
+      'https://api.piped.projectsegfau.lt/search?q=',
+      'https://pipedapi.leptos.newpipe.de/search?q='
     ];
-    const corsProxies = ['', 'https://corsproxy.io/?', 'https://api.allorigins.win/raw?url='];
-    try {
-      for (let base of invBases) {
-        if (success) break;
-        for (let proxy of corsProxies) {
-          try {
-            const target = base + encodeURIComponent(q);
-            const url = proxy ? proxy + encodeURIComponent(target) : target;
-            const res = await fetch(url, { signal: AbortSignal.timeout(4500) });
-            if (res.ok) {
-              const data = await res.json();
-              const vids = Array.isArray(data) ? data : (data.items || []);
-              const items = vids.filter(i => (i.type === 'video' || i.id?.videoId)).slice(0, 10);
-              if (items.length > 0) {
-                currentRealVideos = items.map(item => {
-                  const vid = item.videoId || item.id?.videoId || item.id;
-                  return {
-                    id: vid,
-                    title: item.title || item.snippet?.title || q + ' 관련 영상',
-                    channel: item.author || item.snippet?.channelTitle || 'YouTube',
-                    time: formatSecToTime(item.lengthSeconds || 0),
-                    thumb: item.videoThumbnails?.[0]?.url || item.snippet?.thumbnails?.medium?.url || ('https://i.ytimg.com/vi/' + vid + '/mqdefault.jpg')
-                  };
-                });
-                success = true;
-                break;
-              }
+    for (let host of pipedHosts) {
+      if (success) break;
+      try {
+        const res = await fetch(host + encodeURIComponent(q), { signal: AbortSignal.timeout(5000) });
+        if (res.ok) {
+          const data = await res.json();
+          const items = data.items || data || [];
+          const vids = items.filter(i => i.type === 'stream' || (i.url && i.url.includes('/watch'))).slice(0,10);
+          if (vids.length > 0) {
+            currentRealVideos = vids.map(item => {
+              let id = '';
+              if (item.url) {
+                const m = item.url.match(/v=([0-9A-Za-z_-]{11})/);
+                id = m ? m[1] : item.url.split('/').pop();
+              } else id = item.id || '';
+              id = (id || '').substring(0,11);
+              if (id.length < 6) return null;
+              return {
+                id: id,
+                title: item.title || q + ' 영상',
+                channel: item.uploaderName || item.uploader || 'YouTube',
+                time: item.duration ? formatSecToTime(item.duration) : '',
+                thumb: item.thumbnail || ('https://i.ytimg.com/vi/' + id + '/mqdefault.jpg')
+              };
+            }).filter(Boolean);
+            if (currentRealVideos.length > 0) success = true;
+          }
+        }
+      } catch(e) { lastError = 'Piped 실패'; continue; }
+    }
+  }
+
+  // 3) Invidious + corsproxy (iOS 대응 - 인코딩 없이)
+  if (!success) {
+    const invHosts = [
+      'https://inv.tux.pizza/api/v1/search?q=',
+      'https://yewtu.be/api/v1/search?q=',
+      'https://invidious.protokolla.fi/api/v1/search?q='
+    ];
+    for (let host of invHosts) {
+      if (success) break;
+      const urlsToTry = [
+        host + encodeURIComponent(q),
+        'https://corsproxy.io/?' + host + encodeURIComponent(q)
+      ];
+      for (let u of urlsToTry) {
+        try {
+          const res = await fetch(u, { signal: AbortSignal.timeout(5000) });
+          if (res.ok) {
+            const data = await res.json();
+            const arr = Array.isArray(data) ? data : data.items || [];
+            const vids = arr.filter(i => i.type === 'video' || i.videoId).slice(0,10);
+            if (vids.length > 0) {
+              currentRealVideos = vids.map(item => ({
+                id: item.videoId,
+                title: item.title,
+                channel: item.author || 'YouTube',
+                time: formatSecToTime(item.lengthSeconds || 0),
+                thumb: item.videoThumbnails?.[0]?.url || ('https://i.ytimg.com/vi/' + item.videoId + '/mqdefault.jpg')
+              }));
+              success = true;
+              break;
             }
-          } catch(e) { continue; }
+          }
+        } catch(e) { continue; }
+      }
+    }
+  }
+
+  // 4) 최후 수단: YouTube 검색 페이지를 AllOrigins로 가져와서 videoId 파싱 (가짜 아님, 실제 YouTube HTML)
+  if (!success) {
+    try {
+      const ytSearchUrl = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(q);
+      const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(ytSearchUrl);
+      const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(7000) });
+      if (res.ok) {
+        const json = await res.json();
+        const htmlContent = json.contents || '';
+        // videoId 패턴 추출: "videoId":"XXXXXXXXXXX"
+        const videoIdRegex = /\"videoId\":\"(.*?)\"/g;
+        const titleRegex = /\"title\":\{\"runs\":\[\{\"text\":\"(.*?)\"/g;
+        let match;
+        const ids = [];
+        const titles = [];
+        while ((match = videoIdRegex.exec(htmlContent)) !== null) {
+          if (match[1].length === 11 && !ids.includes(match[1])) ids.push(match[1]);
+          if (ids.length >= 10) break;
+        }
+        // 제목도 대략 추출
+        let tMatch;
+        while ((tMatch = titleRegex.exec(htmlContent)) !== null) {
+          titles.push(tMatch[1]);
+          if (titles.length >= 10) break;
+        }
+        if (ids.length > 0) {
+          currentRealVideos = ids.map((id, i) => ({
+            id: id,
+            title: titles[i] || q + ' 관련 영상 ' + (i+1),
+            channel: 'YouTube 검색',
+            time: '',
+            thumb: 'https://i.ytimg.com/vi/' + id + '/mqdefault.jpg'
+          }));
+          success = true;
         }
       }
-      if (!success) throw new Error("All APIs Failed");
-      if (label) label.innerText = '"' + q + '" 검색 결과 ' + currentRealVideos.length + '개';
-      showToast('"' + q + '" 검색 성공');
-    } catch (err) {
-      console.log("Fallback search", err);
-      // v1.3.5: 가짜 ID 대신 실제 인기 영상 ID로 fallback - A25 재생은 되도록
-      currentRealVideos = [
-        { id: "", title: `[검색: ${q}] 첫 번째 결과 - A25에서 재생 가능`, channel: `${q} 검색 결과`, time: "LIVE", thumb: "https://i.ytimg.com/vi//mqdefault.jpg" },
-        { id: "9bZkp7q19f0", title: `${q} 관련 인기 영상 - 터치하면 A25 재생`, channel: `YouTube 인기`, time: "4:13", thumb: "https://i.ytimg.com/vi/9bZkp7q19f0/mqdefault.jpg" },
-        { id: "kJQP7kiw5Fk", title: `${q} 최신 하이라이트`, channel: `실시간`, time: "15:30", thumb: "https://i.ytimg.com/vi/kJQP7kiw5Fk/mqdefault.jpg" }
-      ];
-      if (label) label.innerText = '서버 지연 - 기본 3개 (재생 가능)';
-      showToast('검색 서버 지연, 기본 영상으로 재생은 가능합니다');
-    }
-  } else {
-    if (label) label.innerText = '"' + q + '" 검색 결과 ' + currentRealVideos.length + '개';
-    showToast('"' + q + '" 검색 성공');
+    } catch(e) { lastError = 'YouTube HTML 파싱 실패'; }
   }
 
-  renderRealVideoList();
-  previewVideoByIndex(0);
+  if (success) {
+    if (label) label.innerText = '"' + q + '" 검색 결과 ' + currentRealVideos.length + '개';
+    if (countEl) countEl.innerText = currentRealVideos.length + "개";
+    showToast('"' + q + '" ' + currentRealVideos.length + '개 찾음');
+    renderRealVideoList();
+    if (currentRealVideos.length > 0) previewVideoByIndex(0);
+  } else {
+    // v1.3.6 원칙: 가짜 절대 생성 금지, 빈 화면 + 원인 안내
+    currentRealVideos = [];
+    if (label) label.innerText = '검색 실패 - ' + lastError;
+    if (countEl) countEl.innerText = "0개";
+    renderRealVideoList();
+    showToast('실시간 검색 실패: 네트워크 확인 필요');
+    const guide = document.getElementById('yt-empty-guide');
+    if (guide) {
+      guide.innerHTML = '<div class="p-4 text-center bg-neutral-900 rounded-xl border border-dashed border-neutral-700"><div class="text-[13px] font-bold text-white">🔍 실시간 검색을 할 수 없습니다</div><div class="text-[11px] mt-1.5 text-neutral-400 leading-relaxed">Piped / Invidious 서버가 일시적으로 막혔습니다.<br>아래 방법 중 하나로 해결하세요:<br>1. 와이파이 끄고 LTE로 검색<br>2. YouTube Data API 키 설정 (가장 확실)<br><br>가짜 영상은 절대 표시하지 않습니다.</div><div class="flex gap-2 justify-center mt-3"><button onclick="promptAndSaveYTKey()" class="px-3 py-1.5 rounded-full bg-white text-black text-[11px] font-bold">🔑 API 키 설정</button><button onclick="executeRealSearch()" class="px-3 py-1.5 rounded-full bg-neutral-800 text-white text-[11px] font-bold">🔄 다시 시도</button></div></div>';
+      guide.classList.remove('hidden');
+    }
+  }
+
   if (spinner) spinner.classList.add('hidden');
   if (listEl) listEl.classList.remove('opacity-40');
 }
