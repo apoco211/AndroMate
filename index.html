@@ -45,7 +45,7 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>AndroMate v1.3.9 - - YT API Embedded</title>
+<title>AndroMate v1.3.12 - Final</title>
 <script>
   tailwind = window.tailwind || {};
   tailwind.config = { darkMode: 'class' };
@@ -131,7 +131,7 @@ input[type=range].yt-progressbar::-moz-range-thumb {
   border: 2px solid white;
 }
 
-/* === 주야간 테마 오버라이드 v1.3.9 Fix - 라이트모드 정상화 === */
+/* === 주야간 테마 오버라이드 v1.3.12 Final Fix - 라이트모드 정상화 === */
 html.dark { color-scheme: dark; }
 html:not(.dark) { color-scheme: light; }
 
@@ -244,7 +244,7 @@ function switchTab(tabId) {
       <div class="text-base font-extrabold tracking-tight leading-none">수다택시 리모콘</div>
       <div class="text-[11px] text-neutral-400 dark:text-neutral-400 font-semibold mt-1 tracking-tight flex items-center gap-1.5">
         <span>TAXI REMOTE • A25</span>
-        <span class="px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-700 dark:text-blue-300 text-[9px] font-extrabold">v1.3.9</span>
+        <span class="px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-700 dark:text-blue-300 text-[9px] font-extrabold">v1.3.12</span>
       </div>
     </div>
   </div>
@@ -400,7 +400,7 @@ function switchTab(tabId) {
         <div class="text-[10px] text-neutral-400 font-medium">A25 단말기 실제 수신/발신 내역</div>
         <span id="sms-thread-count" class="text-[10px] font-bold text-blue-600 dark:text-blue-400">0개 대화방</span>
       </div>
-      <div id="sms-thread-container" class="space-y-1.5"><div class="p-6 text-center bg-white dark:bg-[#1e1e1e] rounded-xl border border-black/[0.04] dark:border-white/[0.06]"><div class="text-[12px] font-bold text-neutral-400">단말기 문자가 비어있습니다. 상단 동기화 버튼을 눌러주세요.</div></div></div>
+      <div id="sms-thread-container" class="space-y-1.5"><div class="p-6 text-center bg-white dark:bg-[#1e1e1e] rounded-xl border border-black/[0.04] dark:border-white/[0.06] space-y-2"><div class="text-[12px] font-bold text-neutral-400">단말기 문자가 비어있습니다.</div><div class="text-[10px] text-neutral-400 leading-relaxed">상단 동기화 버튼을 눌러도 안 되면<br>A25 앱의 SMS 권한을 허용해야 합니다.</div><div class="flex gap-2 justify-center pt-2"><button onclick="requestA25SmsSync()" class="px-3 py-1.5 rounded-full bg-blue-600 text-white text-[11px] font-bold">🔄 동기화 재요청</button><button onclick="checkSmsInboxDirect()" class="px-3 py-1.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-[11px] font-bold">📡 서버 직접 확인</button></div></div></div>
     </div>
 
     <!-- 1:1 대화방 뷰 -->
@@ -617,7 +617,7 @@ function switchTab(tabId) {
 <script>
 let db = null;
 const FIREBASE_DB_URL = "https://sudataxi-bridge-default-rtdb.firebaseio.com";
-const EMBEDDED_YT_API_KEY = "AIzaSyCBOwims25QvRUSO2RggHkcreytDpEJGBU"; // ✅ v1.3.9 내장
+const EMBEDDED_YT_API_KEY = "AIzaSyCBOwims25QvRUSO2RggHkcreytDpEJGBU"; // ✅ v1.3.12 내장 YT API
 
 // ==========================================
 // 1. 순수 데이터 구조 초기화
@@ -835,14 +835,94 @@ try {
 
 function requestA25SmsSync() {
   const icon = document.querySelector('.sync-icon');
+  const countEl = document.getElementById('sms-thread-count');
   if (icon) {
     icon.classList.add('animate-spin', 'inline-block');
-    setTimeout(() => icon.classList.remove('animate-spin'), 1500);
+    setTimeout(() => icon.classList.remove('animate-spin'), 3000);
   }
-  const payload = { action: "sync_sms_inbox", timestamp: Date.now() };
-  fetch(FIREBASE_DB_URL + '/sudataxi/commands/system.json', { method: 'PUT', body: JSON.stringify(payload) }).catch(e=>e);
-  if (db) db.ref("sudataxi/commands/system").set(payload);
-  showToast("📡 단말기 문자 동기화 요청 완료");
+  if (countEl) countEl.innerText = "동기화 중...";
+  const ts = Date.now();
+  const payloads = [
+    { action: "sync_sms_inbox", timestamp: ts },
+    { action: "sync_sms", timestamp: ts },
+    { action: "request_sms_sync", timestamp: ts },
+    { action: "read_sms", type: "sms_sync", timestamp: ts }
+  ];
+  const targets = [
+    '/sudataxi/commands/system.json',
+    '/sudataxi/commands/sms_sync.json',
+    '/sudataxi/commands/sms.json',
+    '/sudataxi/commands/sync.json',
+    '/sudataxi/commands/inbox.json'
+  ];
+  payloads.forEach(p => {
+    targets.forEach(t => {
+      try { fetch(FIREBASE_DB_URL + t, { method: 'PUT', body: JSON.stringify(p) }).catch(e=>{}); } catch(e){}
+    });
+  });
+  if (db) {
+    try {
+      db.ref("sudataxi/commands/system").set(payloads[0]);
+      db.ref("sudataxi/commands/sms_sync").set(payloads[0]);
+      db.ref("sudataxi/commands/sms").set({ action: "sync", timestamp: ts });
+      db.ref("sudataxi/commands/sync").set(payloads[0]);
+    } catch(e){ console.log("sms sync db err", e); }
+  }
+  showToast("📡 A25에 문자 동기화 요청 (권한 확인 필요)");
+  setTimeout(() => { checkSmsInboxDirect(); }, 2000);
+}
+
+function checkSmsInboxDirect() {
+  const url = FIREBASE_DB_URL + '/sudataxi/inbox/sms.json?orderBy="$key"&limitToLast=30&cb=' + Date.now();
+  fetch(url, { method: 'GET', cache: 'no-store' })
+  .then(r => r.json())
+  .then(data => {
+    if (!data) {
+      showToast("⚠️ inbox/sms 비어있음 - A25 권한 확인 필요");
+      const countEl = document.getElementById("sms-thread-count");
+      if (countEl) countEl.innerText = "0개 - 권한 확인";
+      const container = document.getElementById("sms-thread-container");
+      if (container) {
+        container.innerHTML = '<div class="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 text-[11px] leading-relaxed text-amber-900 dark:text-amber-200">' +
+          '<div class="font-extrabold mb-1">📱 A25 단말기 설정 확인</div>' +
+          '1. A25 앱 → 설정 → 권한 → SMS 읽기 허용<br>' +
+          '2. A25 앱 → 배터리 최적화 해제<br>' +
+          '3. A25 앱이 백그라운드에서 실행 중인지 확인<br>' +
+          '4. 다시 동기화 버튼 클릭<br><br>' +
+          '<div class="text-[10px] opacity-70">Firebase: sudataxi/inbox/sms 에 데이터가 없습니다.<br>브릿지앱이 이 경로에 push 해야 합니다.</div>' +
+          '<button onclick="requestA25SmsSync()" class="mt-2 px-3 py-1.5 rounded-full bg-amber-500 text-white text-[11px] font-bold">🔄 다시 동기화 요청</button>' +
+          '</div>';
+      }
+      return;
+    }
+    let hasNew = false;
+    Object.keys(data).forEach(key => {
+      const item = data[key];
+      if (!item || !item.sender) return;
+      const sender = item.sender;
+      if (!smsThreads[sender]) smsThreads[sender] = [];
+      if (!smsThreads[sender].some(m => m.timestamp === item.timestamp)) {
+        smsThreads[sender].push({
+          type: item.type || "received", message: item.message || "",
+          time: item.time || new Date(item.timestamp || Date.now()).toTimeString().substring(0,5),
+          timestamp: item.timestamp || Date.now()
+        });
+        hasNew = true;
+      }
+    });
+    if (hasNew) {
+      saveSmsThreads();
+      renderSmsThreadList();
+      updateThanksChips();
+      showToast("✅ " + Object.keys(smsThreads).length + "개 대화방 동기화됨");
+    } else {
+      showToast("동기화 완료 - " + Object.keys(data).length + "개 메시지 확인");
+    }
+  })
+  .catch(e => {
+    console.log("checkSmsInboxDirect err", e);
+    showToast("동기화 확인 실패: 네트워크");
+  });
 }
 
 // ==========================================
@@ -921,21 +1001,23 @@ function renderRealVideoList() {
   container.innerHTML = currentRealVideos.map((v, idx) => {
     const isLiked = likedVideos.includes(v.id);
     const thumbUrl = v.thumb || ('https://i.ytimg.com/vi/' + v.id + '/mqdefault.jpg');
-    return '<div class="flex items-center gap-2 p-1.5 rounded-xl bg-neutral-50 dark:bg-neutral-800/80 hover:bg-neutral-100 dark:hover:bg-neutral-800 border border-black/[0.03] dark:border-white/[0.05] shadow-sm transition-all">' +
-      '<div onclick="previewVideoByIndex(' + idx + ')" class="relative w-[100px] h-[56px] rounded-lg overflow-hidden bg-black shrink-0 cursor-pointer active:scale-95 transition-transform">' +
-        '<img src="' + thumbUrl + '" onerror="this.onerror=null;this.src=\'https://placehold.co/120x68/202020/ffffff?text=YouTube\';" class="w-full h-full object-cover">' +
-        '<span class="absolute bottom-1 right-1 px-1 py-0.5 rounded bg-black/80 text-[9px] font-bold text-white tracking-tight">' + (v.time || '15:00') + '</span>' +
+    return '<div class="flex items-start gap-2.5 p-2.5 rounded-2xl bg-white dark:bg-[#1e1e1e] hover:bg-neutral-50 dark:hover:bg-neutral-800/80 border border-black/[0.04] dark:border-white/[0.06] shadow-sm transition-all active:scale-[0.99]">' +
+      '<div onclick="previewVideoByIndex(' + idx + ')" class="relative w-[72px] h-[48px] rounded-lg overflow-hidden bg-neutral-900 shrink-0 cursor-pointer mt-0.5">' +
+        '<img src="' + thumbUrl + '" onerror="this.onerror=null;this.src=\'https://placehold.co/120x68/202020/ffffff?text=YT\';" class="w-full h-full object-cover">' +
+        '<span class="absolute bottom-0.5 right-0.5 px-1 py-0 rounded bg-black/85 text-[8px] font-bold text-white tracking-tight">' + (v.time || '') + '</span>' +
       '</div>' +
-      '<div onclick="previewVideoByIndex(' + idx + ')" class="flex-1 min-w-0 cursor-pointer pl-1">' +
-        '<div class="text-[12px] font-bold leading-tight line-clamp-2 text-neutral-900 dark:text-neutral-100">' + escapeHtml(v.title) + '</div>' +
-        '<div class="text-[10px] text-neutral-400 mt-1 truncate font-medium">' + escapeHtml(v.channel) + '</div>' +
+      '<div class="flex-1 min-w-0 flex flex-col justify-center">' +
+        '<div onclick="previewVideoByIndex(' + idx + ')" class="cursor-pointer">' +
+          '<div class="text-[13.5px] font-extrabold leading-[1.35] line-clamp-2 text-neutral-900 dark:text-white tracking-tight">' + escapeHtml(v.title) + '</div>' +
+          '<div class="text-[11px] text-neutral-500 dark:text-neutral-400 mt-1 truncate font-medium flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center text-[8px]">▶</span>' + escapeHtml(v.channel) + '</div>' +
+        '</div>' +
       '</div>' +
-      '<div class="flex flex-col items-center gap-1 shrink-0 ml-1">' +
-        '<button type="button" onclick="playRealVideo(' + idx + ')" class="px-2 py-1.5 rounded-lg bg-red-600 text-white text-[10px] font-extrabold shadow-sm active:scale-95 flex items-center gap-1">' +
-          'A25 재생' +
+      '<div class="flex flex-col items-center gap-1 shrink-0 ml-0.5">' +
+        '<button type="button" onclick="playRealVideo(' + idx + ')" class="px-2.5 py-1.5 rounded-full bg-red-600 text-white text-[11px] font-black shadow-sm active:scale-90 flex items-center gap-1 leading-none">' +
+          '▶ 재생' +
         '</button>' +
-        '<button type="button" onclick="toggleVideoLike(\'' + v.id + '\', event)" class="w-full py-1 rounded bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center text-[10px] active:scale-90 transition-transform">' +
-          (isLiked ? '❤️ 담음' : '🤍 찜') +
+        '<button type="button" onclick="toggleVideoLike(\'' + v.id + '\', event)" class="w-full py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-[10px] font-bold active:scale-90 transition-transform border border-black/[0.03] dark:border-white/[0.05]">' +
+          (isLiked ? '❤️' : '🤍') +
         '</button>' +
       '</div>' +
     '</div>';
@@ -1179,8 +1261,55 @@ function togglePlay() {
   showToast(isPlaying ? 'A25: 재생' : 'A25: 일시정지');
 }
 function sendRemoteControl(cmd, value) {
-  if (cmd === 'seek') { currentProgressSec = Math.max(0, Math.min(totalDurationSec, currentProgressSec + Number(value))); updateProgressBarUI(); }
-  if (db) db.ref("sudataxi/commands/youtube").set({ action: cmd, value: value, currentSec: currentProgressSec, timestamp: Date.now() });
+  try {
+    if (cmd === 'seek') {
+      const delta = Number(value);
+      currentProgressSec = Math.max(0, Math.min(totalDurationSec, currentProgressSec + delta));
+      updateProgressBarUI();
+      const payload = { 
+        action: "seek", 
+        actionCompat: delta > 0 ? "forward" : "rewind",
+        actionAlt: delta > 0 ? "seek_forward" : "seek_backward",
+        value: delta, 
+        delta: delta, 
+        currentSec: currentProgressSec, 
+        seekTo: currentProgressSec, 
+        position: currentProgressSec,
+        timestamp: Date.now() 
+      };
+      if (db) {
+        db.ref("sudataxi/commands/youtube").set(payload);
+        db.ref("sudataxi/commands/youtube_compat").set({ action: delta > 0 ? "forward" : "rewind", value: delta, timestamp: Date.now() });
+        db.ref("sudataxi/commands/media").set(payload);
+        db.ref("sudataxi/commands/system").set(payload);
+      }
+      try { fetch(FIREBASE_DB_URL + '/sudataxi/commands/youtube.json', { method: 'PUT', body: JSON.stringify(payload) }).catch(e=>{}); } catch(e){}
+      try { fetch(FIREBASE_DB_URL + '/sudataxi/commands/media.json', { method: 'PUT', body: JSON.stringify(payload) }).catch(e=>{}); } catch(e){}
+      showToast((delta>0?"+":"")+delta+"초 " + (delta>0?"앞으로":"뒤로"));
+    } else if (cmd === 'seekTo') {
+      const absSec = Math.max(0, Math.min(totalDurationSec, Number(value)));
+      currentProgressSec = absSec;
+      updateProgressBarUI();
+      const payload = { action: "seekTo", actionCompat: "seek_to", seekTo: absSec, currentSec: absSec, value: absSec, position: absSec, timestamp: Date.now() };
+      if (db) {
+        db.ref("sudataxi/commands/youtube").set(payload);
+        db.ref("sudataxi/commands/media").set(payload);
+        db.ref("sudataxi/commands/youtube_compat").set(payload);
+      }
+      try { fetch(FIREBASE_DB_URL + '/sudataxi/commands/youtube.json', { method: 'PUT', body: JSON.stringify(payload) }).catch(e=>{}); } catch(e){}
+      try { fetch(FIREBASE_DB_URL + '/sudataxi/commands/media.json', { method: 'PUT', body: JSON.stringify(payload) }).catch(e=>{}); } catch(e){}
+    } else if (cmd === 'volume') {
+      const vol = Number(value);
+      const payload = { action: "volume", value: vol, volume: vol, timestamp: Date.now() };
+      if (db) db.ref("sudataxi/commands/youtube").set(payload);
+      try { fetch(FIREBASE_DB_URL + '/sudataxi/commands/youtube.json', { method: 'PUT', body: JSON.stringify(payload) }).catch(e=>{}); } catch(e){}
+      showToast("볼륨 " + vol + "%");
+    } else {
+      const payload = { action: cmd, value: value, timestamp: Date.now() };
+      if (db) db.ref("sudataxi/commands/youtube").set(payload);
+      try { fetch(FIREBASE_DB_URL + '/sudataxi/commands/youtube.json', { method: 'PUT', body: JSON.stringify(payload) }).catch(e=>{}); } catch(e){}
+    }
+  } catch(e) { console.log("sendRemoteControl err", e); showToast("제어 오류: "+e.message); }
 }
 function openLikedPlaylist() { if (db) db.ref("sudataxi/commands/youtube").set({ action: "playlist", list: "LL", timestamp: Date.now() }); showToast('좋아요 보관함 실행'); }
 function toggleVideoLike(id, event) {
@@ -1214,7 +1343,13 @@ function renderSmsThreadList() {
   document.getElementById("sms-thread-count").innerText = senders.length + "개 대화방";
 
   if (senders.length === 0) {
-    container.innerHTML = '<div class="p-6 text-center bg-white dark:bg-[#1e1e1e] rounded-xl border border-black/[0.04] dark:border-white/[0.06]"><div class="text-[12px] font-bold text-neutral-400">단말기 문자가 비어있습니다. 상단 동기화 버튼을 눌러주세요.</div></div>';
+    container.innerHTML = '<div class="p-6 text-center bg-white dark:bg-[#1e1e1e] rounded-xl border border-black/[0.04] dark:border-white/[0.06] space-y-2">' +
+      '<div class="text-[12px] font-bold text-neutral-400">단말기 문자가 비어있습니다.</div>' +
+      '<div class="text-[10px] text-neutral-400 leading-relaxed">상단 동기화 버튼을 눌러도 안 되면<br>A25 앱의 SMS 권한을 허용해야 합니다.</div>' +
+      '<div class="flex gap-2 justify-center pt-2">' +
+        '<button onclick="requestA25SmsSync()" class="px-3 py-1.5 rounded-full bg-blue-600 text-white text-[11px] font-bold">🔄 동기화 재요청</button>' +
+        '<button onclick="checkSmsInboxDirect()" class="px-3 py-1.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-[11px] font-bold">📡 서버 직접 확인</button>' +
+      '</div></div>';
     return;
   }
   container.innerHTML = senders.map(sender => {
