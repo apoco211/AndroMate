@@ -22,30 +22,19 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        // R.layout 만 참조 - R.id는 절대 직접 참조 안 함
+        setContentView(resources.getIdentifier("activity_main", "layout", packageName))
 
-        logView = findViewById(R.id.logView)
-        if (logView == null) {
-            try {
-                val id = resources.getIdentifier("tvLog", "id", packageName)
-                if (id != 0) logView = findViewById(id)
-            } catch (e: Exception) {}
-        }
-
-        // 버전 텍스트 - ID가 달라도 빌드 안 터지게
-        try {
-            val possibleIds = listOf("versionText", "subtitleText", "tvVersion", "version", "subtitle", "tvSubtitle")
-            for (name in possibleIds) {
-                val vid = resources.getIdentifier(name, "id", packageName)
-                if (vid != 0) {
-                    val tv = findViewById<TextView>(vid)
-                    if (tv != null && tv.text.contains("v1.")) {
-                        tv.text = "아이폰 Firebase 실시간 원격 제어 데몬 ($VERSION)"
-                        break
-                    }
-                }
+        // 로그뷰 찾기 - ID 이름 상관없이 동적으로
+        logView = findTextViewByNames("logView", "tvLog", "log", "tv_log", "log_text", "tvLogView")
+        
+        // 버전 텍스트 찾기 - 있으면 업데이트
+        val versionView = findTextViewByNames("versionText", "subtitleText", "tvVersion", "version", "subtitle", "tvSubtitle", "version_text")
+        versionView?.let {
+            if (it.text.toString().contains("v1.") || it.text.toString().contains("데몬")) {
+                it.text = "아이폰 Firebase 실시간 원격 제어 데몬 ($VERSION)"
             }
-        } catch (e: Exception) {}
+        }
 
         youtubeHelper = YouTubeHelper(this)
         youtubeHelper.logCallback = { msg -> runOnUiThread { addLog(msg) } }
@@ -55,6 +44,19 @@ class MainActivity : AppCompatActivity() {
         addLog("🔥 Firebase Realtime DB 연결 성공!")
         addLog("✅ 수다택시 A25 통신 에이전트 준비 완료 ($VERSION)")
         addLog("📡 가짜 데이터 생성 금지 원칙 적용")
+    }
+
+    private fun findTextViewByNames(vararg names: String): TextView? {
+        for (name in names) {
+            try {
+                val id = resources.getIdentifier(name, "id", packageName)
+                if (id != 0) {
+                    val v = findViewById<TextView>(id)
+                    if (v != null) return v
+                }
+            } catch (e: Exception) {}
+        }
+        return null
     }
 
     private fun initFirebase() {
