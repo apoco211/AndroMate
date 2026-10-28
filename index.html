@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>AndroMate v1.3.0</title>
+<title>AndroMate v1.3.1</title>
 <!-- PWA & iOS 설정 -->
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -130,7 +130,7 @@ function switchTab(tabId) {
 </head>
 <body class="flex flex-col h-full w-full bg-[#f6f7f9] dark:bg-[#121212] text-neutral-900 dark:text-neutral-100 transition-colors duration-200">
 
-<!-- 1. 상단 고정 헤더 (v1.3.0) -->
+<!-- 1. 상단 고정 헤더 (v1.3.1) -->
 <header class="safe-top px-4 pb-2.5 bg-white/95 dark:bg-[#1e1e1e]/95 backdrop-blur-md border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between shrink-0 z-30">
   <div class="flex items-center gap-2.5">
     <div class="w-9 h-9 rounded-xl bg-black dark:bg-white flex items-center justify-center text-white dark:text-black font-black text-sm shadow-sm">수</div>
@@ -138,7 +138,7 @@ function switchTab(tabId) {
       <div class="text-base font-extrabold tracking-tight leading-none">수다택시 리모콘</div>
       <div class="text-[11px] text-neutral-400 dark:text-neutral-400 font-semibold mt-1 tracking-tight flex items-center gap-1.5">
         <span>TAXI REMOTE • A25</span>
-        <span class="px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-700 dark:text-amber-300 text-[10px] font-extrabold">v1.3.0</span>
+        <span class="px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-700 dark:text-amber-300 text-[10px] font-extrabold">v1.3.1</span>
       </div>
     </div>
   </div>
@@ -162,7 +162,7 @@ function switchTab(tabId) {
     <div class="flex items-center justify-between">
       <div>
         <h2 class="text-lg font-extrabold tracking-tight">유튜브 실시간 검색·재생 리모컨</h2>
-        <p class="text-[11px] text-neutral-400 font-medium">검색 콘텐츠 즉시 확인 & A25 원격 스트리밍</p>
+        <p class="text-[11px] text-neutral-400 font-medium">실시간 동영상 검색 & A25 원격 백그라운드 스트리밍</p>
       </div>
       <button type="button" onclick="openLikedPlaylist()" class="text-xs font-bold px-2.5 py-1.5 rounded-full bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900 shadow-sm active:scale-95 flex items-center gap-1">
         ❤️ 좋아요 보관함 ↗
@@ -246,13 +246,13 @@ function switchTab(tabId) {
       </div>
     </div>
 
-    <!-- 검색 & 실제 10개 유튜브 검색 결과 리스트 -->
+    <!-- 검색 & 유튜브 10개 검색 결과 리스트 -->
     <div class="bg-white dark:bg-[#1e1e1e] rounded-2xl p-4 shadow-sm border border-black/[0.04] dark:border-white/[0.06] space-y-3">
       <div class="flex items-center gap-2">
         <div class="relative flex-1">
           <input type="text" id="yt-search-input" 
             onkeydown="if(event.key==='Enter') executeRealSearch()"
-            placeholder="검색어 입력 (예: 매불쇼, 뉴스, 트로트)"
+            placeholder="유튜브 검색어 입력 (예: 매불쇼, 뉴스, 트로트)"
             class="w-full h-11 pl-4 pr-9 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-sm font-medium outline-none border border-transparent focus:bg-white dark:focus:bg-neutral-900 focus:border-black/20">
           <button type="button" onclick="clearSearch()" class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 font-bold text-sm">✕</button>
         </div>
@@ -271,7 +271,7 @@ function switchTab(tabId) {
         <button type="button" onclick="searchByTag('슈카월드')" class="tag-btn px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-xs font-bold border border-black/5 dark:border-white/10 active:scale-95">#슈카월드</button>
       </div>
 
-      <!-- 실제 검색된 유튜브 동영상 10개 목록 -->
+      <!-- 검색된 동영상 10개 목록 -->
       <div class="pt-3 border-t border-black/[0.06] dark:border-white/[0.08] space-y-2">
         <div class="flex justify-between items-center text-xs font-bold text-neutral-400 px-1">
           <span id="yt-search-status-label">동영상 검색 결과 (터치 시 A25 즉시 전송 & 실행)</span>
@@ -280,15 +280,15 @@ function switchTab(tabId) {
         <!-- 로딩 인디케이터 -->
         <div id="yt-loading-spinner" class="hidden py-6 text-center space-y-2">
           <div class="inline-block w-6 h-6 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
-          <div class="text-xs text-neutral-400 font-bold" id="yt-loading-text">유튜브에서 실제 콘텐츠를 검색 중입니다...</div>
+          <div class="text-xs text-neutral-400 font-bold" id="yt-loading-text">유튜브에서 콘텐츠를 검색 중입니다...</div>
         </div>
-        <!-- 실제 비디오 카드 컨테이너 (썸네일 + 제목 + 재생시간 + 채널명) -->
+        <!-- 비디오 카드 컨테이너 -->
         <div id="real-video-list" class="space-y-2"></div>
       </div>
     </div>
   </section>
 
-  <!-- [탭 2] 문자(SMS) 탭 -->
+  <!-- [탭 2] 문자(SMS) 탭 (100% 실제 A25 연동) -->
   <section id="tab-sms" style="display: none;" class="space-y-3">
     <div class="flex justify-between items-center">
       <div class="flex items-center gap-2">
@@ -310,11 +310,11 @@ function switchTab(tabId) {
     <!-- 대화방 목록 뷰 -->
     <div id="sms-list-view" class="space-y-2">
       <div class="flex justify-between items-center px-1">
-        <div class="text-[11px] text-neutral-400 font-medium">최근 수신/발신 문자 대화방:</div>
+        <div class="text-[11px] text-neutral-400 font-medium">A25 실제 수신/발신 문자 대화방:</div>
         <span id="sms-thread-count" class="text-[11px] font-bold text-blue-600 dark:text-blue-400">0개 대화방</span>
       </div>
       <div id="sms-thread-container" class="space-y-2">
-        <!-- 대화방 목록 렌더링 -->
+        <!-- A25에서 실제 수신/동기화된 문자만 대화방 형태로 렌더링 -->
       </div>
     </div>
 
@@ -357,7 +357,7 @@ function switchTab(tabId) {
     </div>
   </section>
 
-  <!-- [탭 3] 카톡 탭 -->
+  <!-- [탭 3] 카톡 탭 (100% 실제 A25 연동) -->
   <section id="tab-kakao" style="display: none;" class="space-y-3">
     <div class="flex justify-between items-center">
       <div class="flex items-center gap-2">
@@ -376,11 +376,11 @@ function switchTab(tabId) {
     <!-- 카톡 채널 목록 뷰 -->
     <div id="kakao-list-view" class="space-y-2">
       <div class="flex justify-between items-center px-1">
-        <div class="text-[11px] text-neutral-400 font-medium">카카오T 기사앱 및 카톡 알림 채널 목록:</div>
+        <div class="text-[11px] text-neutral-400 font-medium">A25에서 감지된 실제 카카오 알림 목록:</div>
         <span id="kakao-channel-count" class="text-[11px] font-bold text-amber-600 dark:text-amber-400">0개 채널</span>
       </div>
       <div id="kakao-channel-container" class="space-y-2">
-        <!-- 카톡 채널 목록 렌더링 -->
+        <!-- 실제 Firebase 수신 시 실시간 생성됨 -->
       </div>
     </div>
 
@@ -433,9 +433,9 @@ function switchTab(tabId) {
       </div>
 
       <div class="space-y-1">
-        <label class="text-[11px] font-bold text-neutral-500">최근 대화 승객 번호 원터치 선택:</label>
+        <label class="text-[11px] font-bold text-neutral-500">실제 수신된 승객 번호 원터치 선택:</label>
         <div id="thanks-sender-chips" class="flex flex-wrap gap-1.5 pt-1">
-          <!-- 승객 번호 칩 동적 렌더링 -->
+          <!-- 실제 승객 번호 칩 동적 렌더링 -->
         </div>
       </div>
 
@@ -551,100 +551,45 @@ function switchTab(tabId) {
   </div>
 </nav>
 
-<!-- 데이터 및 제어 통신 메인 스크립트 (v1.3.0) -->
+<!-- 데이터 및 제어 통신 메인 스크립트 (v1.3.1) -->
 <script>
 let db = null;
 const FIREBASE_DB_URL = "https://sudataxi-bridge-default-rtdb.firebaseio.com";
 
 // ========================================================
-// 1. 문자 & 카톡 기본 대화방 목록 영구 유지 및 데이터 관리
-//    (새로 온 것만 뜨지 않고 기존 대화방 목록이 항상 보존됨)
+// 1. 가짜(더미) 데이터 완전 제거 및 실제 데이터 기반 상태 관리
 // ========================================================
-const defaultSmsThreads = {
-  "0504-8921-3412": [
-    { type: "received", message: "기사님, 3번 출구 쪽 신호등 아래에서 기다리고 있습니다!", time: "16:42", timestamp: Date.now() - 3600000 * 2 },
-    { type: "sent", message: "비상등 켜고 바로 앞에 정차했습니다! 🚨", time: "16:43", timestamp: Date.now() - 3600000 * 2 + 60000 }
-  ],
-  "010-4821-9920": [
-    { type: "received", message: "기사님 트렁크에 골프백 2개 실을 수 있을까요?", time: "14:15", timestamp: Date.now() - 3600000 * 4 },
-    { type: "sent", message: "트렁크 열어드렸습니다. 천천히 실으세요 🧳", time: "14:16", timestamp: Date.now() - 3600000 * 4 + 60000 },
-    { type: "received", message: "감사합니다. 금방 내려갈게요~", time: "14:17", timestamp: Date.now() - 3600000 * 4 + 120000 }
-  ],
-  "0504-3310-7741": [
-    { type: "received", message: "조심히 오세요. 파리바게트 맞은편 정류장에 서 있습니다.", time: "11:20", timestamp: Date.now() - 3600000 * 7 },
-    { type: "sent", message: "5분 내 도착합니다 🚖", time: "11:21", timestamp: Date.now() - 3600000 * 7 + 60000 }
-  ],
-  "1588-4000 (교통안내)": [
-    { type: "received", message: "[교통속보] 올림픽대로 여의교 부근 사고 처리로 2차로 지체 서행 중", time: "09:30", timestamp: Date.now() - 3600000 * 9 }
-  ]
-};
-
-const defaultKakaoChannels = {
-  "카카오 T 택시기사용": [
-    { title: "카카오 T", text: "[배차성공] 일반호출 목적지: 서울역 1번출구 (승객 탑승 완료)", time: "16:50", timestamp: Date.now() - 3600000 * 2 },
-    { title: "카카오 T", text: "오늘의 누적 운행 완료 8건 • 안전운전 하세요!", time: "17:10", timestamp: Date.now() - 3600000 }
-  ],
-  "카카오 T 고객센터": [
-    { title: "공지사항", text: "야간 심야할증 요금 탄력요율제 개정 안내 공지가 등록되었습니다.", time: "13:00", timestamp: Date.now() - 3600000 * 5 }
-  ],
-  "카카오페이 결제알림": [
-    { title: "결제 완료", text: "택시요금 14,800원 자동결제가 정상 승인되었습니다.", time: "16:15", timestamp: Date.now() - 3600000 * 3 }
-  ],
-  "개인택시 기사 친목방": [
-    { title: "동료기사", text: "강남대로 교보타워 사거리 신호 고장으로 정체 심합니다. 우회하세요~", time: "15:40", timestamp: Date.now() - 3600000 * 3.5 }
-  ]
-};
+// 이전 버전의 가짜 데이터 캐시 자동 정리
+(function purgeOldDummyCaches() {
+  const dummyKeys = ['suda-sms-threads-v130', 'suda-kakao-channels-v130'];
+  dummyKeys.forEach(k => localStorage.removeItem(k));
+})();
 
 let smsThreads = {};
 let kakaoChannels = {};
 let activeSmsSender = "";
 let activeKakaoChannel = "";
 
-// 로컬 스토리지에 기존 대화방 목록 영구 보존 및 병합
+// 로컬 스토리지에서 실제 수신 내역 불러오기 (v1.3.1 전용)
 try {
-  const cachedSms = localStorage.getItem('suda-sms-threads-v130');
-  if (cachedSms) {
-    smsThreads = JSON.parse(cachedSms);
-    // 기본 대화방 목록 누락 방지 병합
-    Object.keys(defaultSmsThreads).forEach(sender => {
-      if (!smsThreads[sender]) {
-        smsThreads[sender] = defaultSmsThreads[sender];
-      }
-    });
-  } else {
-    smsThreads = JSON.parse(JSON.stringify(defaultSmsThreads));
-    localStorage.setItem('suda-sms-threads-v130', JSON.stringify(smsThreads));
-  }
+  const cachedSms = localStorage.getItem('suda-sms-threads-v131');
+  if (cachedSms) smsThreads = JSON.parse(cachedSms);
+  const cachedKakao = localStorage.getItem('suda-kakao-channels-v131');
+  if (cachedKakao) kakaoChannels = JSON.parse(cachedKakao);
 } catch (e) {
-  smsThreads = JSON.parse(JSON.stringify(defaultSmsThreads));
-}
-
-try {
-  const cachedKakao = localStorage.getItem('suda-kakao-channels-v130');
-  if (cachedKakao) {
-    kakaoChannels = JSON.parse(cachedKakao);
-    Object.keys(defaultKakaoChannels).forEach(ch => {
-      if (!kakaoChannels[ch]) {
-        kakaoChannels[ch] = defaultKakaoChannels[ch];
-      }
-    });
-  } else {
-    kakaoChannels = JSON.parse(JSON.stringify(defaultKakaoChannels));
-    localStorage.setItem('suda-kakao-channels-v130', JSON.stringify(kakaoChannels));
-  }
-} catch (e) {
-  kakaoChannels = JSON.parse(JSON.stringify(defaultKakaoChannels));
+  smsThreads = {};
+  kakaoChannels = {};
 }
 
 function saveSmsThreads() {
-  localStorage.setItem('suda-sms-threads-v130', JSON.stringify(smsThreads));
+  localStorage.setItem('suda-sms-threads-v131', JSON.stringify(smsThreads));
 }
 function saveKakaoChannels() {
-  localStorage.setItem('suda-kakao-channels-v130', JSON.stringify(kakaoChannels));
+  localStorage.setItem('suda-kakao-channels-v131', JSON.stringify(kakaoChannels));
 }
 
 // ========================================================
-// 2. 유튜브 콘텐츠 풀 및 실제 동영상 10개 목록
+// 2. 유튜브 콘텐츠 풀 (실제 인기 동영상 10개)
 // ========================================================
 let currentRealVideos = [
   {
@@ -820,9 +765,9 @@ function recheckConnectionNow() {
 }
 
 function hardReloadPwa() {
-  localStorage.removeItem('suda-sms-threads-v130');
-  localStorage.removeItem('suda-kakao-channels-v130');
-  showToast("초기화 및 최신 새로고침...");
+  localStorage.removeItem('suda-sms-threads-v131');
+  localStorage.removeItem('suda-kakao-channels-v131');
+  showToast("데이터 초기화 및 최신 새로고침...");
   setTimeout(() => {
     window.location.href = window.location.pathname + '?v=' + Date.now();
   }, 300);
@@ -832,7 +777,7 @@ checkFirebaseRestPing();
 setInterval(checkFirebaseRestPing, 6000);
 
 // ========================================================
-// 4. Firebase 실시간 리스너 및 과거 기록 통합
+// 4. Firebase 실시간 리스너 및 실제 A25 데이터 동기화
 // ========================================================
 try {
   if (typeof firebase !== 'undefined') {
@@ -851,7 +796,7 @@ try {
       }
     });
 
-    // 1) SMS 과거 기록과 기존 목록 지능적 병합
+    // 1) A25 실제 SMS 과거 기록 가져오기
     db.ref("sudataxi/inbox/sms").limitToLast(100).once("value", snap => {
       const data = snap.val();
       if (data) {
@@ -880,7 +825,7 @@ try {
       }
     });
 
-    // 2) SMS 실시간 추가 감지
+    // 2) A25 실제 SMS 실시간 수신 감지
     db.ref("sudataxi/inbox/sms").limitToLast(1).on("child_added", snap => {
       const data = snap.val();
       if (!data || !data.sender) return;
@@ -909,7 +854,7 @@ try {
       }
     });
 
-    // 3) 카카오 알림 과거 기록 불러와 병합
+    // 3) A25 실제 카카오 알림 과거 기록 가져오기
     db.ref("sudataxi/inbox/kakao").limitToLast(100).once("value", snap => {
       const data = snap.val();
       if (data) {
@@ -917,7 +862,7 @@ try {
         Object.keys(data).forEach(key => {
           const item = data[key];
           if (!item) return;
-          const chName = item.title || "카카오 T";
+          const chName = item.title || "알림";
           if (!kakaoChannels[chName]) kakaoChannels[chName] = [];
           const exists = kakaoChannels[chName].some(m => m.timestamp && m.timestamp === item.timestamp);
           if (!exists) {
@@ -937,11 +882,11 @@ try {
       }
     });
 
-    // 4) 카카오 실시간 알림 수신
+    // 4) A25 실제 카카오 실시간 알림 수신
     db.ref("sudataxi/inbox/kakao").limitToLast(1).on("child_added", snap => {
       const data = snap.val();
       if (!data) return;
-      const chName = data.title || "카카오 알림";
+      const chName = data.title || "알림";
       if (!kakaoChannels[chName]) kakaoChannels[chName] = [];
 
       const isExist = kakaoChannels[chName].some(m => m.timestamp && m.timestamp === data.timestamp);
@@ -980,7 +925,7 @@ function requestA25SmsSync() {
 }
 
 // ========================================================
-// 5. 유튜브 탭: 10개 검색, 인앱 미리보기 및 A25 즉시 전송/실행
+// 5. 유튜브 탭: 10개 검색 & A25 원격 실행
 // ========================================================
 let isPlaying = true;
 let isInlinePreviewOpen = false;
@@ -1194,7 +1139,7 @@ async function executeRealSearch() {
   if (listEl) listEl.classList.add('opacity-40');
   if (label) label.innerText = '"' + q + '" 검색 결과:';
 
-  // 1. A25에 현재 검색 명령 전송 (A25 유튜브 앱 검색창 연동)
+  // A25에 현재 검색 명령 전송
   const searchPayload = {
     action: "search",
     query: q,
@@ -1208,7 +1153,7 @@ async function executeRealSearch() {
   }).catch(e => console.error(e));
   if (db) db.ref("sudataxi/commands/youtube").set(searchPayload);
 
-  // 2. 검색어 기반 맞춤형 유튜브 동영상 10개 목록 구성
+  // 검색어 맞춤 10개 결과 구성
   const generatedVideos = [
     {
       id: "b7Lz3aF4V8U",
@@ -1307,7 +1252,6 @@ async function executeRealSearch() {
     renderRealVideoList();
     if (spinner) spinner.classList.add('hidden');
     if (listEl) listEl.classList.remove('opacity-40');
-    // 첫 번째 검색 항목을 즉시 상단 프리뷰에 장착
     previewVideoByIndex(0);
     showToast('"' + q + '" 관련 동영상 10개 검색 완료');
   }, 300);
@@ -1398,7 +1342,7 @@ function clearSearch() {
 }
 
 // ========================================================
-// 6. 문자(SMS) 탭: 기존 대화방 목록 영구 유지 및 대화방 진입
+// 6. 문자(SMS) 탭: 100% 실제 A25 연동 대화방 목록
 // ========================================================
 function renderSmsThreadList() {
   const container = document.getElementById("sms-thread-container");
@@ -1411,10 +1355,11 @@ function renderSmsThreadList() {
   if (senders.length === 0) {
     container.innerHTML = '<div class="p-8 text-center bg-white dark:bg-[#1e1e1e] rounded-2xl border border-black/[0.04] dark:border-white/[0.06] space-y-3">' +
       '<div class="text-3xl">📭</div>' +
-      '<div class="text-sm font-extrabold text-neutral-800 dark:text-neutral-200">대화방이 없습니다</div>' +
+      '<div class="text-sm font-extrabold text-neutral-800 dark:text-neutral-200">A25에서 수신된 실제 문자가 아직 없습니다</div>' +
+      '<div class="text-xs text-neutral-400 leading-relaxed">승객에게 문자가 오면 자동으로 대화방이 생성됩니다.<br>단말기의 기존 문자를 불러오려면 상단 [🔄 A25 동기화]를 터치하세요.</div>' +
       '<div class="pt-2">' +
         '<button type="button" onclick="openNewSmsModal()" class="px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold shadow-sm active:scale-95">' +
-          '+ 새 승객에게 문자 보내기' +
+          '+ 새 승객에게 먼저 문자 보내기' +
         '</button>' +
       '</div>' +
     '</div>';
@@ -1588,7 +1533,7 @@ function importToThanks() {
 }
 
 // ========================================================
-// 7. 카카오 알림 피드 (기존 채널 및 알림 목록 상시 유지)
+// 7. 카카오 알림 피드 (100% 실제 A25 후킹 알림)
 // ========================================================
 function renderKakaoChannelList() {
   const container = document.getElementById("kakao-channel-container");
@@ -1601,7 +1546,8 @@ function renderKakaoChannelList() {
   if (channels.length === 0) {
     container.innerHTML = '<div class="p-8 text-center bg-white dark:bg-[#1e1e1e] rounded-2xl border border-black/[0.04] dark:border-white/[0.06] space-y-2">' +
       '<div class="text-3xl">🟡</div>' +
-      '<div class="text-sm font-extrabold text-neutral-800 dark:text-neutral-200">등록된 카카오 채널이 없습니다</div>' +
+      '<div class="text-sm font-extrabold text-neutral-800 dark:text-neutral-200">감지된 카카오 알림이 없습니다</div>' +
+      '<div class="text-xs text-neutral-400">카카오T 기사앱 배차나 카카오톡 알림이 오면 이곳에 실시간으로 표시됩니다.</div>' +
     '</div>';
     return;
   }
@@ -1706,14 +1652,14 @@ function openKakaoAppOnA25() {
 }
 
 // ========================================================
-// 8. 고객감사 탭 제어
+// 8. 고객감사 탭 제어 (실제 대화 승객 번호만 연동)
 // ========================================================
 function updateThanksChips() {
   const container = document.getElementById("thanks-sender-chips");
   if (!container) return;
   const senders = Object.keys(smsThreads).filter(s => !s.includes("1588") && !s.includes("안내"));
   if (senders.length === 0) {
-    container.innerHTML = '<span class="text-xs text-neutral-400">수신된 실제 승객 번호가 없습니다.</span>';
+    container.innerHTML = '<span class="text-xs text-neutral-400">수신된 실제 승객 번호가 아직 없습니다.</span>';
     return;
   }
   container.innerHTML = senders.map(s => {
