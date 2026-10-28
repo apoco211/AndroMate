@@ -23,36 +23,82 @@ darkMode: 'class'
 font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
 -webkit-tap-highlight-color: transparent;
 box-sizing: border-box;
-touch-action: manipulation;
 }
 html, body {
 width: 100%;
-height: 100dvh;
+height: 100%;
 margin: 0;
 padding: 0;
 overflow: hidden;
 }
 .safe-top {
-padding-top: max(env(safe-area-inset-top), 12px);
+padding-top: max(env(safe-area-inset-top), 8px);
 }
 .safe-bottom {
-padding-bottom: max(env(safe-area-inset-bottom), 14px);
+padding-bottom: max(env(safe-area-inset-bottom), 10px);
 }
 ::-webkit-scrollbar { display: none; }
+.tab-btn, button {
+touch-action: manipulation;
+cursor: pointer;
+}
 </style>
+<!-- 탭 전환 핵심 스크립트 (외부 라이브러리 로딩 지연과 무관하게 0초 즉시 실행 보장) -->
+<script>
+function switchTab(tabId) {
+const tabIds = ['youtube', 'sms', 'kakao', 'thanks'];
+// 1. 모든 탭 섹션 숨김 및 타겟 탭 표시 (인라인 스타일로 100% 강제 적용)
+tabIds.forEach(function(id) {
+var el = document.getElementById('tab-' + id);
+if (el) {
+if (id === tabId) {
+el.style.display = 'block';
+} else {
+el.style.display = 'none';
+}
+}
+});
+// 2. 알림 뱃지 숨김 처리
+if (tabId === 'sms') {
+var sb = document.getElementById('sms-unread-badge');
+if (sb) sb.style.display = 'none';
+}
+if (tabId === 'kakao') {
+var kb = document.getElementById('kakao-unread-badge');
+if (kb) kb.style.display = 'none';
+}
+// 3. 하단 네비게이션 버튼 활성화 스타일 동기화
+tabIds.forEach(function(id) {
+var btn = document.getElementById('btn-nav-' + id);
+if (!btn) return;
+var icon = btn.querySelector('.icon-box');
+var text = btn.querySelector('.tab-text');
+if (id === tabId) {
+if (icon) {
+icon.className = 'icon-box w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold bg-black dark:bg-white text-white dark:text-black shadow-md';
+}
+if (text) {
+text.className = 'tab-text text-xs font-black text-black dark:text-white mt-1';
+}
+} else {
+if (icon) {
+icon.className = 'icon-box w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold text-neutral-400 bg-neutral-100 dark:bg-neutral-800';
+}
+if (text) {
+text.className = 'tab-text text-xs font-bold text-neutral-400 mt-1';
+}
+}
+});
+// 가벼운 진동 피드백 (지원 기기)
+if (navigator.vibrate) navigator.vibrate(15);
+}
+</script>
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-<script>
-if ('serviceWorker' in navigator) {
-window.addEventListener('load', () => {
-navigator.serviceWorker.register('sw.js').catch(() => {});
-});
-}
-</script>
 </head>
-<body class="flex flex-col h-[100dvh] w-full bg-[#f6f7f9] dark:bg-[#121212] text-neutral-900 dark:text-neutral-100 transition-colors duration-200">
-<!-- 1. 상단 헤더 -->
+<body class="flex flex-col h-full w-full bg-[#f6f7f9] dark:bg-[#121212] text-neutral-900 dark:text-neutral-100 transition-colors duration-200">
+<!-- 1. 상단 고정 헤더 -->
 <header class="safe-top px-4 pb-2.5 bg-white/95 dark:bg-[#1e1e1e]/95 backdrop-blur-md border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between shrink-0 z-30">
 <div class="flex items-center gap-2.5">
 <div class="w-9 h-9 rounded-xl bg-black dark:bg-white flex items-center justify-center text-white dark:text-black font-black text-sm shadow-sm">수</div>
@@ -60,7 +106,7 @@ navigator.serviceWorker.register('sw.js').catch(() => {});
 <div class="text-base font-extrabold tracking-tight leading-none">수다택시 리모콘</div>
 <div class="text-[11px] text-neutral-400 dark:text-neutral-400 font-semibold mt-1 tracking-tight flex items-center gap-1.5">
 <span>TAXI REMOTE • A25</span>
-<span class="px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-700 dark:text-amber-300 text-[10px] font-extrabold">v1.1.1</span>
+<span class="px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-700 dark:text-amber-300 text-[10px] font-extrabold">v1.1.2</span>
 </div>
 </div>
 </div>
@@ -76,10 +122,10 @@ navigator.serviceWorker.register('sw.js').catch(() => {});
 </div>
 </div>
 </header>
-<!-- 2. 메인 스크롤 콘텐츠 -->
+<!-- 2. 메인 스크롤 콘텐츠 영역 -->
 <main class="flex-1 overflow-y-auto px-4 py-3 space-y-4">
-<!-- [탭 1] 유튜브 탭 -->
-<section id="tab-youtube" class="tab-content space-y-3.5">
+<!-- [탭 1] 유튜브 탭 (기본 표시) -->
+<section id="tab-youtube" style="display: block;" class="space-y-3.5">
 <div class="flex items-center justify-between">
 <div>
 <h2 class="text-lg font-extrabold tracking-tight">유튜브 지식·정보 리모컨</h2>
@@ -160,8 +206,8 @@ class="w-full h-11 pl-4 pr-9 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-
 </div>
 </div>
 </section>
-<!-- [탭 2] 문자 탭 -->
-<section id="tab-sms" class="tab-content hidden space-y-4">
+<!-- [탭 2] 문자 탭 (초기 숨김) -->
+<section id="tab-sms" style="display: none;" class="space-y-4">
 <div class="flex justify-between items-center">
 <h2 class="text-xl font-extrabold tracking-tight">A25 문자 메시지</h2>
 <span id="sms-live-badge" class="text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2.5 py-1 rounded-full border border-blue-200 dark:border-blue-900">실시간 연동</span>
@@ -187,8 +233,8 @@ onkeydown="if(event.key==='Enter') sendSms()">
 </div>
 </div>
 </section>
-<!-- [탭 3] 카톡 탭 -->
-<section id="tab-kakao" class="tab-content hidden space-y-4">
+<!-- [탭 3] 카톡 탭 (초기 숨김) -->
+<section id="tab-kakao" style="display: none;" class="space-y-4">
 <div class="flex justify-between items-center">
 <h2 class="text-xl font-extrabold tracking-tight">A25 카카오T / 카톡</h2>
 <span class="text-xs font-bold text-amber-900 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/60 px-2.5 py-1 rounded-full border border-amber-300 dark:border-amber-800">기사앱 연동</span>
@@ -214,8 +260,8 @@ onkeydown="if(event.key==='Enter') sendKakao()">
 </div>
 </div>
 </section>
-<!-- [탭 4] 고객감사 탭 -->
-<section id="tab-thanks" class="tab-content hidden space-y-4">
+<!-- [탭 4] 고객감사 탭 (초기 숨김) -->
+<section id="tab-thanks" style="display: none;" class="space-y-4">
 <div class="flex items-center justify-between">
 <h2 class="text-xl font-extrabold tracking-tight">최근 탑승 고객 감사문자</h2>
 <span class="text-xs px-2.5 py-1 rounded-full bg-black dark:bg-white text-white dark:text-black font-bold">A25 유심 발송</span>
@@ -243,72 +289,44 @@ A25에서 감사문자 즉시 발송
 </main>
 <!-- 토스트 알림창 -->
 <div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full bg-black/90 dark:bg-white/90 text-white dark:text-black text-xs font-bold shadow-lg opacity-0 transition-opacity pointer-events-none"></div>
-<!-- 3. 하단 고정 4개 탭 (터치 보장 네비게이션) -->
-<nav class="safe-bottom bg-white dark:bg-[#1a1a1a] border-t border-black/[0.08] dark:border-white/[0.08] pt-1.5 px-2 shrink-0 z-40 relative">
+<!-- 3. 하단 고정 4개 탭 (최우선 터치 보장: z-[100]) -->
+<nav class="safe-bottom bg-white/95 dark:bg-[#1a1a1a]/95 backdrop-blur-lg border-t border-black/[0.08] dark:border-white/[0.08] pt-1.5 px-2 shrink-0 z-[100] relative">
 <div class="flex justify-around items-center">
 <!-- 유튜브 -->
-<button type="button" onclick="switchTab('youtube')" class="tab-btn flex flex-col items-center justify-center gap-1 w-16 py-1 cursor-pointer" data-tab="youtube">
-<div class="icon-box w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold bg-black dark:bg-white text-white dark:text-black shadow-sm pointer-events-none">
+<button type="button" id="btn-nav-youtube" onclick="switchTab('youtube')" class="tab-btn flex flex-col items-center justify-center w-16 py-1" data-tab="youtube">
+<div class="icon-box w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold bg-black dark:bg-white text-white dark:text-black shadow-md">
 ▶
 </div>
-<span class="tab-text text-xs font-bold text-black dark:text-white pointer-events-none">유튜브</span>
+<span class="tab-text text-xs font-black text-black dark:text-white mt-1">유튜브</span>
 </button>
 <!-- 문자 -->
-<button type="button" onclick="switchTab('sms')" class="tab-btn flex flex-col items-center justify-center gap-1 w-16 py-1 cursor-pointer" data-tab="sms">
-<div class="icon-box w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold text-neutral-400 relative pointer-events-none">
+<button type="button" id="btn-nav-sms" onclick="switchTab('sms')" class="tab-btn flex flex-col items-center justify-center w-16 py-1" data-tab="sms">
+<div class="icon-box w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold text-neutral-400 bg-neutral-100 dark:bg-neutral-800 relative">
 💬
-<span id="sms-unread-badge" class="hidden absolute -top-1 -right-1 w-4 h-4 rounded-full bg-blue-600 text-white text-[10px] font-extrabold flex items-center justify-center border border-white">!</span>
+<span id="sms-unread-badge" style="display: none;" class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-blue-600 text-white text-[10px] font-extrabold flex items-center justify-center border border-white">!</span>
 </div>
-<span class="tab-text text-xs font-bold text-neutral-500 pointer-events-none">문자</span>
+<span class="tab-text text-xs font-bold text-neutral-400 mt-1">문자</span>
 </button>
 <!-- 카톡 -->
-<button type="button" onclick="switchTab('kakao')" class="tab-btn flex flex-col items-center justify-center gap-1 w-16 py-1 cursor-pointer" data-tab="kakao">
-<div class="icon-box w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold text-neutral-400 relative pointer-events-none">
+<button type="button" id="btn-nav-kakao" onclick="switchTab('kakao')" class="tab-btn flex flex-col items-center justify-center w-16 py-1" data-tab="kakao">
+<div class="icon-box w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold text-neutral-400 bg-neutral-100 dark:bg-neutral-800 relative">
 🟡
-<span id="kakao-unread-badge" class="hidden absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-extrabold flex items-center justify-center border border-white">!</span>
+<span id="kakao-unread-badge" style="display: none;" class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-extrabold flex items-center justify-center border border-white">!</span>
 </div>
-<span class="tab-text text-xs font-bold text-neutral-500 pointer-events-none">카톡</span>
+<span class="tab-text text-xs font-bold text-neutral-400 mt-1">카톡</span>
 </button>
 <!-- 고객감사 -->
-<button type="button" onclick="switchTab('thanks')" class="tab-btn flex flex-col items-center justify-center gap-1 w-16 py-1 cursor-pointer" data-tab="thanks">
-<div class="icon-box w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold text-neutral-400 relative pointer-events-none">
+<button type="button" id="btn-nav-thanks" onclick="switchTab('thanks')" class="tab-btn flex flex-col items-center justify-center w-16 py-1" data-tab="thanks">
+<div class="icon-box w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold text-neutral-400 bg-neutral-100 dark:bg-neutral-800 relative">
 📄
-<span id="thanks-badge" class="hidden absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-extrabold flex items-center justify-center border border-white">1</span>
+<span id="thanks-badge" style="display: none;" class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-extrabold flex items-center justify-center border border-white">1</span>
 </div>
-<span class="tab-text text-xs font-bold text-neutral-500 pointer-events-none">고객감사</span>
+<span class="tab-text text-xs font-bold text-neutral-400 mt-1">고객감사</span>
 </button>
 </div>
 </nav>
-<!-- Firebase 및 실시간 리모콘 제어 스크립트 -->
+<!-- 데이터 및 Firebase 백엔드 연동 스크립트 -->
 <script>
-// 탭 전환 함수 (최우선 배치 및 안전 실행)
-function switchTab(tabId) {
-try {
-const tabs = document.querySelectorAll('.tab-content');
-tabs.forEach(el => el.classList.add('hidden'));
-const target = document.getElementById('tab-' + tabId);
-if (target) {
-target.classList.remove('hidden');
-}
-const smsBadge = document.getElementById('sms-unread-badge');
-if (smsBadge && tabId === 'sms') smsBadge.classList.add('hidden');
-const kakaoBadge = document.getElementById('kakao-unread-badge');
-if (kakaoBadge && tabId === 'kakao') kakaoBadge.classList.add('hidden');
-document.querySelectorAll('.tab-btn').forEach(btn => {
-const icon = btn.querySelector('.icon-box');
-const text = btn.querySelector('.tab-text');
-if (btn.getAttribute('data-tab') === tabId) {
-if (icon) icon.className = 'icon-box w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold bg-black dark:bg-white text-white dark:text-black shadow-sm pointer-events-none';
-if (text) text.className = 'tab-text text-xs font-bold text-black dark:text-white pointer-events-none';
-} else {
-if (icon) icon.className = 'icon-box w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold text-neutral-400 relative pointer-events-none';
-if (text) text.className = 'tab-text text-xs font-bold text-neutral-500 pointer-events-none';
-}
-});
-} catch (err) {
-console.error("Tab switch error:", err);
-}
-}
 // 0. Firebase 안전 초기화
 let db = null;
 let lastKnownPassengerNumber = "";
@@ -329,7 +347,7 @@ if (!badge) return;
 if (isOnline) {
 badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#E6F4EA] dark:bg-emerald-950/60 text-[#0D652D] dark:text-emerald-300 border border-[#C8E8CE] dark:border-emerald-800 text-xs font-bold";
 if (dot) dot.className = "w-2 h-2 rounded-full bg-[#1DBF4D] animate-pulse";
-if (text) text.innerText = "A25 클라우드 연결됨";
+if (text) text.innerText = "A25 연결됨";
 } else {
 badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-900 text-xs font-bold";
 if (dot) dot.className = "w-2 h-2 rounded-full bg-red-500";
@@ -352,8 +370,10 @@ if (thanksTag) {
 thanksTag.className = "text-xs font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded-full border border-orange-200";
 thanksTag.innerText = "자동 감지됨";
 }
-document.getElementById("thanks-badge")?.classList.remove("hidden");
-document.getElementById("sms-unread-badge")?.classList.remove("hidden");
+var tb = document.getElementById("thanks-badge");
+if (tb) tb.style.display = 'flex';
+var sb = document.getElementById("sms-unread-badge");
+if (sb) sb.style.display = 'flex';
 const chatBox = document.getElementById("sms-chat-box");
 if (chatBox) {
 const isMe = data.type === "sent";
@@ -368,7 +388,8 @@ chatBox.scrollTop = chatBox.scrollHeight;
 db.ref("sudataxi/inbox/kakao").limitToLast(20).on("child_added", snap => {
 const data = snap.val();
 if (!data) return;
-document.getElementById("kakao-unread-badge")?.classList.remove("hidden");
+var kb = document.getElementById("kakao-unread-badge");
+if (kb) kb.style.display = 'flex';
 const chatBox = document.getElementById("kakao-chat-box");
 if (chatBox) {
 const item = document.createElement("div");
@@ -479,7 +500,8 @@ isThanks: true,
 timestamp: Date.now()
 }).then(() => {
 showToast('A25에서 승객에게 감사문자 발송됨');
-document.getElementById("thanks-badge")?.classList.add("hidden");
+var tb = document.getElementById("thanks-badge");
+if (tb) tb.style.display = 'none';
 });
 }
 }
@@ -544,14 +566,14 @@ const btnInfo = document.getElementById('btn-view-info');
 const btnLikes = document.getElementById('btn-view-likes');
 const label = document.getElementById('result-label');
 if (mode === 'info') {
-btnInfo.className = 'flex-1 py-2 rounded-lg text-xs font-extrabold transition-all bg-white dark:bg-[#1e1e1e] text-black dark:text-white shadow-sm flex items-center justify-center gap-1.5';
-btnLikes.className = 'flex-1 py-2 rounded-lg text-xs font-extrabold transition-all text-neutral-500 dark:text-neutral-400 flex items-center justify-center gap-1.5';
-label.innerText = '추천 정보 콘텐츠 (터치 시 A25 원격 재생)';
+if (btnInfo) btnInfo.className = 'flex-1 py-2 rounded-lg text-xs font-extrabold transition-all bg-white dark:bg-[#1e1e1e] text-black dark:text-white shadow-sm flex items-center justify-center gap-1.5';
+if (btnLikes) btnLikes.className = 'flex-1 py-2 rounded-lg text-xs font-extrabold transition-all text-neutral-500 dark:text-neutral-400 flex items-center justify-center gap-1.5';
+if (label) label.innerText = '추천 정보 콘텐츠 (터치 시 A25 원격 재생)';
 currentVideos = [...infoVideoDatabase];
 } else {
-btnLikes.className = 'flex-1 py-2 rounded-lg text-xs font-extrabold transition-all bg-white dark:bg-[#1e1e1e] text-black dark:text-white shadow-sm flex items-center justify-center gap-1.5';
-btnInfo.className = 'flex-1 py-2 rounded-lg text-xs font-extrabold transition-all text-neutral-500 dark:text-neutral-400 flex items-center justify-center gap-1.5';
-label.innerText = '❤️ 좋아요 누른 콘텐츠 목록';
+if (btnLikes) btnLikes.className = 'flex-1 py-2 rounded-lg text-xs font-extrabold transition-all bg-white dark:bg-[#1e1e1e] text-black dark:text-white shadow-sm flex items-center justify-center gap-1.5';
+if (btnInfo) btnInfo.className = 'flex-1 py-2 rounded-lg text-xs font-extrabold transition-all text-neutral-500 dark:text-neutral-400 flex items-center justify-center gap-1.5';
+if (label) label.innerText = '❤️ 좋아요 누른 콘텐츠 목록';
 currentVideos = [...likedVideos];
 }
 renderVideos();
@@ -586,7 +608,8 @@ btn.innerText = isVideoLiked(currentPlayingVideo.id) ? '❤️' : '🤍';
 function renderVideos() {
 const listEl = document.getElementById('video-list');
 const countEl = document.getElementById('result-count');
-countEl.innerText = currentVideos.length + '개';
+if (countEl) countEl.innerText = currentVideos.length + '개';
+if (!listEl) return;
 if (currentVideos.length === 0) {
 listEl.innerHTML = ⁠<div class="py-6 text-center text-xs text-neutral-400 font-bold">${viewMode === 'likes' ? '좋아요를 누른 정보 콘텐츠가 없습니다.' : '검색 결과가 없습니다.'}</div>⁠;
 return;
@@ -607,13 +630,14 @@ list: "LL",
 timestamp: Date.now()
 });
 }
-showToast('A25에서 YouTube 좋아요 보관함 실행 명령 전송');
+showToast('A25 YouTube 좋아요 보관함 실행');
 }
 function handleSearchInput(keyword) {
 const q = keyword.trim();
 if (!q) {
 currentVideos = viewMode === 'likes' ? [...likedVideos] : [...infoVideoDatabase];
-document.getElementById('yt-suggestions').classList.add('hidden');
+const s = document.getElementById('yt-suggestions');
+if (s) s.classList.add('hidden');
 renderVideos();
 return;
 }
@@ -639,6 +663,7 @@ const oldScript = document.getElementById('yt-jsonp');
 if (oldScript) oldScript.remove();
 window.ytSuggestCallback = function(data) {
 const suggBox = document.getElementById('yt-suggestions');
+if (!suggBox) return;
 if (data && data[1] && data[1].length > 0) {
 const suggestions = data[1].slice(0, 5);
 suggBox.innerHTML = suggestions.map(item => {
@@ -657,13 +682,15 @@ document.body.appendChild(script);
 }
 function selectSuggestion(text) {
 document.getElementById('yt-search-input').value = text;
-document.getElementById('yt-suggestions').classList.add('hidden');
+const s = document.getElementById('yt-suggestions');
+if (s) s.classList.add('hidden');
 executeSearch();
 }
 function executeSearch() {
 const inp = document.getElementById('yt-search-input');
 const q = inp.value.trim();
-document.getElementById('yt-suggestions').classList.add('hidden');
+const s = document.getElementById('yt-suggestions');
+if (s) s.classList.add('hidden');
 if (!q) {
 showToast('검색어를 입력하세요');
 currentVideos = viewMode === 'likes' ? [...likedVideos] : [...infoVideoDatabase];
@@ -677,13 +704,15 @@ showToast(⁠"${q}" 검색됨 • 터치 시 A25 원격 실행⁠);
 }
 function clearSearch() {
 document.getElementById('yt-search-input').value = '';
-document.getElementById('yt-suggestions').classList.add('hidden');
+const s = document.getElementById('yt-suggestions');
+if (s) s.classList.add('hidden');
 document.getElementById('result-label').innerText = viewMode === 'likes' ? '❤️ 좋아요 누른 콘텐츠 목록' : '추천 정보 콘텐츠 (터치 시 A25 원격 재생)';
 currentVideos = viewMode === 'likes' ? [...likedVideos] : [...infoVideoDatabase];
 renderVideos();
 }
 function filterByTag(tag) {
-document.getElementById('yt-suggestions').classList.add('hidden');
+const s = document.getElementById('yt-suggestions');
+if (s) s.classList.add('hidden');
 if (!tag) {
 clearSearch();
 return;
@@ -707,7 +736,7 @@ toastTimer = setTimeout(() => {
 t.classList.add('opacity-0');
 }, 2200);
 }
-// 초기화
+// 초기 실행
 loadLikedVideos();
 updateCurrentFavBtn();
 renderVideos();
