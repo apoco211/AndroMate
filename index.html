@@ -1,4 +1,4 @@
-<html lang="ko" class="dark"><head><style>
+<html lang="ko" class=""><head><style>
 @font-face {
   font-family: "Optimistic";
   font-style: normal;
@@ -180,7 +180,7 @@ function switchTab(tabId) {
   </div>
   <div class="flex items-center gap-2">
     <!-- 다크모드 토글 버튼 -->
-    <button type="button" onclick="toggleDarkMode()" id="theme-btn" class="w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-sm border border-black/5 dark:border-white/10 active:scale-90 transition-transform">☀️</button>
+    <button type="button" onclick="toggleDarkMode()" id="theme-btn" class="w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-sm border border-black/5 dark:border-white/10 active:scale-90 transition-transform">🌙</button>
     <!-- A25 통신 연결 상태 뱃지 -->
     <button type="button" onclick="openDiagModal()" id="conn-badge" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-900 text-[11px] font-bold cursor-pointer active:scale-95 shadow-sm">
       <span id="conn-dot" class="w-2 h-2 rounded-full bg-red-500"></span>
@@ -291,11 +291,11 @@ function switchTab(tabId) {
 
       <div class="pt-2 border-t border-black/[0.06] dark:border-white/[0.08] space-y-2">
         <div class="flex justify-between items-center text-[11px] font-bold text-neutral-400 px-1">
-          <span id="yt-search-status-label">실시간 API 검색 결과</span>
+          <span id="yt-search-status-label">검색 실패 - YouTube HTML 파싱 실패</span>
           <span id="yt-result-count" class="text-red-600 font-extrabold">0개</span>
         </div>
         <!-- 로딩 인디케이터 -->
-        <div id="yt-loading-spinner" class="hidden py-6 text-center space-y-2">
+        <div id="yt-loading-spinner" class="py-6 text-center space-y-2 hidden">
           <div class="inline-block w-6 h-6 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
           <div class="text-[11px] text-neutral-400 font-bold" id="yt-loading-text">실시간 유튜브 서버 통신 중...</div>
         </div>
@@ -509,7 +509,7 @@ function switchTab(tabId) {
 </div>
 
 <!-- 토스트 알림창 -->
-<div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full bg-black/90 dark:bg-white/90 text-white dark:text-black text-[12px] font-bold shadow-lg opacity-0 transition-opacity pointer-events-none whitespace-nowrap"></div>
+<div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full bg-black/90 dark:bg-white/90 text-white dark:text-black text-[12px] font-bold shadow-lg transition-opacity pointer-events-none whitespace-nowrap">실시간 검색 실패: 네트워크 확인 필요</div>
 
 <!-- 3. 하단 고정 4개 탭 네비게이션 -->
 <nav class="safe-bottom bg-white/95 dark:bg-[#1a1a1a]/95 backdrop-blur-lg border-t border-black/[0.08] dark:border-white/[0.08] pt-1.5 px-2 shrink-0 z-[100] relative">
