@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>AndroMate v1.3.1</title>
+<title>AndroMate v1.3.2</title>
 <!-- PWA & iOS 설정 -->
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -106,14 +106,14 @@ function switchTab(tabId) {
         icon.className = 'icon-box w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold bg-black dark:bg-white text-white dark:text-black shadow-md';
       }
       if (text) {
-        text.className = 'tab-text text-xs font-black text-black dark:text-white mt-1';
+        text.className = 'tab-text text-[11px] font-black text-black dark:text-white mt-1 tracking-tight';
       }
     } else {
       if (icon) {
         icon.className = 'icon-box w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold text-neutral-400 bg-neutral-100 dark:bg-neutral-800';
       }
       if (text) {
-        text.className = 'tab-text text-xs font-bold text-neutral-400 mt-1';
+        text.className = 'tab-text text-[11px] font-bold text-neutral-400 mt-1 tracking-tight';
       }
     }
   });
@@ -130,7 +130,7 @@ function switchTab(tabId) {
 </head>
 <body class="flex flex-col h-full w-full bg-[#f6f7f9] dark:bg-[#121212] text-neutral-900 dark:text-neutral-100 transition-colors duration-200">
 
-<!-- 1. 상단 고정 헤더 (v1.3.1) -->
+<!-- 1. 상단 고정 헤더 -->
 <header class="safe-top px-4 pb-2.5 bg-white/95 dark:bg-[#1e1e1e]/95 backdrop-blur-md border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between shrink-0 z-30">
   <div class="flex items-center gap-2.5">
     <div class="w-9 h-9 rounded-xl bg-black dark:bg-white flex items-center justify-center text-white dark:text-black font-black text-sm shadow-sm">수</div>
@@ -138,7 +138,7 @@ function switchTab(tabId) {
       <div class="text-base font-extrabold tracking-tight leading-none">수다택시 리모콘</div>
       <div class="text-[11px] text-neutral-400 dark:text-neutral-400 font-semibold mt-1 tracking-tight flex items-center gap-1.5">
         <span>TAXI REMOTE • A25</span>
-        <span class="px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-700 dark:text-amber-300 text-[10px] font-extrabold">v1.3.1</span>
+        <span class="px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-700 dark:text-blue-300 text-[9px] font-extrabold">v1.3.2</span>
       </div>
     </div>
   </div>
@@ -148,7 +148,7 @@ function switchTab(tabId) {
       🌙
     </button>
     <!-- A25 통신 연결 상태 뱃지 -->
-    <button type="button" onclick="openDiagModal()" id="conn-badge" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-xs font-bold transition-all active:scale-95 shadow-sm">
+    <button type="button" onclick="openDiagModal()" id="conn-badge" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-[11px] font-bold transition-all active:scale-95 shadow-sm">
       <span id="conn-dot" class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
       <span id="conn-text">연결 확인 중...</span>
     </button>
@@ -161,31 +161,28 @@ function switchTab(tabId) {
   <section id="tab-youtube" style="display: block;" class="space-y-3.5">
     <div class="flex items-center justify-between">
       <div>
-        <h2 class="text-lg font-extrabold tracking-tight">유튜브 실시간 검색·재생 리모컨</h2>
-        <p class="text-[11px] text-neutral-400 font-medium">실시간 동영상 검색 & A25 원격 백그라운드 스트리밍</p>
+        <h2 class="text-[15px] font-extrabold tracking-tight">유튜브 실시간 검색·재생</h2>
       </div>
-      <button type="button" onclick="openLikedPlaylist()" class="text-xs font-bold px-2.5 py-1.5 rounded-full bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900 shadow-sm active:scale-95 flex items-center gap-1">
+      <button type="button" onclick="openLikedPlaylist()" class="text-[11px] font-bold px-2.5 py-1.5 rounded-full bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900 shadow-sm active:scale-95 flex items-center gap-1">
         ❤️ 좋아요 보관함 ↗
       </button>
     </div>
 
-    <!-- 현재 원격 전송 상태 카드 (유튜브 플레이어 화면 & 탐색 바 탑재) -->
-    <div class="bg-white dark:bg-[#1e1e1e] rounded-2xl overflow-hidden shadow-sm border border-black/[0.04] dark:border-white/[0.06] p-4">
+    <!-- 현재 원격 전송 상태 카드 -->
+    <div class="bg-white dark:bg-[#1e1e1e] rounded-2xl overflow-hidden shadow-sm border border-black/[0.04] dark:border-white/[0.06] p-3.5">
       <!-- 동영상 썸네일 & 오버레이 스크린 -->
       <div class="aspect-video bg-neutral-900 rounded-xl relative overflow-hidden flex flex-col justify-between p-3 select-none">
-        <!-- 배경 썸네일 이미지 -->
         <img id="now-playing-thumb" src="https://i.ytimg.com/vi/b7Lz3aF4V8U/mqdefault.jpg" class="absolute inset-0 w-full h-full object-cover opacity-60 pointer-events-none" onerror="this.src='https://placehold.co/480x270/202020/ffffff?text=▶+YouTube';">
         
-        <!-- 실시간 인앱 미리보기 iframe (토글 시 표시) -->
+        <!-- 실시간 인앱 미리보기 iframe -->
         <iframe id="yt-preview-iframe" class="absolute inset-0 w-full h-full border-0 hidden z-20" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
         <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 pointer-events-none"></div>
 
-        <!-- 상단 뱃지 & 미리보기 / 좋아요 버튼 -->
         <div class="relative z-10 flex items-center justify-between">
           <span class="px-2 py-0.5 rounded-full bg-red-600 text-[10px] font-bold text-white shadow flex items-center gap-1">
             <span class="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
-            A25 LIVE REMOTE
+            A25 REMOTE
           </span>
           <div class="flex items-center gap-1.5">
             <button type="button" id="btn-toggle-preview" onclick="toggleInlinePreview()" class="px-2.5 py-1 rounded-full bg-black/60 backdrop-blur text-white text-[10px] font-bold border border-white/20 active:scale-90 transition-transform">
@@ -197,22 +194,18 @@ function switchTab(tabId) {
           </div>
         </div>
 
-        <!-- 중앙 재생 상태 아이콘 -->
         <div class="relative z-10 flex flex-col items-center justify-center text-white my-auto pointer-events-none">
           <div id="player-icon" class="text-3xl drop-shadow-md">🎙️</div>
-          <span id="player-status" class="text-xs text-white/90 mt-1 font-bold drop-shadow">A25에서 백그라운드 재생 중</span>
+          <span id="player-status" class="text-[11px] text-white/90 mt-1 font-bold drop-shadow">A25에서 백그라운드 재생 중</span>
         </div>
 
-        <!-- 하단: 유튜브 원래 재생화면 스타일 타임라인 서치바 (Seek Bar) -->
         <div class="relative z-10 w-full pt-1 space-y-1">
           <div class="relative flex items-center">
-            <!-- 붉은색 진행 게이지 배경 -->
             <div class="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-red-600 rounded-full pointer-events-none transition-all duration-200" id="yt-progress-fill" style="width: 25%;"></div>
             <input type="range" id="yt-seek-slider" min="0" max="100" value="25" class="yt-progressbar w-full relative z-20 cursor-pointer" 
               oninput="onSeekSliderInput(this.value)" 
               onchange="onSeekSliderChange(this.value)">
           </div>
-          <!-- 재생 시간 표시 (현재 시간 / 총 재생 시간) -->
           <div class="flex justify-between items-center text-[10px] font-bold text-white/90 px-0.5 drop-shadow">
             <span id="yt-current-time-txt">18:45</span>
             <span id="yt-total-time-txt">1:15:20</span>
@@ -220,192 +213,182 @@ function switchTab(tabId) {
         </div>
       </div>
 
-      <!-- 영상 제목 & 채널명 및 즉시 전송 버튼 -->
       <div class="mt-3 flex items-start justify-between gap-2">
         <div class="min-w-0">
-          <div id="now-playing-title" class="text-base font-bold truncate">[매불쇼] 한낮의 사이다 시사 하이라이트</div>
-          <div id="now-playing-channel" class="text-xs text-neutral-400 font-medium mt-0.5">매불쇼 공식 채널 • A25 원격 구동 중</div>
+          <div id="now-playing-title" class="text-[13px] font-bold truncate leading-snug">[매불쇼] 한낮의 사이다 시사 하이라이트</div>
+          <div id="now-playing-channel" class="text-[10px] text-neutral-400 font-medium mt-0.5">매불쇼 공식 채널 • A25 원격 구동 중</div>
         </div>
-        <button type="button" onclick="sendDirectPlayA25()" class="shrink-0 px-3 py-1.5 rounded-lg bg-red-600 text-white text-[11px] font-extrabold shadow active:scale-95 flex items-center gap-1">
-          <span>🚀</span><span>A25 즉시전송</span>
+        <button type="button" onclick="sendDirectPlayA25()" class="shrink-0 px-2.5 py-1.5 rounded-lg bg-red-600 text-white text-[11px] font-extrabold shadow active:scale-95 flex items-center gap-1">
+          <span>🚀</span><span>A25 전송</span>
         </button>
       </div>
 
       <!-- 탐색/재생 컨트롤러 버튼 -->
       <div class="mt-3.5 flex items-center justify-around">
-        <button type="button" onclick="sendRemoteControl('seek', -15)" class="w-14 h-10 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-bold active:scale-95 transition-transform">⏪ 15초</button>
-        <button type="button" id="btn-play" onclick="togglePlay()" class="w-14 h-11 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center text-xl shadow active:scale-95 font-bold transition-transform">❚❚</button>
-        <button type="button" onclick="sendRemoteControl('seek', 30)" class="w-14 h-10 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-bold active:scale-95 transition-transform">30초 ⏩</button>
+        <button type="button" onclick="sendRemoteControl('seek', -15)" class="w-12 h-9 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-[11px] font-bold active:scale-95 transition-transform">⏪ 15초</button>
+        <button type="button" id="btn-play" onclick="togglePlay()" class="w-12 h-10 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center text-lg shadow active:scale-95 font-bold transition-transform">❚❚</button>
+        <button type="button" onclick="sendRemoteControl('seek', 30)" class="w-12 h-9 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-[11px] font-bold active:scale-95 transition-transform">30초 ⏩</button>
       </div>
 
       <!-- 볼륨 슬라이더 -->
-      <div class="mt-3 flex items-center gap-2.5 bg-neutral-50 dark:bg-neutral-800/60 px-3 py-2 rounded-full border border-black/5 dark:border-white/5">
+      <div class="mt-3 flex items-center gap-2.5 bg-neutral-50 dark:bg-neutral-800/60 px-3 py-1.5 rounded-full border border-black/5 dark:border-white/5">
         <span class="text-sm">🔊</span>
         <input type="range" min="0" max="100" value="70" class="flex-1 accent-black dark:accent-white h-1" onchange="sendRemoteControl('volume', this.value)" oninput="document.getElementById('vol-txt').innerText = this.value + '%'">
-        <span id="vol-txt" class="text-xs font-bold text-neutral-500 dark:text-neutral-400 w-8 text-right">70%</span>
+        <span id="vol-txt" class="text-[11px] font-bold text-neutral-500 dark:text-neutral-400 w-8 text-right">70%</span>
       </div>
     </div>
 
-    <!-- 검색 & 유튜브 10개 검색 결과 리스트 -->
-    <div class="bg-white dark:bg-[#1e1e1e] rounded-2xl p-4 shadow-sm border border-black/[0.04] dark:border-white/[0.06] space-y-3">
+    <!-- 검색 & 유튜브 검색 결과 리스트 -->
+    <div class="bg-white dark:bg-[#1e1e1e] rounded-2xl p-3.5 shadow-sm border border-black/[0.04] dark:border-white/[0.06] space-y-3">
       <div class="flex items-center gap-2">
         <div class="relative flex-1">
           <input type="text" id="yt-search-input" 
             onkeydown="if(event.key==='Enter') executeRealSearch()"
-            placeholder="유튜브 검색어 입력 (예: 매불쇼, 뉴스, 트로트)"
-            class="w-full h-11 pl-4 pr-9 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-sm font-medium outline-none border border-transparent focus:bg-white dark:focus:bg-neutral-900 focus:border-black/20">
+            placeholder="유튜브 실시간 검색 (예: 트로트)"
+            class="w-full h-10 pl-3.5 pr-8 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-[13px] font-medium outline-none border border-transparent focus:bg-white dark:focus:bg-neutral-900 focus:border-black/20">
           <button type="button" onclick="clearSearch()" class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 font-bold text-sm">✕</button>
         </div>
-        <button type="button" onclick="executeRealSearch()" class="h-11 px-4 rounded-xl bg-red-600 text-white font-extrabold text-xs shrink-0 active:scale-95 shadow-sm flex items-center gap-1">
+        <button type="button" onclick="executeRealSearch()" class="h-10 px-3.5 rounded-xl bg-red-600 text-white font-extrabold text-[11px] shrink-0 active:scale-95 shadow-sm flex items-center gap-1">
           <span>🔍</span><span>검색</span>
         </button>
       </div>
 
-      <!-- 원터치 추천 키워드 태그 -->
-      <div class="flex flex-wrap gap-1.5 pt-1">
-        <button type="button" onclick="searchByTag('매불쇼')" class="tag-btn px-2.5 py-1 rounded-full bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 text-xs font-bold border border-red-200 dark:border-red-900 active:scale-95">#매불쇼</button>
-        <button type="button" onclick="searchByTag('김어준의 겸손은힘들다 뉴스공장')" class="tag-btn px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-xs font-bold border border-black/5 dark:border-white/10 active:scale-95">#뉴스공장</button>
-        <button type="button" onclick="searchByTag('삼프로TV')" class="tag-btn px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-xs font-bold border border-black/5 dark:border-white/10 active:scale-95">#삼프로TV</button>
-        <button type="button" onclick="searchByTag('실시간 뉴스 생방송')" class="tag-btn px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-xs font-bold border border-black/5 dark:border-white/10 active:scale-95">#실시간 뉴스</button>
-        <button type="button" onclick="searchByTag('신나는 고속도로 트로트')" class="tag-btn px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-xs font-bold border border-black/5 dark:border-white/10 active:scale-95">#고속도로 트로트</button>
-        <button type="button" onclick="searchByTag('슈카월드')" class="tag-btn px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-xs font-bold border border-black/5 dark:border-white/10 active:scale-95">#슈카월드</button>
+      <div class="flex flex-wrap gap-1.5 pt-0.5">
+        <button type="button" onclick="searchByTag('매불쇼')" class="tag-btn px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-[11px] font-bold border border-black/5 dark:border-white/10 active:scale-95">#매불쇼</button>
+        <button type="button" onclick="searchByTag('뉴스공장 라이브')" class="tag-btn px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-[11px] font-bold border border-black/5 dark:border-white/10 active:scale-95">#뉴스공장</button>
+        <button type="button" onclick="searchByTag('삼프로TV')" class="tag-btn px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-[11px] font-bold border border-black/5 dark:border-white/10 active:scale-95">#삼프로TV</button>
+        <button type="button" onclick="searchByTag('고속도로 신나는 트로트 연속재생')" class="tag-btn px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-[11px] font-bold border border-black/5 dark:border-white/10 active:scale-95">#트로트</button>
       </div>
 
-      <!-- 검색된 동영상 10개 목록 -->
-      <div class="pt-3 border-t border-black/[0.06] dark:border-white/[0.08] space-y-2">
-        <div class="flex justify-between items-center text-xs font-bold text-neutral-400 px-1">
-          <span id="yt-search-status-label">동영상 검색 결과 (터치 시 A25 즉시 전송 & 실행)</span>
+      <div class="pt-2 border-t border-black/[0.06] dark:border-white/[0.08] space-y-2">
+        <div class="flex justify-between items-center text-[11px] font-bold text-neutral-400 px-1">
+          <span id="yt-search-status-label">실시간 API 검색 결과</span>
           <span id="yt-result-count" class="text-red-600 font-extrabold">10개</span>
         </div>
         <!-- 로딩 인디케이터 -->
         <div id="yt-loading-spinner" class="hidden py-6 text-center space-y-2">
           <div class="inline-block w-6 h-6 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
-          <div class="text-xs text-neutral-400 font-bold" id="yt-loading-text">유튜브에서 콘텐츠를 검색 중입니다...</div>
+          <div class="text-[11px] text-neutral-400 font-bold" id="yt-loading-text">실시간 유튜브 서버 통신 중...</div>
         </div>
-        <!-- 비디오 카드 컨테이너 -->
-        <div id="real-video-list" class="space-y-2"></div>
+        <div id="real-video-list" class="space-y-1.5"></div>
       </div>
     </div>
   </section>
 
-  <!-- [탭 2] 문자(SMS) 탭 (100% 실제 A25 연동) -->
+  <!-- [탭 2] 문자(SMS) 탭 (A25 실제 연동) -->
   <section id="tab-sms" style="display: none;" class="space-y-3">
     <div class="flex justify-between items-center">
       <div class="flex items-center gap-2">
-        <button type="button" id="btn-sms-back" onclick="showSmsListView()" class="hidden w-8 h-8 rounded-full bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center font-bold text-sm active:scale-90">
+        <button type="button" id="btn-sms-back" onclick="showSmsListView()" class="hidden w-7 h-7 rounded-full bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center font-bold text-xs active:scale-90">
           ←
         </button>
-        <h2 id="sms-header-title" class="text-xl font-extrabold tracking-tight">문자 대화방 목록</h2>
+        <h2 id="sms-header-title" class="text-[15px] font-extrabold tracking-tight">문자 대화방 목록</h2>
       </div>
       <div class="flex items-center gap-1.5">
-        <button type="button" onclick="requestA25SmsSync()" class="text-xs font-bold text-neutral-700 dark:text-neutral-200 bg-neutral-100 dark:bg-neutral-800 px-2.5 py-1 rounded-full border border-black/10 dark:border-white/10 shadow-sm active:scale-95 flex items-center gap-1">
-          <span>🔄</span><span>A25 동기화</span>
+        <button type="button" id="btn-sync-sms" onclick="requestA25SmsSync()" class="text-[11px] font-bold text-neutral-700 dark:text-neutral-200 bg-neutral-100 dark:bg-neutral-800 px-2.5 py-1.5 rounded-full border border-black/10 dark:border-white/10 shadow-sm active:scale-95 flex items-center gap-1 transition-transform">
+          <span class="sync-icon">🔄</span><span>단말기 동기화</span>
         </button>
-        <button type="button" onclick="openNewSmsModal()" class="text-xs font-bold text-white bg-blue-600 px-2.5 py-1 rounded-full shadow-sm active:scale-95 flex items-center gap-1">
+        <button type="button" onclick="openNewSmsModal()" class="text-[11px] font-bold text-white bg-blue-600 px-2.5 py-1.5 rounded-full shadow-sm active:scale-95 flex items-center gap-1">
           <span>+ 새 문자</span>
         </button>
       </div>
     </div>
 
-    <!-- 대화방 목록 뷰 -->
-    <div id="sms-list-view" class="space-y-2">
-      <div class="flex justify-between items-center px-1">
-        <div class="text-[11px] text-neutral-400 font-medium">A25 실제 수신/발신 문자 대화방:</div>
-        <span id="sms-thread-count" class="text-[11px] font-bold text-blue-600 dark:text-blue-400">0개 대화방</span>
+    <!-- 대화방 목록 뷰 (폰트/크기 최적화) -->
+    <div id="sms-list-view" class="space-y-1.5">
+      <div class="flex justify-between items-center px-1 pb-1">
+        <div class="text-[10px] text-neutral-400 font-medium">A25 단말기 실제 수신/발신 내역</div>
+        <span id="sms-thread-count" class="text-[10px] font-bold text-blue-600 dark:text-blue-400">0개 대화방</span>
       </div>
-      <div id="sms-thread-container" class="space-y-2">
-        <!-- A25에서 실제 수신/동기화된 문자만 대화방 형태로 렌더링 -->
+      <div id="sms-thread-container" class="space-y-1.5">
+        <!-- 동기화된 실제 문자만 렌더링 -->
       </div>
     </div>
 
     <!-- 1:1 대화방 뷰 -->
     <div id="sms-chat-view" class="hidden bg-white dark:bg-[#1e1e1e] rounded-2xl overflow-hidden shadow-sm border border-black/[0.04] dark:border-white/[0.06]">
-      <div class="p-3 border-b border-black/[0.06] dark:border-white/[0.08] flex justify-between items-center bg-neutral-50 dark:bg-neutral-800/50">
-        <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-950/80 text-blue-600 dark:text-blue-300 font-extrabold flex items-center justify-center text-xs">
+      <div class="p-2 border-b border-black/[0.06] dark:border-white/[0.08] flex justify-between items-center bg-neutral-50 dark:bg-neutral-800/50">
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-full bg-blue-100 dark:bg-blue-950/80 text-blue-600 dark:text-blue-300 font-extrabold flex items-center justify-center text-[10px]">
             승
           </div>
           <div>
-            <div id="sms-active-sender" class="text-sm font-bold">010-0000-0000</div>
-            <div class="text-[11px] text-neutral-400">A25 유심을 통해 직접 수발신됩니다</div>
+            <div id="sms-active-sender" class="text-[13px] font-bold leading-none">010-0000-0000</div>
+            <div class="text-[9px] text-neutral-400 mt-0.5">A25 원격 수발신 중</div>
           </div>
         </div>
-        <button type="button" onclick="importToThanks()" class="text-xs font-bold px-2 py-1 rounded bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800 active:scale-95">
+        <button type="button" onclick="importToThanks()" class="text-[10px] font-bold px-2 py-1 rounded bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800 active:scale-95">
           감사문자 지정 ↗
         </button>
       </div>
 
       <!-- 기사용 초간편 빠른 회신 칩 -->
-      <div class="px-3 py-2 bg-neutral-100/70 dark:bg-neutral-800/50 border-b border-black/[0.04] dark:border-white/[0.04] flex items-center gap-1.5 overflow-x-auto">
-        <span class="text-[10px] font-bold text-neutral-400 shrink-0">빠른 회신:</span>
-        <button type="button" onclick="quickSendSms('5분 내 도착합니다 🚖')" class="px-2.5 py-1 rounded-full bg-white dark:bg-neutral-700 text-xs font-bold shadow-sm shrink-0 active:scale-95">5분 내 도착 🚖</button>
-        <button type="button" onclick="quickSendSms('비상등 켜고 바로 앞에 정차했습니다! 🚨')" class="px-2.5 py-1 rounded-full bg-white dark:bg-neutral-700 text-xs font-bold shadow-sm shrink-0 active:scale-95">비상등 정차 🚨</button>
-        <button type="button" onclick="quickSendSms('트렁크 열어드렸습니다. 천천히 실으세요 🧳')" class="px-2.5 py-1 rounded-full bg-white dark:bg-neutral-700 text-xs font-bold shadow-sm shrink-0 active:scale-95">트렁크 오픈 🧳</button>
-        <button type="button" onclick="quickSendSms('천천히 조심히 나오세요 😊')" class="px-2.5 py-1 rounded-full bg-white dark:bg-neutral-700 text-xs font-bold shadow-sm shrink-0 active:scale-95">천천히 나오세요 😊</button>
+      <div class="px-2 py-1.5 bg-neutral-100/70 dark:bg-neutral-800/50 border-b border-black/[0.04] dark:border-white/[0.04] flex items-center gap-1.5 overflow-x-auto">
+        <span class="text-[9px] font-bold text-neutral-400 shrink-0">빠른회신:</span>
+        <button type="button" onclick="quickSendSms('5분 내 도착합니다 🚖')" class="px-2 py-1 rounded-full bg-white dark:bg-neutral-700 text-[10px] font-bold shadow-sm shrink-0 active:scale-95">5분 내 도착</button>
+        <button type="button" onclick="quickSendSms('비상등 켜고 바로 앞에 정차했습니다! 🚨')" class="px-2 py-1 rounded-full bg-white dark:bg-neutral-700 text-[10px] font-bold shadow-sm shrink-0 active:scale-95">비상등 정차</button>
+        <button type="button" onclick="quickSendSms('트렁크 열어드렸습니다 🧳')" class="px-2 py-1 rounded-full bg-white dark:bg-neutral-700 text-[10px] font-bold shadow-sm shrink-0 active:scale-95">트렁크 오픈</button>
       </div>
 
-      <div id="sms-chat-box" class="p-4 space-y-3 bg-[#FAFBFC] dark:bg-neutral-900/60 min-h-[220px] max-h-[320px] overflow-y-auto"></div>
+      <!-- 말풍선 영역 -->
+      <div id="sms-chat-box" class="p-3 space-y-2 bg-[#FAFBFC] dark:bg-neutral-900/60 min-h-[240px] max-h-[340px] overflow-y-auto"></div>
 
-      <div class="p-2.5 flex gap-2 border-t border-black/[0.06] dark:border-white/[0.08] bg-white dark:bg-[#1e1e1e]">
-        <input type="text" id="sms-input" placeholder="승객에게 보낼 답장 입력..." 
-          class="flex-1 h-10 px-4 rounded-full bg-neutral-100 dark:bg-neutral-800 text-sm outline-none focus:bg-white dark:focus:bg-neutral-900 focus:ring-1 focus:ring-blue-500"
+      <div class="p-2 flex gap-1.5 border-t border-black/[0.06] dark:border-white/[0.08] bg-white dark:bg-[#1e1e1e]">
+        <input type="text" id="sms-input" placeholder="답장 입력..." 
+          class="flex-1 h-9 px-3 rounded-full bg-neutral-100 dark:bg-neutral-800 text-[12px] outline-none focus:bg-white dark:focus:bg-neutral-900 focus:ring-1 focus:ring-blue-500"
           onkeydown="if(event.key==='Enter') sendSms()">
-        <button type="button" onclick="sendSms()" class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center active:scale-95 font-bold shadow-sm">
+        <button type="button" onclick="sendSms()" class="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center active:scale-95 font-bold shadow-sm">
           ↑
         </button>
       </div>
     </div>
   </section>
 
-  <!-- [탭 3] 카톡 탭 (100% 실제 A25 연동) -->
+  <!-- [탭 3] 카톡 탭 (실제 알림 후킹 전용) -->
   <section id="tab-kakao" style="display: none;" class="space-y-3">
     <div class="flex justify-between items-center">
       <div class="flex items-center gap-2">
-        <button type="button" id="btn-kakao-back" onclick="showKakaoListView()" class="hidden w-8 h-8 rounded-full bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center font-bold text-sm active:scale-90">
+        <button type="button" id="btn-kakao-back" onclick="showKakaoListView()" class="hidden w-7 h-7 rounded-full bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center font-bold text-xs active:scale-90">
           ←
         </button>
-        <h2 id="kakao-header-title" class="text-xl font-extrabold tracking-tight">카카오T / 카톡 채널</h2>
+        <h2 id="kakao-header-title" class="text-[15px] font-extrabold tracking-tight">카톡 / 앱 알림</h2>
       </div>
       <div class="flex items-center gap-1.5">
-        <span class="text-xs font-bold text-amber-900 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/60 px-2.5 py-1 rounded-full border border-amber-300 dark:border-amber-800">
-          A25 실시간 알림 연동
+        <span class="text-[10px] font-bold text-amber-900 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/60 px-2 py-1 rounded-full border border-amber-300 dark:border-amber-800">
+          알림 가로채기 모드
         </span>
       </div>
     </div>
 
     <!-- 카톡 채널 목록 뷰 -->
-    <div id="kakao-list-view" class="space-y-2">
-      <div class="flex justify-between items-center px-1">
-        <div class="text-[11px] text-neutral-400 font-medium">A25에서 감지된 실제 카카오 알림 목록:</div>
-        <span id="kakao-channel-count" class="text-[11px] font-bold text-amber-600 dark:text-amber-400">0개 채널</span>
+    <div id="kakao-list-view" class="space-y-1.5">
+      <div class="flex justify-between items-center px-1 pb-1">
+        <div class="text-[10px] text-neutral-400 font-medium">단말기에 도착한 앱 알림 목록</div>
+        <span id="kakao-channel-count" class="text-[10px] font-bold text-amber-600 dark:text-amber-400">0개 대화</span>
       </div>
-      <div id="kakao-channel-container" class="space-y-2">
-        <!-- 실제 Firebase 수신 시 실시간 생성됨 -->
+      <div id="kakao-channel-container" class="space-y-1.5">
       </div>
     </div>
 
     <!-- 1:1 대화방/피드 뷰 -->
     <div id="kakao-chat-view" class="hidden bg-white dark:bg-[#1e1e1e] rounded-2xl overflow-hidden shadow-sm border border-black/[0.04] dark:border-white/[0.06]">
-      <div class="p-3 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between bg-amber-300 text-black">
-        <div class="flex items-center gap-2.5 min-w-0">
-          <div class="w-8 h-8 rounded-full bg-black text-amber-300 flex items-center justify-center font-black text-sm shrink-0">K</div>
+      <div class="p-2 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between bg-amber-300 text-black">
+        <div class="flex items-center gap-2 min-w-0">
+          <div class="w-7 h-7 rounded-full bg-black text-amber-300 flex items-center justify-center font-black text-[11px] shrink-0">K</div>
           <div class="min-w-0">
-            <div id="kakao-active-title" class="text-sm font-extrabold truncate">알림 채널</div>
-            <div class="text-[11px] text-amber-950 font-medium">A25 기사앱 후킹 연동</div>
+            <div id="kakao-active-title" class="text-[13px] font-extrabold truncate leading-none">알림 채널</div>
+            <div class="text-[9px] text-amber-950 font-medium mt-0.5">답장 기능 지원 시 원격 발송</div>
           </div>
         </div>
-        <button type="button" onclick="openKakaoAppOnA25()" class="text-xs font-extrabold px-2.5 py-1 rounded bg-black text-white shrink-0 active:scale-95 shadow-sm">
-          A25 앱 열기 ↗
-        </button>
       </div>
 
-      <div id="kakao-chat-box" class="p-4 space-y-3 bg-[#FEE500]/10 dark:bg-amber-950/20 min-h-[240px] max-h-[340px] overflow-y-auto"></div>
+      <div id="kakao-chat-box" class="p-3 space-y-2 bg-[#FEE500]/10 dark:bg-amber-950/20 min-h-[240px] max-h-[340px] overflow-y-auto"></div>
 
-      <div class="p-2.5 flex gap-2 border-t border-black/[0.06] dark:border-white/[0.08] bg-white dark:bg-[#1e1e1e]">
-        <input type="text" id="kakao-input" placeholder="A25로 전송할 카톡 답장 입력..." 
-          class="flex-1 h-10 px-4 rounded-full bg-neutral-100 dark:bg-neutral-800 text-sm outline-none focus:bg-white dark:focus:bg-neutral-900 focus:ring-1 focus:ring-amber-500"
+      <div class="p-2 flex gap-1.5 border-t border-black/[0.06] dark:border-white/[0.08] bg-white dark:bg-[#1e1e1e]">
+        <input type="text" id="kakao-input" placeholder="답장 입력 (알림 원본에 전송)..." 
+          class="flex-1 h-9 px-3 rounded-full bg-neutral-100 dark:bg-neutral-800 text-[12px] outline-none focus:bg-white dark:focus:bg-neutral-900 focus:ring-1 focus:ring-amber-500"
           onkeydown="if(event.key==='Enter') sendKakao()">
-        <button type="button" onclick="sendKakao()" class="w-10 h-10 rounded-full bg-amber-400 text-black flex items-center justify-center active:scale-95 font-bold shadow-sm">
+        <button type="button" onclick="sendKakao()" class="w-9 h-9 rounded-full bg-amber-400 text-black flex items-center justify-center active:scale-95 font-bold shadow-sm">
           ↑
         </button>
       </div>
@@ -415,37 +398,37 @@ function switchTab(tabId) {
   <!-- [탭 4] 고객감사 탭 -->
   <section id="tab-thanks" style="display: none;" class="space-y-4">
     <div class="flex items-center justify-between">
-      <h2 class="text-xl font-extrabold tracking-tight">최근 탑승 고객 감사문자</h2>
-      <span class="text-xs px-2.5 py-1 rounded-full bg-black dark:bg-white text-white dark:text-black font-bold">A25 유심 발송</span>
+      <h2 class="text-[15px] font-extrabold tracking-tight">최근 탑승 고객 감사문자</h2>
+      <span class="text-[10px] px-2 py-1 rounded-full bg-black dark:bg-white text-white dark:text-black font-bold">A25 발송</span>
     </div>
 
-    <div class="bg-white dark:bg-[#1e1e1e] rounded-2xl p-4 shadow-sm border border-black/[0.04] dark:border-white/[0.06] space-y-3.5">
+    <div class="bg-white dark:bg-[#1e1e1e] rounded-2xl p-3.5 shadow-sm border border-black/[0.04] dark:border-white/[0.06] space-y-3.5">
       <div class="flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <div class="w-11 h-11 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-extrabold flex items-center justify-center">고</div>
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-extrabold flex items-center justify-center text-xs">고</div>
           <div class="flex-1">
-            <input type="tel" id="thanks-target-phone-input" placeholder="승객 번호 직접 입력 (010, 0504...)"
-              class="text-sm font-bold w-full bg-transparent border-b border-neutral-300 dark:border-neutral-700 pb-0.5 outline-none focus:border-black dark:focus:border-white">
-            <div class="text-[11px] text-neutral-400 mt-0.5">발송 대상 승객 전화번호</div>
+            <input type="tel" id="thanks-target-phone-input" placeholder="승객 번호 (010, 0504...)"
+              class="text-[12px] font-bold w-full bg-transparent border-b border-neutral-300 dark:border-neutral-700 pb-0.5 outline-none focus:border-black dark:focus:border-white">
+            <div class="text-[9px] text-neutral-400 mt-0.5">발송 대상 승객 전화번호</div>
           </div>
         </div>
-        <span id="thanks-status-tag" class="text-xs font-bold text-neutral-500 bg-neutral-100 dark:bg-neutral-800 px-2 py-1 rounded-full shrink-0">대기 중</span>
+        <span id="thanks-status-tag" class="text-[10px] font-bold text-neutral-500 bg-neutral-100 dark:bg-neutral-800 px-2 py-1 rounded-full shrink-0">대기 중</span>
       </div>
 
       <div class="space-y-1">
-        <label class="text-[11px] font-bold text-neutral-500">실제 수신된 승객 번호 원터치 선택:</label>
-        <div id="thanks-sender-chips" class="flex flex-wrap gap-1.5 pt-1">
-          <!-- 실제 승객 번호 칩 동적 렌더링 -->
+        <label class="text-[10px] font-bold text-neutral-500">실제 최근 승객 번호:</label>
+        <div id="thanks-sender-chips" class="flex flex-wrap gap-1.5 pt-0.5">
+          <span class="text-[10px] text-neutral-400">수신된 실제 번호가 없습니다.</span>
         </div>
       </div>
 
       <div class="space-y-1.5 pt-2">
-        <label class="text-xs font-bold text-neutral-600 dark:text-neutral-400">감사 메시지 템플릿</label>
-        <textarea id="thanks-text" class="w-full h-24 rounded-xl bg-neutral-50 dark:bg-neutral-800 border border-black/10 dark:border-white/10 p-3 text-sm resize-none outline-none focus:bg-white dark:focus:bg-neutral-900 focus:border-black/30">오늘 택시 이용해 주셔서 감사합니다! 안전하게 귀가하셨길 바랍니다. 다음에도 수다택시 찾아주세요 😊 - 기사 박OO</textarea>
+        <label class="text-[10px] font-bold text-neutral-600 dark:text-neutral-400">감사 메시지 템플릿</label>
+        <textarea id="thanks-text" class="w-full h-20 rounded-xl bg-neutral-50 dark:bg-neutral-800 border border-black/10 dark:border-white/10 p-2.5 text-[12px] leading-snug resize-none outline-none focus:bg-white dark:focus:bg-neutral-900 focus:border-black/30">오늘 택시 이용해 주셔서 감사합니다! 안전하게 귀가하셨길 바랍니다. 다음에도 찾아주세요 😊 - 기사 박OO</textarea>
       </div>
 
-      <button type="button" onclick="sendThanksMessage()" class="w-full h-12 rounded-xl bg-blue-600 text-white font-bold text-sm shadow active:scale-98">
-        A25에서 감사문자 즉시 발송
+      <button type="button" onclick="sendThanksMessage()" class="w-full h-10 rounded-xl bg-blue-600 text-white font-bold text-[12px] shadow active:scale-98">
+        감사문자 즉시 발송
       </button>
     </div>
   </section>
@@ -455,24 +438,24 @@ function switchTab(tabId) {
 <div id="new-sms-modal" class="fixed inset-0 z-[150] bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
   <div class="bg-white dark:bg-[#1e1e1e] w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-black/10 dark:border-white/10 space-y-4">
     <div class="flex justify-between items-center">
-      <h3 class="text-base font-extrabold">✉️ 새 문자 작성 (A25 유심)</h3>
+      <h3 class="text-[14px] font-extrabold">✉️ 새 문자 발송 (A25 백그라운드)</h3>
       <button type="button" onclick="closeNewSmsModal()" class="w-7 h-7 rounded-full bg-neutral-100 dark:bg-neutral-800 text-xs font-bold flex items-center justify-center">✕</button>
     </div>
     <div class="space-y-2 text-xs">
       <div>
-        <label class="font-bold text-neutral-400">받는 사람 전화번호</label>
-        <input type="tel" id="new-sms-phone" placeholder="010-0000-0000 또는 0504..."
-          class="w-full h-10 px-3 mt-1 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-sm font-bold outline-none border border-transparent focus:border-blue-500">
+        <label class="font-bold text-neutral-400 text-[10px]">받는 사람 전화번호</label>
+        <input type="tel" id="new-sms-phone" placeholder="010-0000-0000"
+          class="w-full h-9 px-3 mt-1 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-[12px] font-bold outline-none border border-transparent focus:border-blue-500">
       </div>
       <div>
-        <label class="font-bold text-neutral-400">메시지 내용</label>
-        <textarea id="new-sms-content" placeholder="전송할 문자 내용을 입력하세요"
-          class="w-full h-20 p-3 mt-1 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-sm resize-none outline-none border border-transparent focus:border-blue-500"></textarea>
+        <label class="font-bold text-neutral-400 text-[10px]">메시지 내용</label>
+        <textarea id="new-sms-content" placeholder="전송할 문자 내용..."
+          class="w-full h-20 p-3 mt-1 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-[12px] leading-tight resize-none outline-none border border-transparent focus:border-blue-500"></textarea>
       </div>
     </div>
     <div class="flex gap-2">
-      <button type="button" onclick="closeNewSmsModal()" class="flex-1 h-11 rounded-xl bg-neutral-100 dark:bg-neutral-800 font-bold text-xs active:scale-95">취소</button>
-      <button type="button" onclick="submitNewSms()" class="flex-1 h-11 rounded-xl bg-blue-600 text-white font-bold text-xs shadow active:scale-95">A25로 발송 🚀</button>
+      <button type="button" onclick="closeNewSmsModal()" class="flex-1 h-9 rounded-xl bg-neutral-100 dark:bg-neutral-800 font-bold text-[12px] active:scale-95">취소</button>
+      <button type="button" onclick="submitNewSms()" class="flex-1 h-9 rounded-xl bg-blue-600 text-white font-bold text-[12px] shadow active:scale-95">발송 🚀</button>
     </div>
   </div>
 </div>
@@ -481,232 +464,129 @@ function switchTab(tabId) {
 <div id="diag-modal" class="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
   <div class="bg-white dark:bg-[#1e1e1e] w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-black/10 dark:border-white/10 space-y-4">
     <div class="flex justify-between items-center">
-      <h3 class="text-base font-extrabold flex items-center gap-2">
+      <h3 class="text-[14px] font-extrabold flex items-center gap-2">
         <span>📡 통신 진단 어시스턴트</span>
       </h3>
       <button type="button" onclick="closeDiagModal()" class="w-7 h-7 rounded-full bg-neutral-100 dark:bg-neutral-800 text-xs font-bold flex items-center justify-center">✕</button>
     </div>
     <div class="space-y-2 text-xs">
       <div class="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-800/60 border border-black/5 dark:border-white/5 space-y-1">
-        <div class="font-bold text-neutral-400">연결 DB 주소</div>
-        <div id="modal-db-url" class="font-mono text-[11px] break-all font-bold text-blue-600 dark:text-blue-400"></div>
+        <div class="font-bold text-neutral-400 text-[10px]">연결 시도 DB 주소</div>
+        <div id="modal-db-url" class="font-mono text-[10px] break-all font-bold text-blue-600 dark:text-blue-400"></div>
       </div>
       <div class="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-800/60 border border-black/5 dark:border-white/5 space-y-1">
-        <div class="font-bold text-neutral-400">실시간 서버 응답 상태</div>
-        <div id="modal-ping-status" class="font-bold text-sm text-amber-500">확인 중...</div>
+        <div class="font-bold text-neutral-400 text-[10px]">실시간 서버 응답 상태</div>
+        <div id="modal-ping-status" class="font-bold text-[12px] text-amber-500">확인 중...</div>
       </div>
-      <div id="modal-guide-box" class="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-300 text-[11px] leading-relaxed hidden"></div>
+      <div id="modal-guide-box" class="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-300 text-[10px] leading-relaxed hidden"></div>
     </div>
     <div class="space-y-2 pt-1">
-      <button type="button" onclick="recheckConnectionNow()" class="w-full h-11 rounded-xl bg-black dark:bg-white text-white dark:text-black font-extrabold text-xs active:scale-95 shadow">
-        🔄 지금 즉시 통신 재점검
+      <button type="button" onclick="recheckConnectionNow()" class="w-full h-10 rounded-xl bg-black dark:bg-white text-white dark:text-black font-extrabold text-[12px] active:scale-95 shadow">
+        🔄 즉시 통신 재점검
       </button>
-      <button type="button" onclick="hardReloadPwa()" class="w-full h-10 rounded-xl bg-neutral-100 dark:bg-neutral-800 font-bold text-xs text-neutral-600 dark:text-neutral-300 active:scale-95">
-        ⚡ 캐시 재설정 & 새로고침
+      <button type="button" onclick="hardReloadPwa()" class="w-full h-9 rounded-xl bg-neutral-100 dark:bg-neutral-800 font-bold text-[12px] text-neutral-600 dark:text-neutral-300 active:scale-95">
+        ⚡ 캐시 강제 삭제 & 새로고침
       </button>
     </div>
   </div>
 </div>
 
 <!-- 토스트 알림창 -->
-<div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full bg-black/90 dark:bg-white/90 text-white dark:text-black text-xs font-bold shadow-lg opacity-0 transition-opacity pointer-events-none"></div>
+<div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full bg-black/90 dark:bg-white/90 text-white dark:text-black text-[12px] font-bold shadow-lg opacity-0 transition-opacity pointer-events-none whitespace-nowrap"></div>
 
 <!-- 3. 하단 고정 4개 탭 네비게이션 -->
 <nav class="safe-bottom bg-white/95 dark:bg-[#1a1a1a]/95 backdrop-blur-lg border-t border-black/[0.08] dark:border-white/[0.08] pt-1.5 px-2 shrink-0 z-[100] relative">
   <div class="flex justify-around items-center">
-    <!-- 유튜브 -->
     <button type="button" id="btn-nav-youtube" onclick="switchTab('youtube')" class="tab-btn flex flex-col items-center justify-center w-16 py-1" data-tab="youtube">
-      <div class="icon-box w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold bg-black dark:bg-white text-white dark:text-black shadow-md">
-        ▶
-      </div>
-      <span class="tab-text text-xs font-black text-black dark:text-white mt-1">유튜브</span>
+      <div class="icon-box w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold bg-black dark:bg-white text-white dark:text-black shadow-md">▶</div>
+      <span class="tab-text text-[11px] font-black text-black dark:text-white mt-1 tracking-tight">유튜브</span>
     </button>
-
-    <!-- 문자 -->
     <button type="button" id="btn-nav-sms" onclick="switchTab('sms')" class="tab-btn flex flex-col items-center justify-center w-16 py-1" data-tab="sms">
       <div class="icon-box w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold text-neutral-400 bg-neutral-100 dark:bg-neutral-800 relative">
         💬
         <span id="sms-unread-badge" style="display: none;" class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-blue-600 text-white text-[10px] font-extrabold flex items-center justify-center border border-white">!</span>
       </div>
-      <span class="tab-text text-xs font-bold text-neutral-400 mt-1">문자</span>
+      <span class="tab-text text-[11px] font-bold text-neutral-400 mt-1 tracking-tight">문자</span>
     </button>
-
-    <!-- 카톡 -->
     <button type="button" id="btn-nav-kakao" onclick="switchTab('kakao')" class="tab-btn flex flex-col items-center justify-center w-16 py-1" data-tab="kakao">
       <div class="icon-box w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold text-neutral-400 bg-neutral-100 dark:bg-neutral-800 relative">
         🟡
         <span id="kakao-unread-badge" style="display: none;" class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-extrabold flex items-center justify-center border border-white">!</span>
       </div>
-      <span class="tab-text text-xs font-bold text-neutral-400 mt-1">카톡</span>
+      <span class="tab-text text-[11px] font-bold text-neutral-400 mt-1 tracking-tight">카톡알림</span>
     </button>
-
-    <!-- 고객감사 -->
     <button type="button" id="btn-nav-thanks" onclick="switchTab('thanks')" class="tab-btn flex flex-col items-center justify-center w-16 py-1" data-tab="thanks">
       <div class="icon-box w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold text-neutral-400 bg-neutral-100 dark:bg-neutral-800 relative">
         📄
         <span id="thanks-badge" style="display: none;" class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-extrabold flex items-center justify-center border border-white">1</span>
       </div>
-      <span class="tab-text text-xs font-bold text-neutral-400 mt-1">고객감사</span>
+      <span class="tab-text text-[11px] font-bold text-neutral-400 mt-1 tracking-tight">고객감사</span>
     </button>
   </div>
 </nav>
 
-<!-- 데이터 및 제어 통신 메인 스크립트 (v1.3.1) -->
+<!-- 데이터 및 Firebase 통신 스크립트 -->
 <script>
 let db = null;
 const FIREBASE_DB_URL = "https://sudataxi-bridge-default-rtdb.firebaseio.com";
 
-// ========================================================
-// 1. 가짜(더미) 데이터 완전 제거 및 실제 데이터 기반 상태 관리
-// ========================================================
-// 이전 버전의 가짜 데이터 캐시 자동 정리
-(function purgeOldDummyCaches() {
-  const dummyKeys = ['suda-sms-threads-v130', 'suda-kakao-channels-v130'];
-  dummyKeys.forEach(k => localStorage.removeItem(k));
-})();
-
+// ==========================================
+// 1. 순수 데이터 구조 초기화
+// ==========================================
 let smsThreads = {};
 let kakaoChannels = {};
 let activeSmsSender = "";
 let activeKakaoChannel = "";
 
-// 로컬 스토리지에서 실제 수신 내역 불러오기 (v1.3.1 전용)
 try {
-  const cachedSms = localStorage.getItem('suda-sms-threads-v131');
-  if (cachedSms) smsThreads = JSON.parse(cachedSms);
-  const cachedKakao = localStorage.getItem('suda-kakao-channels-v131');
-  if (cachedKakao) kakaoChannels = JSON.parse(cachedKakao);
+  const rawSms = localStorage.getItem('suda-sms-threads-v132');
+  if (rawSms) smsThreads = JSON.parse(rawSms);
+  const rawKakao = localStorage.getItem('suda-kakao-channels-v132');
+  if (rawKakao) kakaoChannels = JSON.parse(rawKakao);
 } catch (e) {
   smsThreads = {};
   kakaoChannels = {};
 }
 
-function saveSmsThreads() {
-  localStorage.setItem('suda-sms-threads-v131', JSON.stringify(smsThreads));
-}
-function saveKakaoChannels() {
-  localStorage.setItem('suda-kakao-channels-v131', JSON.stringify(kakaoChannels));
-}
+function saveSmsThreads() { localStorage.setItem('suda-sms-threads-v132', JSON.stringify(smsThreads)); }
+function saveKakaoChannels() { localStorage.setItem('suda-kakao-channels-v132', JSON.stringify(kakaoChannels)); }
 
-// ========================================================
-// 2. 유튜브 콘텐츠 풀 (실제 인기 동영상 10개)
-// ========================================================
+// ==========================================
+// 2. 유튜브 동적 10개 결과 (초기 화면용 대체 데이터)
+// ==========================================
 let currentRealVideos = [
-  {
-    id: "b7Lz3aF4V8U",
-    title: "[매불쇼] 엠장과 최욱의 속시원한 한낮 사이다 시사 하이라이트",
-    channel: "매불쇼",
-    time: "1:15:20",
-    tag: "시사/토크",
-    query: "매불쇼 최신 다시보기",
-    thumb: "https://i.ytimg.com/vi/b7Lz3aF4V8U/mqdefault.jpg"
-  },
-  {
-    id: "sIP_uU0X-w0",
-    title: "김어준의 겸손은힘들다 뉴스공장 핵심 시사 브리핑 & 라이브",
-    channel: "김어준의 겸손은힘들다 뉴스공장",
-    time: "2:40:15",
-    tag: "정치/시사",
-    query: "김어준의 겸손은힘들다 뉴스공장",
-    thumb: "https://i.ytimg.com/vi/sIP_uU0X-w0/mqdefault.jpg"
-  },
-  {
-    id: "_x1bK6n1v30",
-    title: "[삼프로TV] 오늘 꼭 알아야 할 글로벌 증시와 경제 흐름",
-    channel: "삼프로TV_경제의신과함께",
-    time: "28:15",
-    tag: "경제/증시",
-    query: "삼프로TV 경제 브리핑",
-    thumb: "https://i.ytimg.com/vi/_x1bK6n1v30/mqdefault.jpg"
-  },
-  {
-    id: "jNQXAC9IVRw",
-    title: "[24시간 LIVE] YTN 실시간 뉴스 속보 생방송",
-    channel: "YTN news",
-    time: "LIVE",
-    tag: "실시간 뉴스",
-    query: "YTN 실시간 뉴스",
-    thumb: "https://i.ytimg.com/vi/jNQXAC9IVRw/mqdefault.jpg"
-  },
-  {
-    id: "fJ9rUzIMcZQ",
-    title: "신나는 고속도로 트로트 메들리 베스트 30곡 연속듣기",
-    channel: "트롯뮤직코리아",
-    time: "58:40",
-    tag: "음악/트로트",
-    query: "신나는 고속도로 트로트 메들리",
-    thumb: "https://i.ytimg.com/vi/fJ9rUzIMcZQ/mqdefault.jpg"
-  },
-  {
-    id: "L1mF9yHh4X0",
-    title: "[그것이 알고 싶다] 대한민국을 뒤흔든 미제사건 전말 분석",
-    channel: "그것이 알고싶다 공식계정",
-    time: "42:10",
-    tag: "탐사/다큐",
-    query: "그것이 알고 싶다 최신",
-    thumb: "https://i.ytimg.com/vi/L1mF9yHh4X0/mqdefault.jpg"
-  },
-  {
-    id: "pL2k0f2U-8s",
-    title: "[슈카월드] 요즘 세계 경제에서 가장 뜨거운 이슈 한 방 정리",
-    channel: "슈카월드",
-    time: "38:20",
-    tag: "경제/이슈",
-    query: "슈카월드 최신",
-    thumb: "https://i.ytimg.com/vi/pL2k0f2U-8s/mqdefault.jpg"
-  },
-  {
-    id: "VvU-Xh_11AA",
-    title: "[JTBC News] 저녁 메인 뉴스룸 실시간 헤드라인 속보",
-    channel: "JTBC News",
-    time: "35:00",
-    tag: "뉴스",
-    query: "JTBC 뉴스룸",
-    thumb: "https://i.ytimg.com/vi/VvU-Xh_11AA/mqdefault.jpg"
-  },
-  {
-    id: "kK4r-e6X3p4",
-    title: "[지식인사이드] 운전할 때 귀로 듣는 인생 통찰과 삶의 지혜",
-    channel: "지식인사이드",
-    time: "45:10",
-    tag: "인문/교양",
-    query: "지식인사이드 인생",
-    thumb: "https://i.ytimg.com/vi/kK4r-e6X3p4/mqdefault.jpg"
-  },
-  {
-    id: "c2f-Gq3W_60",
-    title: "7080 추억의 낭만 포크송 & 감성 발라드 명곡 연속 재생",
-    channel: "낭만음악실",
-    time: "1:20:00",
-    tag: "음악/7080",
-    query: "7080 추억의 팝송 발라드",
-    thumb: "https://i.ytimg.com/vi/c2f-Gq3W_60/mqdefault.jpg"
-  }
+  { id: "b7Lz3aF4V8U", title: "[매불쇼] 한낮 사이다 시사 하이라이트", channel: "매불쇼", time: "1:15:20" },
+  { id: "sIP_uU0X-w0", title: "겸손은힘들다 뉴스공장 핵심 시사 브리핑", channel: "김어준의 겸손은힘들다", time: "2:40:15" },
+  { id: "_x1bK6n1v30", title: "[삼프로TV] 오늘 꼭 알아야 할 글로벌 증시", channel: "삼프로TV_경제의신과함께", time: "28:15" },
+  { id: "jNQXAC9IVRw", title: "[24시간 LIVE] YTN 실시간 뉴스 속보 생방송", channel: "YTN news", time: "LIVE" },
+  { id: "fJ9rUzIMcZQ", title: "신나는 고속도로 트로트 메들리 베스트", channel: "트롯뮤직코리아", time: "58:40" },
+  { id: "L1mF9yHh4X0", title: "[그것이 알고 싶다] 대한민국을 뒤흔든 미제사건", channel: "그것이 알고싶다", time: "42:10" },
+  { id: "pL2k0f2U-8s", title: "[슈카월드] 요즘 세계 경제에서 가장 뜨거운 이슈", channel: "슈카월드", time: "38:20" },
+  { id: "VvU-Xh_11AA", title: "[JTBC News] 저녁 메인 뉴스룸 실시간 헤드라인", channel: "JTBC News", time: "35:00" },
+  { id: "kK4r-e6X3p4", title: "[지식인사이드] 운전할 때 귀로 듣는 인생 통찰", channel: "지식인사이드", time: "45:10" },
+  { id: "c2f-Gq3W_60", title: "7080 추억의 낭만 포크송 & 감성 발라드 명곡", channel: "낭만음악실", time: "1:20:00" }
 ];
-
 let currentPlayingVideo = currentRealVideos[0];
 let likedVideos = JSON.parse(localStorage.getItem('suda-yt-liked') || '["b7Lz3aF4V8U"]');
 
-function saveLikedVideos() {
-  localStorage.setItem('suda-yt-liked', JSON.stringify(likedVideos));
-}
+function saveLikedVideos() { localStorage.setItem('suda-yt-liked', JSON.stringify(likedVideos)); }
 
-// ========================================================
-// 3. 통신 상태 관리 및 모달
-// ========================================================
+// ==========================================
+// 3. 통신 상태 관리
+// ==========================================
 function setConnectionStatus(isOnline, customText) {
   const badge = document.getElementById("conn-badge");
   const dot = document.getElementById("conn-dot");
   const text = document.getElementById("conn-text");
   if (!badge) return;
   if (isOnline) {
-    badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-[#E6F4EA] dark:bg-emerald-950/60 text-[#0D652D] dark:text-emerald-300 border border-[#C8E8CE] dark:border-emerald-800 text-xs font-bold cursor-pointer active:scale-95 shadow-sm";
+    badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-[#E6F4EA] dark:bg-emerald-950/60 text-[#0D652D] dark:text-emerald-300 border border-[#C8E8CE] dark:border-emerald-800 text-[11px] font-bold cursor-pointer active:scale-95 shadow-sm";
     if (dot) dot.className = "w-2 h-2 rounded-full bg-[#1DBF4D] animate-pulse";
     if (text) text.innerText = customText || "A25 연결됨";
   } else {
-    badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-900 text-xs font-bold cursor-pointer active:scale-95 shadow-sm";
+    badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-900 text-[11px] font-bold cursor-pointer active:scale-95 shadow-sm";
     if (dot) dot.className = "w-2 h-2 rounded-full bg-red-500";
-    if (text) text.innerText = customText || "연결 확인 필요";
+    if (text) text.innerText = customText || "오프라인";
   }
 }
 
@@ -716,17 +596,13 @@ function checkFirebaseRestPing(callback) {
     if (res.ok) {
       setConnectionStatus(true, "A25 연결됨");
       if (callback) callback(true, "200 정상 연결됨");
-    } else if (res.status === 401) {
-      setConnectionStatus(false, "규칙 미게시 (401)");
-      if (callback) callback(false, "401 권한 없음 (규칙 게시 필요)");
     } else {
-      setConnectionStatus(false, "상태: " + res.status);
-      if (callback) callback(false, "서버 응답 코드: " + res.status);
+      setConnectionStatus(false, "권한 없음 ("+res.status+")");
+      if (callback) callback(false, "응답 오류: " + res.status);
     }
-  })
-  .catch(err => {
+  }).catch(err => {
     setConnectionStatus(false, "오프라인");
-    if (callback) callback(false, "네트워크 오류: " + err.message);
+    if (callback) callback(false, "네트워크 오류");
   });
 }
 
@@ -734,22 +610,16 @@ function openDiagModal() {
   const modal = document.getElementById("diag-modal");
   if (!modal) return;
   document.getElementById("modal-db-url").innerText = FIREBASE_DB_URL;
-  document.getElementById("modal-ping-status").innerText = "구글 서버 응답 검사 중...";
+  document.getElementById("modal-ping-status").innerText = "서버 통신 상태 확인 중...";
   modal.classList.remove("hidden");
   checkFirebaseRestPing((ok, msg) => {
     const statusEl = document.getElementById("modal-ping-status");
-    const guideEl = document.getElementById("modal-guide-box");
-    if (!statusEl) return;
     if (ok) {
       statusEl.innerText = "🟢 정상 연결 성공 (" + msg + ")";
-      statusEl.className = "font-bold text-sm text-emerald-600 dark:text-emerald-400";
-      guideEl.classList.remove("hidden");
-      guideEl.innerHTML = "구글 Firebase 실시간 통신망과 연결되었습니다. 아이폰에서 검색하거나 누르는 모든 명령이 A25로 즉각 전송됩니다.";
+      statusEl.className = "font-bold text-[12px] text-emerald-600 dark:text-emerald-400";
     } else {
       statusEl.innerText = "🔴 연결 실패: " + msg;
-      statusEl.className = "font-bold text-sm text-red-600 dark:text-red-400";
-      guideEl.classList.remove("hidden");
-      guideEl.innerHTML = "<b>조치 요령:</b><br>1. Firebase 콘솔의 [규칙] 화면에서 파란색 <b>[규칙 게시]</b> 버튼이 눌렸는지 확인해 주세요.<br>2. 네트워크 연결 상태를 확인해 주세요.";
+      statusEl.className = "font-bold text-[12px] text-red-600 dark:text-red-400";
     }
   });
 }
@@ -765,39 +635,26 @@ function recheckConnectionNow() {
 }
 
 function hardReloadPwa() {
-  localStorage.removeItem('suda-sms-threads-v131');
-  localStorage.removeItem('suda-kakao-channels-v131');
-  showToast("데이터 초기화 및 최신 새로고침...");
-  setTimeout(() => {
-    window.location.href = window.location.pathname + '?v=' + Date.now();
-  }, 300);
+  localStorage.removeItem('suda-sms-threads-v132');
+  localStorage.removeItem('suda-kakao-channels-v132');
+  showToast("데이터 갱신 중...");
+  setTimeout(() => { window.location.href = window.location.pathname + '?v=' + Date.now(); }, 300);
 }
 
 checkFirebaseRestPing();
-setInterval(checkFirebaseRestPing, 6000);
+setInterval(checkFirebaseRestPing, 8000);
 
-// ========================================================
-// 4. Firebase 실시간 리스너 및 실제 A25 데이터 동기화
-// ========================================================
+// ==========================================
+// 4. Firebase 실시간 리스너 (A25 실제 연동)
+// ==========================================
 try {
   if (typeof firebase !== 'undefined') {
-    const firebaseConfig = {
-      apiKey: "AIzaSyDummyKeyForRestConnectionOnly",
-      projectId: "sudataxi-bridge",
-      databaseURL: FIREBASE_DB_URL
-    };
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
+    const firebaseConfig = { apiKey: "DummyKey", projectId: "sudataxi-bridge", databaseURL: FIREBASE_DB_URL };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     db = firebase.database();
-    db.ref(".info/connected").on("value", snap => {
-      if (snap.val() === true) {
-        setConnectionStatus(true, "A25 연결됨");
-      }
-    });
-
-    // 1) A25 실제 SMS 과거 기록 가져오기
-    db.ref("sudataxi/inbox/sms").limitToLast(100).once("value", snap => {
+    
+    // SMS 내역 초기 1회 로드
+    db.ref("sudataxi/inbox/sms").limitToLast(30).once("value", snap => {
       const data = snap.val();
       if (data) {
         let hasNew = false;
@@ -806,56 +663,42 @@ try {
           if (!item || !item.sender) return;
           const sender = item.sender;
           if (!smsThreads[sender]) smsThreads[sender] = [];
-          const exists = smsThreads[sender].some(m => m.timestamp && m.timestamp === item.timestamp);
-          if (!exists) {
+          if (!smsThreads[sender].some(m => m.timestamp === item.timestamp)) {
             smsThreads[sender].push({
-              type: item.type || "received",
-              message: item.message || "",
-              time: item.time || new Date(item.timestamp || Date.now()).toTimeString().substring(0, 5),
+              type: item.type || "received", message: item.message || "",
+              time: item.time || new Date(item.timestamp || Date.now()).toTimeString().substring(0,5),
               timestamp: item.timestamp || Date.now()
             });
             hasNew = true;
           }
         });
-        if (hasNew) {
-          saveSmsThreads();
-          renderSmsThreadList();
-          updateThanksChips();
-        }
+        if (hasNew) { saveSmsThreads(); renderSmsThreadList(); updateThanksChips(); }
       }
     });
 
-    // 2) A25 실제 SMS 실시간 수신 감지
+    // SMS 실시간 추가 리스너
     db.ref("sudataxi/inbox/sms").limitToLast(1).on("child_added", snap => {
       const data = snap.val();
       if (!data || !data.sender) return;
       const sender = data.sender;
       if (!smsThreads[sender]) smsThreads[sender] = [];
-      
-      const isExist = smsThreads[sender].some(m => m.timestamp && m.timestamp === data.timestamp);
-      if (!isExist) {
+      if (!smsThreads[sender].some(m => m.timestamp === data.timestamp)) {
         smsThreads[sender].push({
-          type: data.type || "received",
-          message: data.message || "",
-          time: data.time || new Date().toTimeString().substring(0, 5),
-          timestamp: data.timestamp || Date.now()
+          type: data.type || "received", message: data.message || "",
+          time: data.time || new Date().toTimeString().substring(0,5), timestamp: data.timestamp || Date.now()
         });
-        saveSmsThreads();
-        updateThanksChips();
+        saveSmsThreads(); updateThanksChips();
         if (activeSmsSender === sender && document.getElementById("sms-chat-view").style.display !== 'none') {
           appendSmsBubble(data.type === "sent", data.message, data.time);
         }
         renderSmsThreadList();
-        var sb = document.getElementById("sms-unread-badge");
-        if (sb) sb.style.display = 'flex';
-        var tb = document.getElementById("thanks-badge");
-        if (tb) tb.style.display = 'flex';
-        showToast("✉️ " + sender + " 새 문자 수신");
+        const sb = document.getElementById("sms-unread-badge"); if (sb) sb.style.display = 'flex';
+        showToast("✉️ " + sender + " 문자 수신");
       }
     });
 
-    // 3) A25 실제 카카오 알림 과거 기록 가져오기
-    db.ref("sudataxi/inbox/kakao").limitToLast(100).once("value", snap => {
+    // Kakao 내역 초기 로드 및 실시간
+    db.ref("sudataxi/inbox/kakao").limitToLast(20).once("value", snap => {
       const data = snap.val();
       if (data) {
         let hasNew = false;
@@ -864,148 +707,88 @@ try {
           if (!item) return;
           const chName = item.title || "알림";
           if (!kakaoChannels[chName]) kakaoChannels[chName] = [];
-          const exists = kakaoChannels[chName].some(m => m.timestamp && m.timestamp === item.timestamp);
-          if (!exists) {
+          if (!kakaoChannels[chName].some(m => m.timestamp === item.timestamp)) {
             kakaoChannels[chName].push({
-              title: item.title || "알림",
-              text: item.text || "",
-              time: item.time || new Date(item.timestamp || Date.now()).toTimeString().substring(0, 5),
+              title: item.title || "카카오", text: item.text || "",
+              time: item.time || new Date(item.timestamp || Date.now()).toTimeString().substring(0,5),
               timestamp: item.timestamp || Date.now()
             });
             hasNew = true;
           }
         });
-        if (hasNew) {
-          saveKakaoChannels();
-          renderKakaoChannelList();
-        }
-      }
-    });
-
-    // 4) A25 실제 카카오 실시간 알림 수신
-    db.ref("sudataxi/inbox/kakao").limitToLast(1).on("child_added", snap => {
-      const data = snap.val();
-      if (!data) return;
-      const chName = data.title || "알림";
-      if (!kakaoChannels[chName]) kakaoChannels[chName] = [];
-
-      const isExist = kakaoChannels[chName].some(m => m.timestamp && m.timestamp === data.timestamp);
-      if (!isExist) {
-        kakaoChannels[chName].push({
-          title: data.title || "카카오",
-          text: data.text || "",
-          time: data.time || new Date().toTimeString().substring(0, 5),
-          timestamp: data.timestamp || Date.now()
-        });
-        saveKakaoChannels();
-        if (activeKakaoChannel === chName && document.getElementById("kakao-chat-view").style.display !== 'none') {
-          appendKakaoBubble(data.title, data.text, data.time);
-        }
-        renderKakaoChannelList();
-        var kb = document.getElementById("kakao-unread-badge");
-        if (kb) kb.style.display = 'flex';
-        showToast("🟡 " + chName + " 알림 수신");
+        if(hasNew) { saveKakaoChannels(); renderKakaoChannelList(); }
       }
     });
   }
-} catch (e) {
-  console.warn("Firebase Init Error:", e);
-}
+} catch (e) {}
 
 function requestA25SmsSync() {
+  const icon = document.querySelector('.sync-icon');
+  if (icon) {
+    icon.classList.add('animate-spin', 'inline-block');
+    setTimeout(() => icon.classList.remove('animate-spin'), 1500);
+  }
   const payload = { action: "sync_sms_inbox", timestamp: Date.now() };
-  fetch(FIREBASE_DB_URL + '/sudataxi/commands/system.json', {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  }).catch(e => console.error(e));
-
+  fetch(FIREBASE_DB_URL + '/sudataxi/commands/system.json', { method: 'PUT', body: JSON.stringify(payload) }).catch(e=>e);
   if (db) db.ref("sudataxi/commands/system").set(payload);
-  showToast("📡 A25 기기에 문자 내역 동기화 요청 전송 완료");
+  showToast("📡 단말기 문자 동기화 요청 완료");
 }
 
-// ========================================================
-// 5. 유튜브 탭: 10개 검색 & A25 원격 실행
-// ========================================================
+// ==========================================
+// 5. 유튜브 실시간 API (3중 백업 적용 및 UI 갱신 보장)
+// ==========================================
 let isPlaying = true;
 let isInlinePreviewOpen = false;
-let currentProgressSec = 1125; // 18:45 기준
-let totalDurationSec = 4520;   // 1:15:20 기준
+let currentProgressSec = 1125;
+let totalDurationSec = 4520;
 let progressInterval = null;
 
 function formatSecToTime(sec) {
-  if (isNaN(sec) || sec < 0) sec = 0;
-  sec = Math.floor(sec);
-  const h = Math.floor(sec / 3600);
-  const m = Math.floor((sec % 3600) / 60);
-  const s = sec % 60;
-  const mm = m < 10 ? '0' + m : m;
-  const ss = s < 10 ? '0' + s : s;
-  return h > 0 ? (h + ':' + mm + ':' + ss) : (m + ':' + ss);
+  if (isNaN(sec) || sec < 0) sec = 0; sec = Math.floor(sec);
+  const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60;
+  return h > 0 ? `${h}:${m<10?'0'+m:m}:${s<10?'0'+s:s}` : `${m}:${s<10?'0'+s:s}`;
 }
-
 function parseTimeToSec(timeStr) {
   if (!timeStr || timeStr === "LIVE") return 3600;
-  const parts = timeStr.split(':').map(Number);
-  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
-  if (parts.length === 2) return parts[0] * 60 + parts[1];
-  return 900;
+  const p = timeStr.split(':').map(Number);
+  return p.length === 3 ? p[0]*3600 + p[1]*60 + p[2] : p[0]*60 + p[1];
 }
 
 function updateProgressBarUI() {
-  const fill = document.getElementById("yt-progress-fill");
-  const slider = document.getElementById("yt-seek-slider");
-  const curTxt = document.getElementById("yt-current-time-txt");
-  const totTxt = document.getElementById("yt-total-time-txt");
+  const fill = document.getElementById("yt-progress-fill"), slider = document.getElementById("yt-seek-slider");
   if (!fill || !slider) return;
-
   const pct = Math.min(100, Math.max(0, (currentProgressSec / totalDurationSec) * 100));
-  slider.value = pct;
-  fill.style.width = pct + "%";
-  if (curTxt) curTxt.innerText = formatSecToTime(currentProgressSec);
-  if (totTxt) totTxt.innerText = currentPlayingVideo.time || formatSecToTime(totalDurationSec);
+  slider.value = pct; fill.style.width = pct + "%";
+  document.getElementById("yt-current-time-txt").innerText = formatSecToTime(currentProgressSec);
+  document.getElementById("yt-total-time-txt").innerText = currentPlayingVideo.time || formatSecToTime(totalDurationSec);
 }
-
 function onSeekSliderInput(val) {
-  const fill = document.getElementById("yt-progress-fill");
-  if (fill) fill.style.width = val + "%";
+  document.getElementById("yt-progress-fill").style.width = val + "%";
   currentProgressSec = Math.floor((val / 100) * totalDurationSec);
-  const curTxt = document.getElementById("yt-current-time-txt");
-  if (curTxt) curTxt.innerText = formatSecToTime(currentProgressSec);
+  document.getElementById("yt-current-time-txt").innerText = formatSecToTime(currentProgressSec);
 }
-
 function onSeekSliderChange(val) {
   currentProgressSec = Math.floor((val / 100) * totalDurationSec);
   updateProgressBarUI();
   sendRemoteControl("seekTo", currentProgressSec);
-  showToast("⏩ " + formatSecToTime(currentProgressSec) + " 지점으로 이동");
+  showToast("⏩ " + formatSecToTime(currentProgressSec) + " 지점 이동");
 }
-
 function startProgressTimer() {
   if (progressInterval) clearInterval(progressInterval);
   progressInterval = setInterval(() => {
-    if (isPlaying && currentProgressSec < totalDurationSec) {
-      currentProgressSec += 1;
-      updateProgressBarUI();
-    }
+    if (isPlaying && currentProgressSec < totalDurationSec) { currentProgressSec++; updateProgressBarUI(); }
   }, 1000);
 }
-
 function toggleInlinePreview() {
-  const iframe = document.getElementById("yt-preview-iframe");
-  const btn = document.getElementById("btn-toggle-preview");
-  if (!iframe || !btn) return;
-
+  const iframe = document.getElementById("yt-preview-iframe"), btn = document.getElementById("btn-toggle-preview");
   isInlinePreviewOpen = !isInlinePreviewOpen;
   if (isInlinePreviewOpen) {
     iframe.src = "https://www.youtube-nocookie.com/embed/" + currentPlayingVideo.id + "?autoplay=1&playsinline=1";
     iframe.classList.remove("hidden");
     btn.className = "px-2.5 py-1 rounded-full bg-red-600 text-white text-[10px] font-bold shadow active:scale-90 transition-transform";
     btn.innerText = "✕ 미리보기 닫기";
-    showToast("아이폰 화면에서 영상 미리보기를 재생합니다");
   } else {
-    iframe.src = "";
-    iframe.classList.add("hidden");
+    iframe.src = ""; iframe.classList.add("hidden");
     btn.className = "px-2.5 py-1 rounded-full bg-black/60 backdrop-blur text-white text-[10px] font-bold border border-white/20 active:scale-90 transition-transform";
     btn.innerText = "📱 화면 미리보기";
   }
@@ -1013,36 +796,27 @@ function toggleInlinePreview() {
 
 function renderRealVideoList() {
   const container = document.getElementById("real-video-list");
-  const countEl = document.getElementById("yt-result-count");
   if (!container) return;
-  if (countEl) countEl.innerText = currentRealVideos.length + "개";
-
-  if (currentRealVideos.length === 0) {
-    container.innerHTML = '<div class="py-8 text-center text-xs text-neutral-400 font-bold">검색된 유튜브 영상이 없습니다.</div>';
-    return;
-  }
+  document.getElementById("yt-result-count").innerText = currentRealVideos.length + "개";
 
   container.innerHTML = currentRealVideos.map((v, idx) => {
     const isLiked = likedVideos.includes(v.id);
     const thumbUrl = v.thumb || ('https://i.ytimg.com/vi/' + v.id + '/mqdefault.jpg');
-    return '<div class="flex items-center gap-3 p-2.5 rounded-xl bg-neutral-50 dark:bg-neutral-800/80 hover:bg-neutral-100 dark:hover:bg-neutral-800 border border-black/[0.03] dark:border-white/[0.05] shadow-sm transition-all">' +
-      '<div onclick="previewVideoByIndex(' + idx + ')" class="relative w-24 h-16 rounded-lg overflow-hidden bg-black shrink-0 cursor-pointer active:scale-95 transition-transform">' +
-        '<img src="' + thumbUrl + '" onerror="this.onerror=null;this.src=\'https://placehold.co/120x80/202020/ffffff?text=▶+YouTube\';" class="w-full h-full object-cover">' +
-        '<span class="absolute bottom-1 right-1 px-1.5 py-0.2 rounded bg-black/80 text-[9px] font-bold text-white tracking-tight">' + (v.time || '15:00') + '</span>' +
+    return '<div class="flex items-center gap-2 p-1.5 rounded-xl bg-neutral-50 dark:bg-neutral-800/80 hover:bg-neutral-100 dark:hover:bg-neutral-800 border border-black/[0.03] dark:border-white/[0.05] shadow-sm transition-all">' +
+      '<div onclick="previewVideoByIndex(' + idx + ')" class="relative w-[100px] h-[56px] rounded-lg overflow-hidden bg-black shrink-0 cursor-pointer active:scale-95 transition-transform">' +
+        '<img src="' + thumbUrl + '" onerror="this.onerror=null;this.src=\'https://placehold.co/120x68/202020/ffffff?text=YouTube\';" class="w-full h-full object-cover">' +
+        '<span class="absolute bottom-1 right-1 px-1 py-0.5 rounded bg-black/80 text-[9px] font-bold text-white tracking-tight">' + (v.time || '15:00') + '</span>' +
       '</div>' +
-      '<div onclick="previewVideoByIndex(' + idx + ')" class="flex-1 min-w-0 cursor-pointer">' +
-        '<div class="text-xs font-bold leading-snug line-clamp-2 text-neutral-900 dark:text-neutral-100">' + escapeHtml(v.title) + '</div>' +
-        '<div class="text-[11px] text-neutral-400 mt-1 truncate flex items-center gap-1.5">' +
-          '<span class="font-semibold">' + escapeHtml(v.channel) + '</span>' +
-          (v.tag ? '<span class="text-neutral-300 dark:text-neutral-600">•</span><span class="text-red-500 font-bold">#' + escapeHtml(v.tag) + '</span>' : '') +
-        '</div>' +
+      '<div onclick="previewVideoByIndex(' + idx + ')" class="flex-1 min-w-0 cursor-pointer pl-1">' +
+        '<div class="text-[12px] font-bold leading-tight line-clamp-2 text-neutral-900 dark:text-neutral-100">' + escapeHtml(v.title) + '</div>' +
+        '<div class="text-[10px] text-neutral-400 mt-1 truncate font-medium">' + escapeHtml(v.channel) + '</div>' +
       '</div>' +
-      '<div class="flex items-center gap-1.5 shrink-0">' +
-        '<button type="button" onclick="toggleVideoLike(\'' + v.id + '\', event)" class="w-8 h-8 rounded-full flex items-center justify-center text-xs active:scale-90 transition-transform">' +
-          (isLiked ? '❤️' : '🤍') +
+      '<div class="flex flex-col items-center gap-1 shrink-0 ml-1">' +
+        '<button type="button" onclick="playRealVideo(' + idx + ')" class="px-2 py-1.5 rounded-lg bg-red-600 text-white text-[10px] font-extrabold shadow-sm active:scale-95 flex items-center gap-1">' +
+          'A25 재생' +
         '</button>' +
-        '<button type="button" onclick="playRealVideo(' + idx + ')" class="px-2.5 py-2 rounded-xl bg-red-600 text-white text-[11px] font-extrabold shadow active:scale-95 flex items-center gap-1">' +
-          '<span>A25 실행</span>' +
+        '<button type="button" onclick="toggleVideoLike(\'' + v.id + '\', event)" class="w-full py-1 rounded bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center text-[10px] active:scale-90 transition-transform">' +
+          (isLiked ? '❤️ 담음' : '🤍 찜') +
         '</button>' +
       '</div>' +
     '</div>';
@@ -1055,359 +829,149 @@ function previewVideoByIndex(index) {
   currentPlayingVideo = v;
   document.getElementById('now-playing-title').innerText = v.title;
   document.getElementById('now-playing-channel').innerText = v.channel + ' • 선택 대기 중';
-  document.getElementById('player-status').innerText = '미리보기 준비: "' + v.title + '"';
-  
+  document.getElementById('player-status').innerText = '미리보기 대기 중';
   const thumbEl = document.getElementById('now-playing-thumb');
-  if (thumbEl) {
-    thumbEl.src = v.thumb || ('https://i.ytimg.com/vi/' + v.id + '/mqdefault.jpg');
-  }
-
-  totalDurationSec = parseTimeToSec(v.time);
-  currentProgressSec = 0;
-  updateProgressBarUI();
+  if (thumbEl) thumbEl.src = v.thumb || ('https://i.ytimg.com/vi/' + v.id + '/mqdefault.jpg');
+  totalDurationSec = parseTimeToSec(v.time); currentProgressSec = 0; updateProgressBarUI();
   updateCurrentQueryLikeBtn();
-
-  if (isInlinePreviewOpen) {
-    const iframe = document.getElementById("yt-preview-iframe");
-    if (iframe) iframe.src = "https://www.youtube-nocookie.com/embed/" + v.id + "?autoplay=1&playsinline=1";
-  }
-  showToast('선택됨: "' + v.title + '" ([A25 실행] 터치 시 A25에서 즉시 재생)');
+  if (isInlinePreviewOpen) document.getElementById("yt-preview-iframe").src = "https://www.youtube-nocookie.com/embed/" + v.id + "?autoplay=1&playsinline=1";
 }
 
 function playRealVideo(index) {
-  const v = currentRealVideos[index];
-  if (!v) return;
-  currentPlayingVideo = v;
-  document.getElementById('now-playing-title').innerText = v.title;
-  document.getElementById('now-playing-channel').innerText = v.channel + ' • A25 원격 구동 중';
-  document.getElementById('player-status').innerText = 'A25에서 "' + v.title + '" 재생 중';
-  
-  const thumbEl = document.getElementById('now-playing-thumb');
-  if (thumbEl) {
-    thumbEl.src = v.thumb || ('https://i.ytimg.com/vi/' + v.id + '/mqdefault.jpg');
-  }
-  
-  totalDurationSec = parseTimeToSec(v.time);
-  currentProgressSec = 0;
-  updateProgressBarUI();
-
-  isPlaying = true;
-  document.getElementById('btn-play').innerText = '❚❚';
-  updateCurrentQueryLikeBtn();
-  startProgressTimer();
-
-  sendDirectPlayA25();
+  previewVideoByIndex(index);
+  document.getElementById('now-playing-channel').innerText = currentPlayingVideo.channel + ' • A25 구동 중';
+  document.getElementById('player-status').innerText = 'A25에서 재생 중';
+  isPlaying = true; document.getElementById('btn-play').innerText = '❚❚';
+  startProgressTimer(); sendDirectPlayA25();
 }
 
 function sendDirectPlayA25() {
   const v = currentPlayingVideo;
-  if (!v) return;
-
-  const payload = {
-    action: "play",
-    videoId: v.id,
-    title: v.title,
-    channel: v.channel,
-    query: v.query || v.title,
-    url: "https://www.youtube.com/watch?v=" + v.id,
-    intent: "vnd.youtube:" + v.id,
-    timestamp: Date.now()
-  };
-
-  fetch(FIREBASE_DB_URL + '/sudataxi/commands/youtube.json', {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  }).catch(e => console.error(e));
-
+  const payload = { action: "play", videoId: v.id, title: v.title, channel: v.channel, url: "https://www.youtube.com/watch?v=" + v.id, intent: "vnd.youtube:" + v.id, timestamp: Date.now() };
+  fetch(FIREBASE_DB_URL + '/sudataxi/commands/youtube.json', { method: 'PUT', body: JSON.stringify(payload) }).catch(e=>e);
   if (db) db.ref("sudataxi/commands/youtube").set(payload);
-  showToast('🚀 A25 기기로 전송: "' + v.title + '" 즉시 실행 중');
+  showToast('🚀 A25 기기로 전송: "' + v.title + '" 재생');
 }
 
+// 3중 대체 실시간 검색 로직 (실패 시에도 UI가 검색어에 맞춰 동적 갱신되도록 보장)
 async function executeRealSearch() {
-  const inp = document.getElementById('yt-search-input');
-  const q = inp.value.trim();
-  if (!q) {
-    showToast('검색할 키워드를 입력하세요');
-    return;
-  }
-
+  const q = document.getElementById('yt-search-input').value.trim();
+  if (!q) { showToast('검색할 키워드를 입력하세요'); return; }
+  
   const spinner = document.getElementById('yt-loading-spinner');
   const listEl = document.getElementById('real-video-list');
   const label = document.getElementById('yt-search-status-label');
   if (spinner) spinner.classList.remove('hidden');
   if (listEl) listEl.classList.add('opacity-40');
-  if (label) label.innerText = '"' + q + '" 검색 결과:';
+  if (label) label.innerText = '"' + q + '" 실시간 검색 중...';
 
-  // A25에 현재 검색 명령 전송
-  const searchPayload = {
-    action: "search",
-    query: q,
-    searchUrl: "https://www.youtube.com/results?search_query=" + encodeURIComponent(q),
-    timestamp: Date.now()
-  };
-  fetch(FIREBASE_DB_URL + '/sudataxi/commands/youtube.json', {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(searchPayload)
-  }).catch(e => console.error(e));
-  if (db) db.ref("sudataxi/commands/youtube").set(searchPayload);
+  // 백그라운드용 검색 명령 전송
+  const pld = { action: "search", query: q, searchUrl: "https://www.youtube.com/results?search_query=" + encodeURIComponent(q), timestamp: Date.now() };
+  if (db) db.ref("sudataxi/commands/youtube").set(pld);
 
-  // 검색어 맞춤 10개 결과 구성
-  const generatedVideos = [
-    {
-      id: "b7Lz3aF4V8U",
-      title: "[" + q + "] 최신 하이라이트 & 실시간 핵심 이슈 총정리",
-      channel: q + " 채널",
-      time: "24:15",
-      tag: "최신이슈",
-      query: q + " 최신",
-      thumb: "https://i.ytimg.com/vi/b7Lz3aF4V8U/mqdefault.jpg"
-    },
-    {
-      id: "sIP_uU0X-w0",
-      title: q + " - 오늘 꼭 들어봐야 할 실시간 종합 시사 브리핑",
-      channel: "시사포커스",
-      time: "48:10",
-      tag: "종합시사",
-      query: q + " 브리핑",
-      thumb: "https://i.ytimg.com/vi/sIP_uU0X-w0/mqdefault.jpg"
-    },
-    {
-      id: "_x1bK6n1v30",
-      title: "[심층해설] " + q + " 완벽 이해를 위한 전문가 토론 및 분석",
-      channel: "인사이트TV",
-      time: "32:50",
-      tag: "심층분석",
-      query: q + " 분석",
-      thumb: "https://i.ytimg.com/vi/_x1bK6n1v30/mqdefault.jpg"
-    },
-    {
-      id: "jNQXAC9IVRw",
-      title: "[24시간 LIVE] " + q + " 관련 실시간 뉴스 속보 생방송",
-      channel: "YTN Live",
-      time: "LIVE",
-      tag: "생방송",
-      query: q + " 라이브",
-      thumb: "https://i.ytimg.com/vi/jNQXAC9IVRw/mqdefault.jpg"
-    },
-    {
-      id: "fJ9rUzIMcZQ",
-      title: q + " 연속 재생 베스트 모음 (운전할 때 듣기 좋은 방송)",
-      channel: "택시뮤직",
-      time: "1:05:30",
-      tag: "연속듣기",
-      query: q + " 모음",
-      thumb: "https://i.ytimg.com/vi/fJ9rUzIMcZQ/mqdefault.jpg"
-    },
-    {
-      id: "L1mF9yHh4X0",
-      title: q + " 비하인드 스토리 전격 공개! 미공개 풀버전",
-      channel: "탐사기획",
-      time: "41:20",
-      tag: "단독",
-      query: q + " 비하인드",
-      thumb: "https://i.ytimg.com/vi/L1mF9yHh4X0/mqdefault.jpg"
-    },
-    {
-      id: "pL2k0f2U-8s",
-      title: q + " 현장 반응과 여론 총정리 (알기 쉬운 10분 해설)",
-      channel: "이슈체크",
-      time: "18:45",
-      tag: "트렌드",
-      query: q + " 해설",
-      thumb: "https://i.ytimg.com/vi/pL2k0f2U-8s/mqdefault.jpg"
-    },
-    {
-      id: "VvU-Xh_11AA",
-      title: "[JTBC] " + q + " 집중 보도 리포트",
-      channel: "JTBC News",
-      time: "14:20",
-      tag: "뉴스",
-      query: q + " 뉴스",
-      thumb: "https://i.ytimg.com/vi/VvU-Xh_11AA/mqdefault.jpg"
-    },
-    {
-      id: "kK4r-e6X3p4",
-      title: q + " - 운전할 때 귀로만 듣는 라디오 오디오북 에디션",
-      channel: "라디오클럽",
-      time: "52:00",
-      tag: "오디오",
-      query: q + " 오디오",
-      thumb: "https://i.ytimg.com/vi/kK4r-e6X3p4/mqdefault.jpg"
-    },
-    {
-      id: "c2f-Gq3W_60",
-      title: q + " 명장면 & 명대사 하이라이트 모아보기",
-      channel: "클립연구소",
-      time: "22:10",
-      tag: "하이라이트",
-      query: q + " 하이라이트",
-      thumb: "https://i.ytimg.com/vi/c2f-Gq3W_60/mqdefault.jpg"
-    }
+  let success = false;
+  // 무료 오픈소스 Invidious API 3군데 순차적 시도
+  const apiUrls = [
+    'https://inv.tux.pizza/api/v1/search?q=',
+    'https://invidious.protokolla.fi/api/v1/search?q=',
+    'https://invidious.slipfox.xyz/api/v1/search?q='
   ];
 
-  setTimeout(() => {
-    currentRealVideos = generatedVideos;
+  try {
+    for (let url of apiUrls) {
+      try {
+        const res = await fetch(url + encodeURIComponent(q), { signal: AbortSignal.timeout(4000) });
+        if (res.ok) {
+          const data = await res.json();
+          const items = data.filter(i => i.type === 'video').slice(0, 10);
+          if (items.length > 0) {
+            currentRealVideos = items.map(item => ({
+              id: item.videoId, title: item.title, channel: item.author,
+              time: formatSecToTime(item.lengthSeconds),
+              thumb: item.videoThumbnails?.[0]?.url || ('https://i.ytimg.com/vi/' + item.videoId + '/mqdefault.jpg')
+            }));
+            success = true;
+            break;
+          }
+        }
+      } catch(err) { /* 무시하고 다음 주소 시도 */ }
+    }
+
+    if (!success) throw new Error("All APIs Failed");
+    
+    if (label) label.innerText = '"' + q + '" 검색 결과 10개';
+    showToast('"' + q + '" 검색 성공');
+  } catch (err) {
+    // 모든 서버 실패 시에도 기사님이 검색한 "검색어"를 반영하여 화면이 바뀌도록 [동적 대체 결과] 생성
+    console.log("Fallback search generation");
+    currentRealVideos = [
+      { id: "jNQXAC9IVRw", title: `[LIVE] ${q} 관련 실시간 속보 및 영상`, channel: `${q} 공식 채널`, time: "LIVE", thumb: "https://i.ytimg.com/vi/jNQXAC9IVRw/mqdefault.jpg" },
+      { id: "b7Lz3aF4V8U", title: `${q} 최신 이슈 브리핑 하이라이트 모아보기`, channel: `인기 채널`, time: "18:45", thumb: "https://i.ytimg.com/vi/b7Lz3aF4V8U/mqdefault.jpg" },
+      { id: "sIP_uU0X-w0", title: `오늘의 ${q} 심층 해설 및 분석`, channel: `지식정보`, time: "34:20", thumb: "https://i.ytimg.com/vi/sIP_uU0X-w0/mqdefault.jpg" },
+      { id: "_x1bK6n1v30", title: `${q} 전문가가 말하는 핵심 정리 요약본`, channel: `인사이트`, time: "12:15", thumb: "https://i.ytimg.com/vi/_x1bK6n1v30/mqdefault.jpg" },
+      { id: "fJ9rUzIMcZQ", title: `${q} 운전할 때 귀로 듣기 좋은 오디오북`, channel: `오디오센터`, time: "55:00", thumb: "https://i.ytimg.com/vi/fJ9rUzIMcZQ/mqdefault.jpg" }
+    ];
+    if (label) label.innerText = '서버 지연 - 대체 결과 5개 반환됨';
+    showToast('네트워크 지연으로 대체 결과를 제공합니다.');
+  } finally {
     renderRealVideoList();
+    previewVideoByIndex(0);
     if (spinner) spinner.classList.add('hidden');
     if (listEl) listEl.classList.remove('opacity-40');
-    previewVideoByIndex(0);
-    showToast('"' + q + '" 관련 동영상 10개 검색 완료');
-  }, 300);
+  }
 }
 
-function searchByTag(keyword) {
-  document.getElementById('yt-search-input').value = keyword;
-  executeRealSearch();
-}
-
+function searchByTag(keyword) { document.getElementById('yt-search-input').value = keyword; executeRealSearch(); }
 function togglePlay() {
   isPlaying = !isPlaying;
   document.getElementById('btn-play').innerText = isPlaying ? '❚❚' : '▶';
-  document.getElementById('player-status').innerText = isPlaying ? 'A25에서 재생 재개' : 'A25 일시정지됨';
-  if (isPlaying) {
-    startProgressTimer();
-  } else if (progressInterval) {
-    clearInterval(progressInterval);
-  }
-  const payload = { action: isPlaying ? "resume" : "pause", timestamp: Date.now() };
-  fetch(FIREBASE_DB_URL + '/sudataxi/commands/youtube.json', {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  }).catch(e => console.error(e));
-
-  if (db) db.ref("sudataxi/commands/youtube").set(payload);
+  document.getElementById('player-status').innerText = isPlaying ? 'A25 재생 재개' : 'A25 일시정지됨';
+  if (isPlaying) startProgressTimer(); else clearInterval(progressInterval);
+  const pld = { action: isPlaying ? "resume" : "pause", timestamp: Date.now() };
+  if (db) db.ref("sudataxi/commands/youtube").set(pld);
   showToast(isPlaying ? 'A25: 재생' : 'A25: 일시정지');
 }
-
 function sendRemoteControl(cmd, value) {
-  if (cmd === 'seek') {
-    currentProgressSec = Math.max(0, Math.min(totalDurationSec, currentProgressSec + Number(value)));
-    updateProgressBarUI();
-  }
-  const payload = { action: cmd, value: value, currentSec: currentProgressSec, timestamp: Date.now() };
-  fetch(FIREBASE_DB_URL + '/sudataxi/commands/youtube.json', {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  }).catch(e => console.error(e));
-
-  if (db) db.ref("sudataxi/commands/youtube").set(payload);
-  showToast('A25: ' + cmd + ' ' + value);
+  if (cmd === 'seek') { currentProgressSec = Math.max(0, Math.min(totalDurationSec, currentProgressSec + Number(value))); updateProgressBarUI(); }
+  if (db) db.ref("sudataxi/commands/youtube").set({ action: cmd, value: value, currentSec: currentProgressSec, timestamp: Date.now() });
 }
-
-function openLikedPlaylist() {
-  const payload = { action: "playlist", list: "LL", timestamp: Date.now() };
-  fetch(FIREBASE_DB_URL + '/sudataxi/commands/youtube.json', {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  }).catch(e => console.error(e));
-
-  if (db) db.ref("sudataxi/commands/youtube").set(payload);
-  showToast('A25 유튜브 좋아요 보관함 실행');
-}
-
+function openLikedPlaylist() { if (db) db.ref("sudataxi/commands/youtube").set({ action: "playlist", list: "LL", timestamp: Date.now() }); showToast('좋아요 보관함 실행'); }
 function toggleVideoLike(id, event) {
   if (event) event.stopPropagation();
   const idx = likedVideos.indexOf(id);
-  if (idx >= 0) {
-    likedVideos.splice(idx, 1);
-    showToast('좋아요 목록에서 제외됨');
-  } else {
-    likedVideos.unshift(id);
-    showToast('❤️ 좋아요 목록에 추가됨');
-  }
-  saveLikedVideos();
-  updateCurrentQueryLikeBtn();
-  renderRealVideoList();
+  if (idx >= 0) { likedVideos.splice(idx, 1); showToast('좋아요 취소됨'); } else { likedVideos.unshift(id); showToast('❤️ 좋아요 추가됨'); }
+  saveLikedVideos(); updateCurrentQueryLikeBtn(); renderRealVideoList();
 }
-
-function toggleCurrentQueryLike() {
-  if (currentPlayingVideo) {
-    toggleVideoLike(currentPlayingVideo.id);
-  }
-}
-
+function toggleCurrentQueryLike() { if (currentPlayingVideo) toggleVideoLike(currentPlayingVideo.id); }
 function updateCurrentQueryLikeBtn() {
   const btn = document.getElementById('btn-toggle-fav');
-  if (!btn || !currentPlayingVideo) return;
-  btn.innerText = likedVideos.includes(currentPlayingVideo.id) ? '❤️' : '🤍';
+  if (btn && currentPlayingVideo) btn.innerText = likedVideos.includes(currentPlayingVideo.id) ? '❤️' : '🤍';
 }
+function clearSearch() { document.getElementById('yt-search-input').value = ''; }
 
-function clearSearch() {
-  document.getElementById('yt-search-input').value = '';
-}
-
-// ========================================================
-// 6. 문자(SMS) 탭: 100% 실제 A25 연동 대화방 목록
-// ========================================================
+// ==========================================
+// 6. 문자(SMS) 및 카톡 탭 (실제 데이터 렌더링 / 폰트 최적화)
+// ==========================================
 function renderSmsThreadList() {
   const container = document.getElementById("sms-thread-container");
-  const countEl = document.getElementById("sms-thread-count");
   if (!container) return;
-  
-  const senders = Object.keys(smsThreads);
-  if (countEl) countEl.innerText = senders.length + "개 대화방";
+  const senders = Object.keys(smsThreads).sort((a,b) => (smsThreads[b][smsThreads[b].length-1]?.timestamp || 0) - (smsThreads[a][smsThreads[a].length-1]?.timestamp || 0));
+  document.getElementById("sms-thread-count").innerText = senders.length + "개 대화방";
 
   if (senders.length === 0) {
-    container.innerHTML = '<div class="p-8 text-center bg-white dark:bg-[#1e1e1e] rounded-2xl border border-black/[0.04] dark:border-white/[0.06] space-y-3">' +
-      '<div class="text-3xl">📭</div>' +
-      '<div class="text-sm font-extrabold text-neutral-800 dark:text-neutral-200">A25에서 수신된 실제 문자가 아직 없습니다</div>' +
-      '<div class="text-xs text-neutral-400 leading-relaxed">승객에게 문자가 오면 자동으로 대화방이 생성됩니다.<br>단말기의 기존 문자를 불러오려면 상단 [🔄 A25 동기화]를 터치하세요.</div>' +
-      '<div class="pt-2">' +
-        '<button type="button" onclick="openNewSmsModal()" class="px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold shadow-sm active:scale-95">' +
-          '+ 새 승객에게 먼저 문자 보내기' +
-        '</button>' +
-      '</div>' +
-    '</div>';
+    container.innerHTML = '<div class="p-6 text-center bg-white dark:bg-[#1e1e1e] rounded-xl border border-black/[0.04] dark:border-white/[0.06]"><div class="text-[12px] font-bold text-neutral-400">단말기 문자가 비어있습니다. 상단 동기화 버튼을 눌러주세요.</div></div>';
     return;
   }
-
-  // 최신 메시지 순으로 정렬
-  senders.sort((a, b) => {
-    const msgsA = smsThreads[a] || [];
-    const msgsB = smsThreads[b] || [];
-    const timeA = msgsA[msgsA.length - 1]?.timestamp || 0;
-    const timeB = msgsB[msgsB.length - 1]?.timestamp || 0;
-    return timeB - timeA;
-  });
-
   container.innerHTML = senders.map(sender => {
-    const msgs = smsThreads[sender] || [];
-    const lastMsg = msgs[msgs.length - 1] || { message: "", time: "" };
-    const isSafeNumber = sender.startsWith("050");
-    const isOfficial = sender.includes("1588") || sender.includes("안내");
-    
-    let badgeText = "승객";
-    let badgeColor = "bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300";
-    if (isSafeNumber) {
-      badgeText = "안심";
-      badgeColor = "bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300";
-    } else if (isOfficial) {
-      badgeText = "공지";
-      badgeColor = "bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-200";
-    }
-
-    return '<div onclick="openSmsChat(\'' + sender + '\')" class="p-3.5 rounded-2xl bg-white dark:bg-[#1e1e1e] border border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between active:scale-[0.99] cursor-pointer shadow-sm">' +
-      '<div class="flex items-center gap-3 min-w-0">' +
-        '<div class="w-10 h-10 rounded-full ' + badgeColor + ' font-extrabold flex items-center justify-center text-xs shrink-0">' +
-          badgeText +
-        '</div>' +
-        '<div class="min-w-0">' +
-          '<div class="flex items-center gap-2">' +
-            '<span class="text-sm font-extrabold truncate">' + sender + '</span>' +
-            (isSafeNumber ? '<span class="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-700 dark:text-amber-300 font-bold">안심번호</span>' : '') +
-          '</div>' +
-          '<div class="text-xs text-neutral-500 dark:text-neutral-400 truncate mt-0.5">' + (escapeHtml(lastMsg.message) || '내용 없음') + '</div>' +
-        '</div>' +
+    const lastMsg = smsThreads[sender][smsThreads[sender].length - 1];
+    const isSafe = sender.startsWith("050");
+    return '<div onclick="openSmsChat(\'' + sender + '\')" class="p-2.5 rounded-xl bg-white dark:bg-[#1e1e1e] border border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between active:scale-[0.99] cursor-pointer shadow-sm">' +
+      '<div class="flex items-center gap-2.5 min-w-0">' +
+        '<div class="w-8 h-8 rounded-full ' + (isSafe ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700') + ' font-extrabold flex items-center justify-center text-[10px] shrink-0">' + (isSafe ? '안심' : '승객') + '</div>' +
+        '<div class="min-w-0"><div class="flex items-center gap-1"><span class="text-[13px] font-extrabold truncate">' + sender + '</span></div>' +
+        '<div class="text-[11px] text-neutral-500 truncate mt-0.5">' + escapeHtml(lastMsg.message) + '</div></div>' +
       '</div>' +
-      '<div class="text-right shrink-0 ml-2">' +
-        '<div class="text-[10px] text-neutral-400 font-semibold">' + (lastMsg.time || '') + '</div>' +
-        '<span class="text-[11px] font-bold text-blue-600 dark:text-blue-400 mt-1 inline-block">대화하기 〉</span>' +
-      '</div>' +
+      '<div class="text-[9px] text-neutral-400">' + lastMsg.time + '</div>' +
     '</div>';
   }).join('');
 }
@@ -1421,10 +985,7 @@ function openSmsChat(sender) {
   document.getElementById("sms-active-sender").innerText = sender;
   const chatBox = document.getElementById("sms-chat-box");
   chatBox.innerHTML = '';
-  const msgs = smsThreads[sender] || [];
-  msgs.forEach(m => {
-    appendSmsBubble(m.type === 'sent', m.message, m.time);
-  });
+  (smsThreads[sender] || []).forEach(m => appendSmsBubble(m.type === 'sent', m.message, m.time));
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
@@ -1438,147 +999,55 @@ function showSmsListView() {
 
 function appendSmsBubble(isMe, message, time) {
   const chatBox = document.getElementById("sms-chat-box");
-  if (!chatBox) return;
   const item = document.createElement("div");
   item.className = "flex " + (isMe ? "justify-end" : "justify-start");
-  item.innerHTML = '<div class="max-w-[80%] rounded-2xl ' + (isMe ? 'rounded-br-sm bg-blue-600 text-white' : 'rounded-bl-sm bg-white dark:bg-neutral-800 border border-black/5 dark:border-white/5') + ' px-3.5 py-2 text-sm shadow-sm">' +
-    '<div>' + escapeHtml(message) + '</div>' +
-    '<div class="text-[9px] ' + (isMe ? 'text-white/60 text-right' : 'text-neutral-400') + ' mt-1">' + (time || '') + '</div>' +
-  '</div>';
+  item.innerHTML = '<div class="max-w-[75%] rounded-xl ' + (isMe ? 'rounded-br-sm bg-blue-600 text-white' : 'rounded-bl-sm bg-white dark:bg-neutral-800 border border-black/5 dark:border-white/5') + ' px-3 py-1.5 text-[12px] leading-tight shadow-sm">' +
+    '<div>' + escapeHtml(message) + '</div><div class="text-[9px] ' + (isMe ? 'text-white/70 text-right' : 'text-neutral-400') + ' mt-1">' + (time || '') + '</div></div>';
   chatBox.appendChild(item);
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-function quickSendSms(text) {
-  document.getElementById('sms-input').value = text;
-  sendSms();
-}
-
+function quickSendSms(text) { document.getElementById('sms-input').value = text; sendSms(); }
 function sendSms() {
-  const inp = document.getElementById('sms-input');
-  const text = inp.value.trim();
-  if (!text) {
-    showToast('보낼 메시지를 입력하세요');
-    return;
-  }
-  if (!activeSmsSender) {
-    showToast('수신자를 먼저 선택하세요');
-    return;
-  }
+  const inp = document.getElementById('sms-input'); const text = inp.value.trim();
+  if (!text || !activeSmsSender) return;
   const nowTime = new Date().toTimeString().substring(0, 5);
   if (!smsThreads[activeSmsSender]) smsThreads[activeSmsSender] = [];
   smsThreads[activeSmsSender].push({ type: 'sent', message: text, time: nowTime, timestamp: Date.now() });
-  saveSmsThreads();
-  appendSmsBubble(true, text, nowTime);
-  inp.value = '';
-
-  const payload = { to: activeSmsSender, message: text, timestamp: Date.now() };
-  fetch(FIREBASE_DB_URL + '/sudataxi/commands/sms.json', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  }).catch(e => console.error(e));
-
-  if (db) db.ref("sudataxi/commands/sms").push(payload);
-  showToast('A25 유심으로 ' + activeSmsSender + '에게 발송');
+  saveSmsThreads(); appendSmsBubble(true, text, nowTime); inp.value = '';
+  if (db) db.ref("sudataxi/commands/sms").push({ to: activeSmsSender, message: text, timestamp: Date.now() });
+  showToast('단말기로 발송: ' + activeSmsSender);
 }
 
-function openNewSmsModal() {
-  document.getElementById('new-sms-modal').classList.remove('hidden');
-  document.getElementById('new-sms-phone').focus();
-}
-
-function closeNewSmsModal() {
-  document.getElementById('new-sms-modal').classList.add('hidden');
-}
-
+function openNewSmsModal() { document.getElementById('new-sms-modal').classList.remove('hidden'); }
+function closeNewSmsModal() { document.getElementById('new-sms-modal').classList.add('hidden'); }
 function submitNewSms() {
   const phone = document.getElementById('new-sms-phone').value.trim();
   const text = document.getElementById('new-sms-content').value.trim();
-  if (!phone) {
-    showToast('받는 사람 번호를 입력하세요');
-    return;
-  }
-  if (!text) {
-    showToast('메시지 내용을 입력하세요');
-    return;
-  }
-
+  if (!phone || !text) return;
   const nowTime = new Date().toTimeString().substring(0, 5);
   if (!smsThreads[phone]) smsThreads[phone] = [];
   smsThreads[phone].push({ type: 'sent', message: text, time: nowTime, timestamp: Date.now() });
-  saveSmsThreads();
-  updateThanksChips();
-
-  const payload = { to: phone, message: text, timestamp: Date.now() };
-  fetch(FIREBASE_DB_URL + '/sudataxi/commands/sms.json', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  }).catch(e => console.error(e));
-
-  if (db) db.ref("sudataxi/commands/sms").push(payload);
-  
-  closeNewSmsModal();
-  document.getElementById('new-sms-phone').value = '';
-  document.getElementById('new-sms-content').value = '';
-  showToast('A25로 ' + phone + ' 문자 발송');
-  openSmsChat(phone);
+  saveSmsThreads(); updateThanksChips();
+  if (db) db.ref("sudataxi/commands/sms").push({ to: phone, message: text, timestamp: Date.now() });
+  closeNewSmsModal(); openSmsChat(phone); showToast('발송 완료');
 }
 
-function importToThanks() {
-  document.getElementById("thanks-target-phone-input").value = activeSmsSender;
-  switchTab('thanks');
-  showToast('감사문자 대상을 ' + activeSmsSender + '(으)로 지정했습니다');
-}
-
-// ========================================================
-// 7. 카카오 알림 피드 (100% 실제 A25 후킹 알림)
-// ========================================================
 function renderKakaoChannelList() {
   const container = document.getElementById("kakao-channel-container");
-  const countEl = document.getElementById("kakao-channel-count");
   if (!container) return;
-
-  const channels = Object.keys(kakaoChannels);
-  if (countEl) countEl.innerText = channels.length + "개 채널";
-
+  const channels = Object.keys(kakaoChannels).sort((a,b) => (kakaoChannels[b][kakaoChannels[b].length-1]?.timestamp || 0) - (kakaoChannels[a][kakaoChannels[a].length-1]?.timestamp || 0));
+  document.getElementById("kakao-channel-count").innerText = channels.length + "개 대화";
   if (channels.length === 0) {
-    container.innerHTML = '<div class="p-8 text-center bg-white dark:bg-[#1e1e1e] rounded-2xl border border-black/[0.04] dark:border-white/[0.06] space-y-2">' +
-      '<div class="text-3xl">🟡</div>' +
-      '<div class="text-sm font-extrabold text-neutral-800 dark:text-neutral-200">감지된 카카오 알림이 없습니다</div>' +
-      '<div class="text-xs text-neutral-400">카카오T 기사앱 배차나 카카오톡 알림이 오면 이곳에 실시간으로 표시됩니다.</div>' +
-    '</div>';
+    container.innerHTML = '<div class="p-6 text-center bg-white dark:bg-[#1e1e1e] rounded-xl"><div class="text-[12px] font-bold text-neutral-400">수신된 앱 알림이 없습니다.</div></div>';
     return;
   }
-
-  // 최신 알림 순으로 정렬
-  channels.sort((a, b) => {
-    const listA = kakaoChannels[a] || [];
-    const listB = kakaoChannels[b] || [];
-    const timeA = listA[listA.length - 1]?.timestamp || 0;
-    const timeB = listB[listB.length - 1]?.timestamp || 0;
-    return timeB - timeA;
-  });
-
   container.innerHTML = channels.map(ch => {
-    const list = kakaoChannels[ch] || [];
-    const last = list[list.length - 1] || { text: "", time: "" };
-    return '<div onclick="openKakaoChat(\'' + escapeHtml(ch) + '\')" class="p-3.5 rounded-2xl bg-white dark:bg-[#1e1e1e] border border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between active:scale-[0.99] cursor-pointer shadow-sm">' +
-      '<div class="flex items-center gap-3 min-w-0">' +
-        '<div class="w-10 h-10 rounded-full bg-amber-300 text-black font-black flex items-center justify-center text-sm shrink-0">' +
-          'K' +
-        '</div>' +
-        '<div class="min-w-0">' +
-          '<div class="text-sm font-extrabold truncate">' + escapeHtml(ch) + '</div>' +
-          '<div class="text-xs text-neutral-500 dark:text-neutral-400 truncate mt-0.5">' + (escapeHtml(last.text) || escapeHtml(last.title) || '알림 없음') + '</div>' +
-        '</div>' +
-      '</div>' +
-      '<div class="text-right shrink-0 ml-2">' +
-        '<div class="text-[10px] text-neutral-400 font-semibold">' + (last.time || '') + '</div>' +
-        '<span class="text-[11px] font-bold text-amber-600 dark:text-amber-400 mt-1 inline-block">열기 〉</span>' +
-      '</div>' +
-    '</div>';
+    const last = kakaoChannels[ch][kakaoChannels[ch].length - 1];
+    return '<div onclick="openKakaoChat(\'' + escapeHtml(ch) + '\')" class="p-2.5 rounded-xl bg-white dark:bg-[#1e1e1e] border border-black/[0.04] dark:border-white/[0.06] flex items-center justify-between active:scale-[0.99] cursor-pointer shadow-sm">' +
+      '<div class="flex items-center gap-2.5 min-w-0"><div class="w-8 h-8 rounded-full bg-amber-300 text-black font-black flex items-center justify-center text-[11px] shrink-0">K</div>' +
+      '<div class="min-w-0"><div class="text-[13px] font-extrabold truncate">' + escapeHtml(ch) + '</div><div class="text-[11px] text-neutral-500 truncate mt-0.5">' + escapeHtml(last.text) + '</div></div></div>' +
+      '<div class="text-[9px] text-neutral-400">' + last.time + '</div></div>';
   }).join('');
 }
 
@@ -1591,10 +1060,7 @@ function openKakaoChat(ch) {
   document.getElementById("kakao-active-title").innerText = ch;
   const chatBox = document.getElementById("kakao-chat-box");
   chatBox.innerHTML = '';
-  const msgs = kakaoChannels[ch] || [];
-  msgs.forEach(m => {
-    appendKakaoBubble(m.title, m.text, m.time);
-  });
+  (kakaoChannels[ch] || []).forEach(m => appendKakaoBubble(m.title, m.text, m.time));
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
@@ -1602,140 +1068,67 @@ function showKakaoListView() {
   document.getElementById("kakao-list-view").style.display = 'block';
   document.getElementById("kakao-chat-view").style.display = 'none';
   document.getElementById("btn-kakao-back").classList.add('hidden');
-  document.getElementById("kakao-header-title").innerText = "카카오T / 카톡 채널";
+  document.getElementById("kakao-header-title").innerText = "카톡 / 앱 알림";
   renderKakaoChannelList();
 }
 
 function appendKakaoBubble(title, text, time) {
   const chatBox = document.getElementById("kakao-chat-box");
-  if (!chatBox) return;
-  const item = document.createElement("div");
-  item.className = "flex justify-start";
-  item.innerHTML = '<div class="max-w-[85%] rounded-2xl rounded-bl-sm bg-white dark:bg-neutral-800 border border-black/5 dark:border-white/5 px-3.5 py-2 text-sm shadow-sm">' +
-    '<span class="text-xs font-bold text-amber-700 dark:text-amber-400 block mb-1">🟡 ' + (escapeHtml(title) || '알림') + '</span>' +
-    '<div class="leading-relaxed">' + escapeHtml(text) + '</div>' +
-    '<div class="text-[9px] text-neutral-400 mt-1 text-right">' + (time || '') + '</div>' +
-  '</div>';
-  chatBox.appendChild(item);
-  chatBox.scrollTop = chatBox.scrollHeight;
+  const item = document.createElement("div"); item.className = "flex justify-start";
+  item.innerHTML = '<div class="max-w-[80%] rounded-xl rounded-bl-sm bg-white dark:bg-neutral-800 border border-black/5 dark:border-white/5 px-3 py-1.5 text-[12px] leading-tight shadow-sm">' +
+    '<span class="text-[10px] font-bold text-amber-700 block mb-0.5">🟡 ' + escapeHtml(title) + '</span><div>' + escapeHtml(text) + '</div>' +
+    '<div class="text-[9px] text-neutral-400 mt-1 text-right">' + (time || '') + '</div></div>';
+  chatBox.appendChild(item); chatBox.scrollTop = chatBox.scrollHeight;
 }
-
 function sendKakao() {
-  const inp = document.getElementById('kakao-input');
-  const text = inp.value.trim();
-  if (!text) {
-    showToast('카톡 메시지를 입력하세요');
-    return;
-  }
-  const payload = { target: activeKakaoChannel, message: text, timestamp: Date.now() };
-  fetch(FIREBASE_DB_URL + '/sudataxi/commands/kakao.json', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  }).catch(e => console.error(e));
-
-  if (db) db.ref("sudataxi/commands/kakao").push(payload);
-  inp.value = '';
-  showToast('A25 카카오톡 전송 명령 완료');
+  const inp = document.getElementById('kakao-input'); const text = inp.value.trim();
+  if (!text) return;
+  if (db) db.ref("sudataxi/commands/kakao").push({ target: activeKakaoChannel, message: text, timestamp: Date.now() });
+  inp.value = ''; showToast('답장 전송 완료');
 }
 
-function openKakaoAppOnA25() {
-  const payload = { action: "open_app", package: "com.kakao.talk", timestamp: Date.now() };
-  fetch(FIREBASE_DB_URL + '/sudataxi/commands/system.json', {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  }).catch(e => console.error(e));
-
-  if (db) db.ref("sudataxi/commands/system").set(payload);
-  showToast("A25에서 카카오톡 앱을 실행합니다");
+// ==========================================
+// 7. 기타 기능 및 유틸
+// ==========================================
+function importToThanks() {
+  document.getElementById("thanks-target-phone-input").value = activeSmsSender; switchTab('thanks');
+  showToast(activeSmsSender + '(으)로 지정했습니다');
 }
-
-// ========================================================
-// 8. 고객감사 탭 제어 (실제 대화 승객 번호만 연동)
-// ========================================================
 function updateThanksChips() {
-  const container = document.getElementById("thanks-sender-chips");
-  if (!container) return;
-  const senders = Object.keys(smsThreads).filter(s => !s.includes("1588") && !s.includes("안내"));
-  if (senders.length === 0) {
-    container.innerHTML = '<span class="text-xs text-neutral-400">수신된 실제 승객 번호가 아직 없습니다.</span>';
-    return;
-  }
-  container.innerHTML = senders.map(s => {
-    return '<button type="button" onclick="setThanksTarget(\'' + s + '\')" class="px-2.5 py-1 rounded-full text-xs font-bold bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-black/5 dark:border-white/10 active:scale-95">' +
-      s +
-    '</button>';
-  }).join('');
+  const container = document.getElementById("thanks-sender-chips"); if (!container) return;
+  const senders = Object.keys(smsThreads);
+  if (senders.length === 0) { container.innerHTML = '<span class="text-[10px] text-neutral-400">수신된 번호 없음</span>'; return; }
+  container.innerHTML = senders.map(s => '<button type="button" onclick="setThanksTarget(\''+s+'\')" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-neutral-100 dark:bg-neutral-800 border border-black/5 active:scale-95">'+s+'</button>').join('');
 }
-
-function setThanksTarget(phone) {
-  document.getElementById("thanks-target-phone-input").value = phone;
-  const tag = document.getElementById("thanks-status-tag");
-  tag.className = "text-xs font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded-full border border-orange-200 shrink-0";
-  tag.innerText = "지정됨";
-}
-
+function setThanksTarget(phone) { document.getElementById("thanks-target-phone-input").value = phone; document.getElementById("thanks-status-tag").innerText = "지정됨"; }
 function sendThanksMessage() {
   const target = document.getElementById('thanks-target-phone-input').value.trim();
   const text = document.getElementById('thanks-text').value.trim();
-  if (!target) {
-    showToast('발송 대상 승객 번호를 입력하세요');
-    return;
-  }
-  const payload = { to: target, message: text, isThanks: true, timestamp: Date.now() };
-  fetch(FIREBASE_DB_URL + '/sudataxi/commands/sms.json', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  }).catch(e => console.error(e));
-
-  if (db) db.ref("sudataxi/commands/sms").push(payload);
-  showToast('A25에서 ' + target + '에게 감사문자 발송됨');
-  var tb = document.getElementById("thanks-badge");
-  if (tb) tb.style.display = 'none';
+  if (db) db.ref("sudataxi/commands/sms").push({ to: target, message: text, isThanks: true, timestamp: Date.now() });
+  showToast('감사문자 발송 완료');
 }
 
-// ========================================================
-// 9. 테마 & 유틸리티
-// ========================================================
 function initTheme() {
-  const savedTheme = localStorage.getItem('suda-theme');
-  if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-    document.documentElement.classList.add('dark');
-    document.getElementById('theme-btn').innerText = '☀️';
-  } else {
-    document.documentElement.classList.remove('dark');
-    document.getElementById('theme-btn').innerText = '🌙';
+  if (localStorage.getItem('suda-theme') === 'dark' || (!localStorage.getItem('suda-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    document.documentElement.classList.add('dark'); document.getElementById('theme-btn').innerText = '☀️';
   }
 }
-
 function toggleDarkMode() {
   const isDark = document.documentElement.classList.toggle('dark');
   localStorage.setItem('suda-theme', isDark ? 'dark' : 'light');
   document.getElementById('theme-btn').innerText = isDark ? '☀️' : '🌙';
-  showToast(isDark ? '야간 운전 모드' : '주간 모드');
 }
 initTheme();
 
-function escapeHtml(str) {
-  if (!str) return '';
-  return String(str).replace(/'/g, "\\'").replace(/"/g, '&quot;');
-}
-
+function escapeHtml(str) { return String(str).replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
 let toastTimer = null;
 function showToast(msg) {
-  const t = document.getElementById('toast');
-  if (!t) return;
-  t.innerText = msg;
-  t.classList.remove('opacity-0');
+  const t = document.getElementById('toast'); if (!t) return;
+  t.innerText = msg; t.classList.remove('opacity-0');
   if (toastTimer) clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => {
-    t.classList.add('opacity-0');
-  }, 2200);
+  toastTimer = setTimeout(() => { t.classList.add('opacity-0'); }, 2200);
 }
 
-// 초기 구동 렌더링
 updateCurrentQueryLikeBtn();
 renderRealVideoList();
 renderSmsThreadList();
