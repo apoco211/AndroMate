@@ -15,6 +15,11 @@
 
   <!-- 스타일 -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class'
+    }
+  </script>
   <style>
     * {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
@@ -26,13 +31,12 @@
       margin: 0;
       padding: 0;
       overflow: hidden;
-      background-color: #f6f7f9;
     }
     .safe-top {
-      padding-top: max(env(safe-area-inset-top), 16px);
+      padding-top: max(env(safe-area-inset-top), 14px);
     }
     .safe-bottom {
-      padding-bottom: max(env(safe-area-inset-bottom), 16px);
+      padding-bottom: max(env(safe-area-inset-bottom), 14px);
     }
     ::-webkit-scrollbar { display: none; }
   </style>
@@ -45,176 +49,240 @@
     }
   </script>
 </head>
-<body class="flex flex-col h-full text-black select-none">
+<body class="flex flex-col h-full bg-[#f6f7f9] dark:bg-[#121212] text-neutral-900 dark:text-neutral-100 select-none transition-colors duration-200">
 
   <!-- 상단 앱 헤더 -->
-  <header class="safe-top px-5 pb-3 bg-white/80 backdrop-blur-md border-b border-black/[0.06] flex items-center justify-between shrink-0">
+  <header class="safe-top px-4 pb-3 bg-white/90 dark:bg-[#1e1e1e]/90 backdrop-blur-md border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between shrink-0">
     <div class="flex items-center gap-2.5">
-      <div class="w-8 h-8 rounded-xl bg-black flex items-center justify-center text-white font-black text-sm shadow-sm">수</div>
+      <div class="w-9 h-9 rounded-xl bg-black dark:bg-white flex items-center justify-center text-white dark:text-black font-black text-sm shadow-sm">수</div>
       <div>
         <div class="text-base font-extrabold tracking-tight leading-none">수다택시 리모콘</div>
-        <div class="text-[11px] text-black/45 font-semibold mt-1 tracking-tight">TAXI REMOTE • A25</div>
+        <div class="text-[11px] text-neutral-400 dark:text-neutral-400 font-semibold mt-1 tracking-tight flex items-center gap-1.5">
+          <span>TAXI REMOTE • A25</span>
+          <span class="px-1.5 py-0.2 rounded bg-neutral-200 dark:bg-neutral-800 text-[10px] font-bold text-neutral-600 dark:text-neutral-300">v1.0.0</span>
+        </div>
       </div>
     </div>
-    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#E6F4EA] text-[#0D652D] border border-[#C8E8CE] text-xs font-bold">
-      <span class="w-2 h-2 rounded-full bg-[#1DBF4D] animate-pulse"></span> A25 연결됨
+    
+    <div class="flex items-center gap-2">
+      <!-- 주야간 모드 토글 버튼 -->
+      <button onclick="toggleDarkMode()" id="theme-btn" class="w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-base border border-black/5 dark:border-white/10 active:scale-90 transition-transform">
+        🌙
+      </button>
+
+      <!-- A25 연결 상태 표시 -->
+      <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#E6F4EA] dark:bg-emerald-950/60 text-[#0D652D] dark:text-emerald-300 border border-[#C8E8CE] dark:border-emerald-800 text-xs font-bold">
+        <span class="w-2 h-2 rounded-full bg-[#1DBF4D] animate-pulse"></span> A25 연결됨
+      </div>
     </div>
   </header>
 
   <!-- 메인 스크롤 콘텐츠 영역 -->
-  <main class="flex-1 overflow-y-auto px-4 py-4">
+  <main class="flex-1 overflow-y-auto px-4 py-4 space-y-4">
 
-    <!-- 1. 유튜브 탭 -->
+    <!-- 1. 유튜브 탭 (기본 화면) -->
     <section id="tab-youtube" class="tab-content space-y-4">
       <div class="flex items-center justify-between">
         <h2 class="text-xl font-extrabold tracking-tight">유튜브 리모컨</h2>
-        <button onclick="showToast('A25 YouTube 앱 실행')" class="text-xs font-bold px-3 py-1.5 rounded-full bg-white border border-black/10 shadow-sm active:scale-95">
-          앱 열기 ↗
+        <button onclick="launchApp('youtube')" class="text-xs font-bold px-3 py-1.5 rounded-full bg-white dark:bg-[#1e1e1e] border border-black/10 dark:border-white/10 shadow-sm active:scale-95">
+          A25 YouTube 앱 열기 ↗
         </button>
       </div>
 
-      <!-- 플레이어 카드 -->
-      <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-black/[0.04] p-4">
+      <!-- 현재 재생 중 카드 -->
+      <div class="bg-white dark:bg-[#1e1e1e] rounded-2xl overflow-hidden shadow-sm border border-black/[0.04] dark:border-white/[0.06] p-4">
         <div class="aspect-video bg-gradient-to-br from-neutral-900 to-neutral-800 rounded-xl flex flex-col items-center justify-center text-white relative">
-          <div class="text-4xl">▶</div>
-          <span class="text-xs text-white/70 mt-2 font-medium">A25 오디오 출력 중</span>
-          <span class="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full bg-black/60 text-[10px] font-bold">LIVE</span>
+          <div id="player-icon" class="text-4xl">▶</div>
+          <span id="player-status" class="text-xs text-white/70 mt-2 font-medium">A25에서 재생 중</span>
+          <span class="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full bg-red-600 text-[10px] font-bold">NOW PLAYING</span>
         </div>
 
-        <div class="mt-4">
-          <div class="text-base font-bold truncate">트로트 메들리 - 2024 인기곡</div>
-          <div class="text-xs text-black/50 font-medium mt-0.5">트로트TV • 구독 42만</div>
+        <div class="mt-3.5">
+          <div id="now-playing-title" class="text-base font-bold truncate">트로트 메들리 - 2024 인기곡</div>
+          <div id="now-playing-channel" class="text-xs text-neutral-400 font-medium mt-0.5">트로트TV • A25 백그라운드 출력</div>
         </div>
 
-        <!-- 재생 컨트롤러 -->
-        <div class="mt-5 flex items-center justify-around">
-          <button onclick="showToast('10초 뒤로')" class="w-12 h-12 rounded-full bg-neutral-100 flex items-center justify-center text-lg active:scale-95">⏪</button>
-          <button id="btn-play" onclick="togglePlay()" class="w-16 h-16 rounded-full bg-black text-white flex items-center justify-center text-2xl shadow active:scale-95">❚❚</button>
-          <button onclick="showToast('10초 앞으로')" class="w-12 h-12 rounded-full bg-neutral-100 flex items-center justify-center text-lg active:scale-95">⏩</button>
+        <!-- 재생 컨트롤 -->
+        <div class="mt-4 flex items-center justify-around">
+          <button onclick="seekRelative(-10)" class="w-11 h-11 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-bold active:scale-95">⏪ 10초</button>
+          <button id="btn-play" onclick="togglePlay()" class="w-14 h-14 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center text-xl shadow active:scale-95 font-bold">❚❚</button>
+          <button onclick="seekRelative(10)" class="w-11 h-11 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-bold active:scale-95">10초 ⏩</button>
         </div>
 
-        <!-- 볼륨 슬라이더 -->
-        <div class="mt-5 flex items-center gap-3 bg-neutral-50 px-3 py-2 rounded-full border border-black/5">
+        <!-- 볼륨 조절 -->
+        <div class="mt-4 flex items-center gap-2.5 bg-neutral-50 dark:bg-neutral-800/60 px-3 py-2 rounded-full border border-black/5 dark:border-white/5">
           <span class="text-sm">🔊</span>
-          <input type="range" min="0" max="100" value="70" class="flex-1 accent-black h-1" oninput="document.getElementById('vol-txt').innerText = this.value + '%'">
-          <span id="vol-txt" class="text-xs font-bold text-neutral-500 w-8 text-right">70%</span>
+          <input type="range" min="0" max="100" value="70" class="flex-1 accent-black dark:accent-white h-1" oninput="updateVolume(this.value)">
+          <span id="vol-txt" class="text-xs font-bold text-neutral-500 dark:text-neutral-400 w-8 text-right">70%</span>
         </div>
       </div>
 
-      <!-- 단축 실행 버튼 -->
+      <!-- A25 직접 실행 단축 버튼 -->
       <div class="grid grid-cols-2 gap-2.5">
-        <button onclick="showToast('A25 YouTube 앱 실행')" class="h-12 rounded-xl bg-red-600 text-white font-extrabold text-sm shadow flex items-center justify-center gap-2 active:scale-98">
-          YouTube 실행
+        <button onclick="launchApp('youtube')" class="h-11 rounded-xl bg-red-600 text-white font-bold text-xs shadow flex items-center justify-center gap-2 active:scale-98">
+          YouTube 앱 실행
         </button>
-        <button onclick="showToast('A25 YouTube Music 실행')" class="h-12 rounded-xl bg-black text-white font-extrabold text-sm shadow flex items-center justify-center gap-2 active:scale-98">
-          YouTube Music
+        <button onclick="launchApp('youtubemusic')" class="h-11 rounded-xl bg-black dark:bg-neutral-800 text-white font-bold text-xs shadow flex items-center justify-center gap-2 active:scale-98 border border-transparent dark:border-white/10">
+          YouTube Music 실행
         </button>
       </div>
 
-      <!-- 해시태그 -->
-      <div class="bg-white rounded-2xl p-4 shadow-sm border border-black/[0.04] space-y-3">
-        <div class="text-xs font-extrabold text-black/60">추천 태그</div>
-        <div class="flex flex-wrap gap-2">
-          <button onclick="showToast('검색: #트로트')" class="px-3 py-1.5 rounded-full bg-neutral-100 text-xs font-bold border border-black/5 active:scale-95">#트로트</button>
-          <button onclick="showToast('검색: #최신가요')" class="px-3 py-1.5 rounded-full bg-neutral-100 text-xs font-bold border border-black/5 active:scale-95">#최신가요</button>
-          <button onclick="showToast('검색: #조용필')" class="px-3 py-1.5 rounded-full bg-neutral-100 text-xs font-bold border border-black/5 active:scale-95">#조용필</button>
-          <button onclick="showToast('검색: #잔잔한 음악')" class="px-3 py-1.5 rounded-full bg-neutral-100 text-xs font-bold border border-black/5 active:scale-95">#잔잔한 음악</button>
-          <button onclick="showToast('검색: #뉴스')" class="px-3 py-1.5 rounded-full bg-neutral-100 text-xs font-bold border border-black/5 active:scale-95">#뉴스</button>
+      <!-- 유튜브 검색 & 해시태그 영역 -->
+      <div class="bg-white dark:bg-[#1e1e1e] rounded-2xl p-4 shadow-sm border border-black/[0.04] dark:border-white/[0.06] space-y-3">
+        <!-- 검색창 -->
+        <div class="relative">
+          <input type="text" id="yt-search-input" oninput="handleSearch(this.value)" placeholder="유튜브 검색 (선택 시 A25에서 재생)"
+                 class="w-full h-11 pl-4 pr-10 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-sm font-medium outline-none border border-transparent focus:bg-white dark:focus:bg-neutral-900 focus:border-black/20 dark:focus:border-white/20">
+          <button onclick="clearSearch()" class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 font-bold text-sm">✕</button>
+        </div>
+
+        <!-- 해시태그 빠른 필터 -->
+        <div class="flex flex-wrap gap-1.5 pt-1">
+          <button onclick="filterByTag('트로트')" class="tag-btn px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-xs font-bold border border-black/5 dark:border-white/10 active:scale-95">#트로트</button>
+          <button onclick="filterByTag('최신가요')" class="tag-btn px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-xs font-bold border border-black/5 dark:border-white/10 active:scale-95">#최신가요</button>
+          <button onclick="filterByTag('조용필')" class="tag-btn px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-xs font-bold border border-black/5 dark:border-white/10 active:scale-95">#조용필</button>
+          <button onclick="filterByTag('잔잔한 음악')" class="tag-btn px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-xs font-bold border border-black/5 dark:border-white/10 active:scale-95">#잔잔한 음악</button>
+          <button onclick="filterByTag('뉴스')" class="tag-btn px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-xs font-bold border border-black/5 dark:border-white/10 active:scale-95">#뉴스</button>
+          <button onclick="filterByTag('')" class="tag-btn px-2.5 py-1 rounded-full bg-black dark:bg-white text-white dark:text-black text-xs font-bold active:scale-95">전체</button>
+        </div>
+
+        <!-- 검색 결과 리스트 (누르면 A25에서 즉시 실행) -->
+        <div class="pt-2 border-t border-black/[0.06] dark:border-white/[0.08] space-y-2">
+          <div class="flex justify-between items-center text-xs font-bold text-neutral-400 px-1">
+            <span>검색 목록 (터치 시 A25에서 실행)</span>
+            <span id="result-count">5개</span>
+          </div>
+          <div id="video-list" class="space-y-2">
+            <!-- 자바스크립트로 렌더링 -->
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- 2. 고객감사 탭 -->
-    <section id="tab-thanks" class="tab-content hidden space-y-4">
-      <div class="flex items-center justify-between">
-        <h2 class="text-xl font-extrabold tracking-tight">최근 탑승 고객 1명</h2>
-        <span class="text-xs px-2 py-1 rounded-full bg-black text-white font-bold">LIVE</span>
+    <!-- 2. 문자 탭 (A25 문자 확인 및 전송) -->
+    <section id="tab-sms" class="tab-content hidden space-y-4">
+      <div class="flex justify-between items-center">
+        <h2 class="text-xl font-extrabold tracking-tight">A25 문자 메시지</h2>
+        <span class="text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2.5 py-1 rounded-full border border-blue-200 dark:border-blue-900">실시간 연동</span>
       </div>
 
-      <div class="bg-white rounded-2xl p-4 shadow-sm border border-black/[0.04] space-y-3.5">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="w-11 h-11 rounded-full bg-amber-100 text-amber-800 font-extrabold flex items-center justify-center">고</div>
-            <div>
-              <div class="text-base font-bold">0504-****-1234</div>
-              <div class="text-xs text-black/50">방금 • 통화 7초</div>
+      <!-- 대화창 -->
+      <div class="bg-white dark:bg-[#1e1e1e] rounded-2xl overflow-hidden shadow-sm border border-black/[0.04] dark:border-white/[0.06]">
+        <div class="p-3.5 border-b border-black/[0.06] dark:border-white/[0.08] flex justify-between items-center bg-neutral-50 dark:bg-neutral-800/50">
+          <div>
+            <div class="text-sm font-bold">0504-****-1234</div>
+            <div class="text-xs text-neutral-400">승객 안심번호</div>
+          </div>
+          <span class="text-xs font-bold px-2 py-0.5 rounded bg-neutral-200 dark:bg-neutral-700 text-neutral-700 dark:text-neutral-200">A25 단말기</span>
+        </div>
+
+        <div id="sms-chat-box" class="p-4 space-y-3 bg-[#FAFBFC] dark:bg-neutral-900/60 min-h-[220px] max-h-[320px] overflow-y-auto">
+          <div class="flex justify-start">
+            <div class="max-w-[80%] rounded-2xl rounded-bl-sm bg-white dark:bg-neutral-800 border border-black/5 dark:border-white/5 px-3.5 py-2 text-sm shadow-sm">
+              기사님 트렁크에 짐 싣고 싶은데 미리 열어주실 수 있나요?
             </div>
           </div>
-          <span class="text-xs font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded-full border border-orange-200">안심번호</span>
-        </div>
-
-        <div class="space-y-2">
-          <label class="text-xs font-bold text-black/60">감사 메시지 템플릿</label>
-          <textarea id="thanks-text" class="w-full h-24 rounded-xl bg-neutral-50 border border-black/10 p-3 text-sm resize-none outline-none focus:bg-white focus:border-black/30">오늘 택시 이용해 주셔서 감사합니다! 안전하게 귀가하셨길 바랍니다. 다음에도 수다택시 찾아주세요 😊 - 기사 박OO</textarea>
-        </div>
-
-        <button onclick="showToast('A25에서 감사문자 바로 발송됨')" class="w-full h-12 rounded-xl bg-blue-600 text-white font-bold text-sm shadow active:scale-98">
-          감사문자 바로 발송
-        </button>
-      </div>
-    </section>
-
-    <!-- 3. 문자 탭 -->
-    <section id="tab-sms" class="tab-content hidden space-y-4">
-      <h2 class="text-xl font-extrabold tracking-tight">문자 대화</h2>
-      <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-black/[0.04]">
-        <div class="p-3.5 border-b border-black/[0.06] flex justify-between items-center bg-neutral-50">
-          <div class="text-sm font-bold">0504-****-1234</div>
-          <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">A25 연동</span>
-        </div>
-        <div class="p-4 space-y-3 bg-[#FAFBFC] min-h-[160px]">
-          <div class="flex justify-start">
-            <div class="max-w-[80%] rounded-2xl rounded-bl-sm bg-white border border-black/5 px-3.5 py-2 text-sm shadow-sm">기사님 덕분에 편하게 왔어요 감사합니다!</div>
-          </div>
           <div class="flex justify-end">
-            <div class="max-w-[80%] rounded-2xl rounded-br-sm bg-blue-600 text-white px-3.5 py-2 text-sm shadow">네 고객님 좋은 하루 되세요! 😊</div>
+            <div class="max-w-[80%] rounded-2xl rounded-br-sm bg-blue-600 text-white px-3.5 py-2 text-sm shadow">
+              네 고객님, 도착하시면 바로 열어드리겠습니다!
+            </div>
           </div>
         </div>
-        <div class="p-2.5 flex gap-2 border-t border-black/[0.06] bg-white">
-          <input type="text" id="sms-input" placeholder="A25 번호로 답장 입력..." class="flex-1 h-10 px-4 rounded-full bg-neutral-100 text-sm outline-none">
-          <button onclick="sendSms()" class="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center active:scale-95 font-bold">↑</button>
+
+        <!-- 아이폰에서 A25를 통해 답장 보내기 -->
+        <div class="p-2.5 flex gap-2 border-t border-black/[0.06] dark:border-white/[0.08] bg-white dark:bg-[#1e1e1e]">
+          <input type="text" id="sms-input" placeholder="A25 번호로 보낼 답장 입력..." 
+                 class="flex-1 h-10 px-4 rounded-full bg-neutral-100 dark:bg-neutral-800 text-sm outline-none focus:bg-white dark:focus:bg-neutral-900 focus:ring-1 focus:ring-blue-500"
+                 onkeydown="if(event.key==='Enter') sendSms()">
+          <button onclick="sendSms()" class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center active:scale-95 font-bold shadow-sm">
+            ↑
+          </button>
         </div>
       </div>
     </section>
 
-    <!-- 4. 카톡 탭 -->
+    <!-- 3. 카톡 탭 (A25 카카오톡/기사앱 확인 및 전송) -->
     <section id="tab-kakao" class="tab-content hidden space-y-4">
-      <h2 class="text-xl font-extrabold tracking-tight">카카오T 알림</h2>
-      <div class="bg-amber-300 rounded-2xl p-4 flex items-center gap-3 shadow-sm border border-black/5">
-        <div class="w-9 h-9 rounded-full bg-black text-amber-300 flex items-center justify-center font-black text-base">K</div>
-        <div class="flex-1">
-          <div class="text-sm font-extrabold">카카오T 기사앱 연동됨</div>
-          <div class="text-xs text-black/60 font-medium">A25 태블릿 알림 실시간 수신 중</div>
+      <div class="flex justify-between items-center">
+        <h2 class="text-xl font-extrabold tracking-tight">A25 카카오톡</h2>
+        <span class="text-xs font-bold text-amber-900 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/60 px-2.5 py-1 rounded-full border border-amber-300 dark:border-amber-800">카카오T 연동</span>
+      </div>
+
+      <div class="bg-white dark:bg-[#1e1e1e] rounded-2xl overflow-hidden shadow-sm border border-black/[0.04] dark:border-white/[0.06]">
+        <div class="p-3.5 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center gap-2.5 bg-amber-300 text-black">
+          <div class="w-8 h-8 rounded-full bg-black text-amber-300 flex items-center justify-center font-black text-sm">K</div>
+          <div class="flex-1">
+            <div class="text-sm font-extrabold">카카오T 기사앱 알림 및 대화</div>
+            <div class="text-xs text-amber-950 font-medium">A25 단말기 계정 실시간 수신</div>
+          </div>
+        </div>
+
+        <div id="kakao-chat-box" class="p-4 space-y-3 bg-[#FEE500]/10 dark:bg-amber-950/20 min-h-[220px] max-h-[320px] overflow-y-auto">
+          <div class="flex justify-start">
+            <div class="max-w-[80%] rounded-2xl rounded-bl-sm bg-white dark:bg-neutral-800 border border-black/5 dark:border-white/5 px-3.5 py-2 text-sm shadow-sm">
+              <span class="text-xs font-bold text-amber-700 dark:text-amber-400 block mb-1">손님</span>
+              기사님 횡단보도 바로 앞 파리바게트 앞에 서있습니다!
+            </div>
+          </div>
+        </div>
+
+        <!-- 아이폰에서 카톡 답장 전송 -->
+        <div class="p-2.5 flex gap-2 border-t border-black/[0.06] dark:border-white/[0.08] bg-white dark:bg-[#1e1e1e]">
+          <input type="text" id="kakao-input" placeholder="카카오톡 답장 입력..." 
+                 class="flex-1 h-10 px-4 rounded-full bg-neutral-100 dark:bg-neutral-800 text-sm outline-none focus:bg-white dark:focus:bg-neutral-900 focus:ring-1 focus:ring-amber-500"
+                 onkeydown="if(event.key==='Enter') sendKakao()">
+          <button onclick="sendKakao()" class="w-10 h-10 rounded-full bg-amber-400 text-black flex items-center justify-center active:scale-95 font-bold shadow-sm">
+            ↑
+          </button>
         </div>
       </div>
-      <div class="bg-white rounded-2xl p-4 shadow-sm border border-black/[0.04] space-y-3">
-        <div class="flex justify-between items-center">
-          <span class="text-sm font-bold">카카오 고객센터</span>
-          <span class="text-xs text-black/40">방금 전</span>
+    </section>
+
+    <!-- 4. 고객감사 탭 -->
+    <section id="tab-thanks" class="tab-content hidden space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-extrabold tracking-tight">최근 탑승 고객 감사문자</h2>
+        <span class="text-xs px-2.5 py-1 rounded-full bg-black dark:bg-white text-white dark:text-black font-bold">안심번호 10분 유효</span>
+      </div>
+
+      <div class="bg-white dark:bg-[#1e1e1e] rounded-2xl p-4 shadow-sm border border-black/[0.04] dark:border-white/[0.06] space-y-3.5">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 font-extrabold flex items-center justify-center">고</div>
+            <div>
+              <div class="text-base font-bold">0504-****-1234</div>
+              <div class="text-xs text-neutral-400">방금 하차 • 통화 7초</div>
+            </div>
+          </div>
+          <span class="text-xs font-bold text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-950/60 px-2 py-1 rounded-full border border-orange-200 dark:border-orange-800">자동 감지됨</span>
         </div>
-        <div class="text-sm text-neutral-700">새로운 탑승 요청이 있습니다.</div>
-        <button onclick="showToast('A25 화면 미러링 연결 시도')" class="w-full h-10 rounded-xl bg-black text-white text-xs font-bold">
-          A25 원격 화면 보기
+
+        <div class="space-y-1.5">
+          <label class="text-xs font-bold text-neutral-600 dark:text-neutral-400">감사 메시지 작성 (A25에서 발송)</label>
+          <textarea id="thanks-text" class="w-full h-24 rounded-xl bg-neutral-50 dark:bg-neutral-800 border border-black/10 dark:border-white/10 p-3 text-sm resize-none outline-none focus:bg-white dark:focus:bg-neutral-900 focus:border-black/30">오늘 택시 이용해 주셔서 감사합니다! 안전하게 귀가하셨길 바랍니다. 다음에도 수다택시 찾아주세요 😊 - 기사 박OO</textarea>
+        </div>
+
+        <button onclick="sendThanksMessage()" class="w-full h-12 rounded-xl bg-blue-600 text-white font-bold text-sm shadow active:scale-98">
+          A25로 감사문자 즉시 발송
         </button>
       </div>
     </section>
 
   </main>
 
-  <!-- 토스트 알림창 -->
-  <div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full bg-black text-white text-xs font-bold shadow-lg opacity-0 transition-opacity pointer-events-none"></div>
+  <!-- 토스트 팝업 -->
+  <div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full bg-black/90 dark:bg-white/90 text-white dark:text-black text-xs font-bold shadow-lg opacity-0 transition-opacity pointer-events-none"></div>
 
-  <!-- 하단 고정 4개 탭 바 (화면 하단에 절대 잘리지 않음) -->
-  <nav class="safe-bottom bg-white/95 backdrop-blur-lg border-t border-black/[0.08] pt-2 px-3 shrink-0">
+  <!-- 하단 고정 4개 탭 네비게이션 -->
+  <nav class="safe-bottom bg-white/95 dark:bg-[#1a1a1a]/95 backdrop-blur-lg border-t border-black/[0.08] dark:border-white/[0.08] pt-2 px-3 shrink-0">
     <div class="flex justify-around items-center">
       
-      <!-- 탭 1: 고객감사 -->
-      <button onclick="switchTab('thanks')" class="tab-btn flex flex-col items-center justify-center gap-1 w-16 py-1 active:scale-95" data-tab="thanks">
-        <div class="icon-box w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold text-neutral-400 relative">
-          📄
-          <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-extrabold flex items-center justify-center border border-white">1</span>
+      <!-- 탭 1: 유튜브 (기본) -->
+      <button onclick="switchTab('youtube')" class="tab-btn flex flex-col items-center justify-center gap-1 w-16 py-1 active:scale-95" data-tab="youtube">
+        <div class="icon-box w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold bg-black dark:bg-white text-white dark:text-black shadow-sm">
+          ▶
         </div>
-        <span class="text-xs font-bold text-neutral-500">고객감사</span>
+        <span class="text-xs font-bold text-black dark:text-white">유튜브</span>
       </button>
 
       <!-- 탭 2: 문자 -->
@@ -229,62 +297,228 @@
       <button onclick="switchTab('kakao')" class="tab-btn flex flex-col items-center justify-center gap-1 w-16 py-1 active:scale-95" data-tab="kakao">
         <div class="icon-box w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold text-neutral-400 relative">
           🟡
-          <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-extrabold flex items-center justify-center border border-white">3</span>
+          <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-extrabold flex items-center justify-center border border-white">1</span>
         </div>
         <span class="text-xs font-bold text-neutral-500">카톡</span>
       </button>
 
-      <!-- 탭 4: 유튜브 (기본 선택) -->
-      <button onclick="switchTab('youtube')" class="tab-btn flex flex-col items-center justify-center gap-1 w-16 py-1 active:scale-95" data-tab="youtube">
-        <div class="icon-box w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold bg-black text-white shadow-sm">
-          ▶
+      <!-- 탭 4: 고객감사 -->
+      <button onclick="switchTab('thanks')" class="tab-btn flex flex-col items-center justify-center gap-1 w-16 py-1 active:scale-95" data-tab="thanks">
+        <div class="icon-box w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold text-neutral-400 relative">
+          📄
+          <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-extrabold flex items-center justify-center border border-white">1</span>
         </div>
-        <span class="text-xs font-bold text-black">유튜브</span>
+        <span class="text-xs font-bold text-neutral-500">고객감사</span>
       </button>
 
     </div>
   </nav>
 
-  <!-- 탭 전환 및 동작 스크립트 -->
+  <!-- 기능 스크립트 -->
   <script>
+    // 0. 다크/라이트 테마 토글 및 로컬 스토리지 저장
+    function applyTheme(isDark) {
+      const html = document.documentElement;
+      const themeBtn = document.getElementById('theme-btn');
+      if (isDark) {
+        html.classList.add('dark');
+        themeBtn.innerText = '☀️';
+        localStorage.setItem('suda_theme', 'dark');
+      } else {
+        html.classList.remove('dark');
+        themeBtn.innerText = '🌙';
+        localStorage.setItem('suda_theme', 'light');
+      }
+    }
+
+    function toggleDarkMode() {
+      const isDark = document.documentElement.classList.contains('dark');
+      applyTheme(!isDark);
+      showToast(!isDark ? '야간 모드(다크) 켜짐' : '주간 모드(라이트) 켜짐');
+    }
+
+    // 저장된 테마 불러오기 (기본값: 시스템 테마 또는 라이트)
+    const savedTheme = localStorage.getItem('suda_theme');
+    if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      applyTheme(true);
+    } else {
+      applyTheme(false);
+    }
+
+    // 1. 유튜브 샘플 데이터베이스 및 실시간 검색 목록
+    const videoDatabase = [
+      { id: 1, title: "트로트 인기 모음 - 100곡 연속듣기", channel: "트로트퀸", time: "3:40:12", tag: "트로트", query: "트로트 인기 모음" },
+      { id: 2, title: "택시에서 듣기 좋은 노래 - 잔잔한 가요", channel: "드라이브뮤직", time: "1:22:10", tag: "잔잔한 음악", query: "택시 잔잔한 가요" },
+      { id: 3, title: "조용필 명곡 베스트 - 그 겨울의 찻집 외 30곡", channel: "레전드 가요", time: "2:05:44", tag: "조용필", query: "조용필 명곡 베스트" },
+      { id: 4, title: "최신가요 TOP 50 - 2026 드라이브", channel: "멜론차트", time: "2:45:00", tag: "최신가요", query: "최신가요 2026" },
+      { id: 5, title: "오늘의 주요 뉴스 브리핑 15분 정리", channel: "뉴스룸 LIVE", time: "15:20", tag: "뉴스", query: "오늘의 주요 뉴스" }
+    ];
+
+    let currentVideos = [...videoDatabase];
     let isPlaying = true;
 
-    function switchTab(tabId) {
-      // 모든 탭 콘텐츠 숨기기
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-      
-      // 선택한 탭 보이기
-      const target = document.getElementById('tab-' + tabId);
-      if (target) target.classList.remove('hidden');
+    // 유튜브 검색 결과 렌더링
+    function renderVideos() {
+      const listEl = document.getElementById('video-list');
+      const countEl = document.getElementById('result-count');
+      countEl.innerText = currentVideos.length + '개';
 
-      // 탭 버튼 스타일 업데이트
-      document.querySelectorAll('.tab-btn').forEach(btn => {
-        const icon = btn.querySelector('.icon-box');
-        const text = btn.querySelector('span');
-        if (btn.getAttribute('data-tab') === tabId) {
-          icon.className = 'icon-box w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold bg-black text-white shadow-sm';
-          text.className = 'text-xs font-bold text-black';
-        } else {
-          icon.className = 'icon-box w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold text-neutral-400';
-          text.className = 'text-xs font-bold text-neutral-500';
-        }
-      });
+      if (currentVideos.length === 0) {
+        listEl.innerHTML = '<div class="py-6 text-center text-xs text-neutral-400 font-bold">검색 결과가 없습니다.</div>';
+        return;
+      }
+
+      listEl.innerHTML = currentVideos.map(v => `
+        <div onclick="playOnAndroid('${v.title}', '${v.channel}', '${v.query}')"
+             class="flex items-center gap-3 p-2.5 rounded-xl bg-neutral-50 dark:bg-neutral-800/80 hover:bg-neutral-100 dark:hover:bg-neutral-800 active:scale-[0.99] border border-black/[0.03] dark:border-white/[0.05] cursor-pointer">
+          <div class="w-14 h-10 rounded-lg bg-black dark:bg-neutral-900 text-white flex flex-col items-center justify-center shrink-0 text-xs font-bold">
+            <span>▶</span>
+            <span class="text-[9px] text-white/60">${v.time}</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="text-xs font-bold truncate">${v.title}</div>
+            <div class="text-[11px] text-neutral-400 mt-0.5">${v.channel} • #${v.tag}</div>
+          </div>
+          <button class="px-2.5 py-1 rounded-full bg-red-600 text-white text-[11px] font-bold shrink-0">
+            A25 재생
+          </button>
+        </div>
+      `).join('');
+    }
+
+    // 검색어 입력 시 필터링
+    function handleSearch(keyword) {
+      const q = keyword.trim().toLowerCase();
+      if (!q) {
+        currentVideos = [...videoDatabase];
+      } else {
+        currentVideos = videoDatabase.filter(v => 
+          v.title.toLowerCase().includes(q) || 
+          v.channel.toLowerCase().includes(q) ||
+          v.tag.toLowerCase().includes(q)
+        );
+      }
+      renderVideos();
+    }
+
+    function clearSearch() {
+      const inp = document.getElementById('yt-search-input');
+      inp.value = '';
+      handleSearch('');
+    }
+
+    function filterByTag(tag) {
+      const inp = document.getElementById('yt-search-input');
+      inp.value = tag;
+      handleSearch(tag);
+    }
+
+    // A25 안드로이드폰에서 해당 곡 실행 트리거
+    function playOnAndroid(title, channel, query) {
+      document.getElementById('now-playing-title').innerText = title;
+      document.getElementById('now-playing-channel').innerText = channel + ' • A25 백그라운드 재생 중';
+      isPlaying = true;
+      document.getElementById('btn-play').innerText = '❚❚';
+      document.getElementById('player-icon').innerText = '▶';
+      showToast('A25로 전송: "' + title + '" 재생');
+
+      const encodedQuery = encodeURIComponent(query);
+      const ytUri = "vnd.youtube://results?search_query=" + encodedQuery;
+      
+      const link = document.createElement('a');
+      link.href = ytUri;
+      link.click();
     }
 
     function togglePlay() {
       isPlaying = !isPlaying;
       document.getElementById('btn-play').innerText = isPlaying ? '❚❚' : '▶';
-      showToast(isPlaying ? '재생 중' : '일시정지');
+      document.getElementById('player-status').innerText = isPlaying ? 'A25에서 재생 중' : 'A25 일시정지됨';
+      showToast(isPlaying ? 'A25: 재생 재개' : 'A25: 일시정지');
     }
 
+    function seekRelative(sec) {
+      showToast('A25: ' + (sec > 0 ? '+' : '') + sec + '초 이동');
+    }
+
+    function updateVolume(val) {
+      document.getElementById('vol-txt').innerText = val + '%';
+    }
+
+    function launchApp(type) {
+      if (type === 'youtube') {
+        showToast('A25 YouTube 앱 실행 인텐트 전송');
+        window.location.href = "vnd.youtube:";
+      } else {
+        showToast('A25 YouTube Music 실행');
+        window.location.href = "https://music.youtube.com";
+      }
+    }
+
+    // 2. 문자 보내기 (A25 경유 전송)
     function sendSms() {
       const inp = document.getElementById('sms-input');
-      if (inp.value.trim()) {
-        showToast('A25로 전송: ' + inp.value);
-        inp.value = '';
-      } else {
-        showToast('메시지를 입력하세요');
+      const text = inp.value.trim();
+      if (!text) {
+        showToast('보낼 메시지를 입력하세요');
+        return;
       }
+      const box = document.getElementById('sms-chat-box');
+      box.innerHTML += `
+        <div class="flex justify-end">
+          <div class="max-w-[80%] rounded-2xl rounded-br-sm bg-blue-600 text-white px-3.5 py-2 text-sm shadow">
+            ${text}
+          </div>
+        </div>
+      `;
+      box.scrollTop = box.scrollHeight;
+      inp.value = '';
+      showToast('A25를 통해 문자 발송 완료');
+    }
+
+    // 3. 카톡 보내기 (A25 경유 전송)
+    function sendKakao() {
+      const inp = document.getElementById('kakao-input');
+      const text = inp.value.trim();
+      if (!text) {
+        showToast('카톡 메시지를 입력하세요');
+        return;
+      }
+      const box = document.getElementById('kakao-chat-box');
+      box.innerHTML += `
+        <div class="flex justify-end">
+          <div class="max-w-[80%] rounded-2xl rounded-br-sm bg-amber-400 text-black px-3.5 py-2 text-sm shadow">
+            ${text}
+          </div>
+        </div>
+      `;
+      box.scrollTop = box.scrollHeight;
+      inp.value = '';
+      showToast('A25 카카오톡 답장 전송 완료');
+    }
+
+    // 4. 감사문자 바로 발송
+    function sendThanksMessage() {
+      showToast('A25에서 승객 안심번호로 감사문자 발송됨');
+    }
+
+    // 탭 전환
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      const target = document.getElementById('tab-' + tabId);
+      if (target) target.classList.remove('hidden');
+
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        const icon = btn.querySelector('.icon-box');
+        const text = btn.querySelector('span');
+        if (btn.getAttribute('data-tab') === tabId) {
+          icon.className = 'icon-box w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold bg-black dark:bg-white text-white dark:text-black shadow-sm';
+          text.className = 'text-xs font-bold text-black dark:text-white';
+        } else {
+          icon.className = 'icon-box w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold text-neutral-400';
+          text.className = 'text-xs font-bold text-neutral-500';
+        }
+      });
     }
 
     let toastTimer = null;
@@ -295,8 +529,11 @@
       if (toastTimer) clearTimeout(toastTimer);
       toastTimer = setTimeout(() => {
         t.classList.add('opacity-0');
-      }, 2000);
+      }, 2200);
     }
+
+    // 초기 렌더링
+    renderVideos();
   </script>
 </body>
 </html>
