@@ -23,6 +23,7 @@ darkMode: 'class'
 font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
 -webkit-tap-highlight-color: transparent;
 box-sizing: border-box;
+touch-action: manipulation;
 }
 html, body {
 width: 100%;
@@ -35,7 +36,7 @@ overflow: hidden;
 padding-top: max(env(safe-area-inset-top), 12px);
 }
 .safe-bottom {
-padding-bottom: max(env(safe-area-inset-bottom), 12px);
+padding-bottom: max(env(safe-area-inset-bottom), 14px);
 }
 ::-webkit-scrollbar { display: none; }
 </style>
@@ -50,22 +51,22 @@ navigator.serviceWorker.register('sw.js').catch(() => {});
 }
 </script>
 </head>
-<body class="flex flex-col h-[100dvh] w-full bg-[#f6f7f9] dark:bg-[#121212] text-neutral-900 dark:text-neutral-100 select-none transition-colors duration-200">
-<!-- 상단 헤더 -->
-<header class="safe-top px-4 pb-2.5 bg-white/95 dark:bg-[#1e1e1e]/95 backdrop-blur-md border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between shrink-0 z-20">
+<body class="flex flex-col h-[100dvh] w-full bg-[#f6f7f9] dark:bg-[#121212] text-neutral-900 dark:text-neutral-100 transition-colors duration-200">
+<!-- 1. 상단 헤더 -->
+<header class="safe-top px-4 pb-2.5 bg-white/95 dark:bg-[#1e1e1e]/95 backdrop-blur-md border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between shrink-0 z-30">
 <div class="flex items-center gap-2.5">
 <div class="w-9 h-9 rounded-xl bg-black dark:bg-white flex items-center justify-center text-white dark:text-black font-black text-sm shadow-sm">수</div>
 <div>
 <div class="text-base font-extrabold tracking-tight leading-none">수다택시 리모콘</div>
 <div class="text-[11px] text-neutral-400 dark:text-neutral-400 font-semibold mt-1 tracking-tight flex items-center gap-1.5">
 <span>TAXI REMOTE • A25</span>
-<span class="px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-700 dark:text-amber-300 text-[10px] font-extrabold">v1.2.0</span>
+<span class="px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-700 dark:text-amber-300 text-[10px] font-extrabold">v1.1.1</span>
 </div>
 </div>
 </div>
 <div class="flex items-center gap-2">
 <!-- 주야간 모드 토글 -->
-<button onclick="toggleDarkMode()" id="theme-btn" class="w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-sm border border-black/5 dark:border-white/10 active:scale-90 transition-transform">
+<button type="button" onclick="toggleDarkMode()" id="theme-btn" class="w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-sm border border-black/5 dark:border-white/10 active:scale-90 transition-transform">
 🌙
 </button>
 <!-- A25 Firebase 연결 상태 -->
@@ -75,16 +76,16 @@ navigator.serviceWorker.register('sw.js').catch(() => {});
 </div>
 </div>
 </header>
-<!-- 메인 스크롤 콘텐츠 -->
+<!-- 2. 메인 스크롤 콘텐츠 -->
 <main class="flex-1 overflow-y-auto px-4 py-3 space-y-4">
-<!-- 1. 유튜브 탭 (기본 화면) -->
+<!-- [탭 1] 유튜브 탭 -->
 <section id="tab-youtube" class="tab-content space-y-3.5">
 <div class="flex items-center justify-between">
 <div>
 <h2 class="text-lg font-extrabold tracking-tight">유튜브 지식·정보 리모컨</h2>
 <p class="text-[11px] text-neutral-400 font-medium">검색 후 터치 시 A25에서 즉시 재생</p>
 </div>
-<button onclick="openLikedPlaylist()" class="text-xs font-bold px-2.5 py-1.5 rounded-full bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900 shadow-sm active:scale-95 flex items-center gap-1">
+<button type="button" onclick="openLikedPlaylist()" class="text-xs font-bold px-2.5 py-1.5 rounded-full bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900 shadow-sm active:scale-95 flex items-center gap-1">
 ❤️ 좋아요 보관함 ↗
 </button>
 </div>
@@ -94,7 +95,7 @@ navigator.serviceWorker.register('sw.js').catch(() => {});
 <div id="player-icon" class="text-4xl">🎙️</div>
 <span id="player-status" class="text-xs text-white/70 mt-2 font-medium">A25에서 백그라운드 재생 대기 중</span>
 <span class="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full bg-red-600 text-[10px] font-bold">REMOTE READY</span>
-<button id="btn-toggle-fav" onclick="toggleCurrentVideoLike()" class="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-black/60 backdrop-blur flex items-center justify-center text-sm active:scale-90 transition-transform">
+<button type="button" id="btn-toggle-fav" onclick="toggleCurrentVideoLike()" class="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-black/60 backdrop-blur flex items-center justify-center text-sm active:scale-90 transition-transform">
 ❤️
 </button>
 </div>
@@ -104,9 +105,9 @@ navigator.serviceWorker.register('sw.js').catch(() => {});
 </div>
 <!-- 재생 컨트롤러 -->
 <div class="mt-3.5 flex items-center justify-around">
-<button onclick="sendRemoteControl('seek', -15)" class="w-12 h-10 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-bold active:scale-95">⏪ 15초</button>
-<button id="btn-play" onclick="togglePlay()" class="w-13 h-13 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center text-xl shadow active:scale-95 font-bold px-4 py-2">❚❚</button>
-<button onclick="sendRemoteControl('seek', 30)" class="w-12 h-10 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-bold active:scale-95">30초 ⏩</button>
+<button type="button" onclick="sendRemoteControl('seek', -15)" class="w-12 h-10 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-bold active:scale-95">⏪ 15초</button>
+<button type="button" id="btn-play" onclick="togglePlay()" class="w-13 h-13 rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center justify-center text-xl shadow active:scale-95 font-bold px-4 py-2">❚❚</button>
+<button type="button" onclick="sendRemoteControl('seek', 30)" class="w-12 h-10 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-bold active:scale-95">30초 ⏩</button>
 </div>
 <!-- 볼륨 슬라이더 -->
 <div class="mt-3 flex items-center gap-2.5 bg-neutral-50 dark:bg-neutral-800/60 px-3 py-2 rounded-full border border-black/5 dark:border-white/5">
@@ -117,10 +118,10 @@ navigator.serviceWorker.register('sw.js').catch(() => {});
 </div>
 <!-- 콘텐츠 모드 선택 -->
 <div class="flex items-center p-1 rounded-xl bg-neutral-200/70 dark:bg-neutral-800/80">
-<button id="btn-view-info" onclick="setViewMode('info')" class="flex-1 py-2 rounded-lg text-xs font-extrabold transition-all bg-white dark:bg-[#1e1e1e] text-black dark:text-white shadow-sm flex items-center justify-center gap-1.5">
+<button type="button" id="btn-view-info" onclick="setViewMode('info')" class="flex-1 py-2 rounded-lg text-xs font-extrabold transition-all bg-white dark:bg-[#1e1e1e] text-black dark:text-white shadow-sm flex items-center justify-center gap-1.5">
 <span>🧠 정보·시사 콘텐츠</span>
 </button>
-<button id="btn-view-likes" onclick="setViewMode('likes')" class="flex-1 py-2 rounded-lg text-xs font-extrabold transition-all text-neutral-500 dark:text-neutral-400 flex items-center justify-center gap-1.5">
+<button type="button" id="btn-view-likes" onclick="setViewMode('likes')" class="flex-1 py-2 rounded-lg text-xs font-extrabold transition-all text-neutral-500 dark:text-neutral-400 flex items-center justify-center gap-1.5">
 <span>❤️ 좋아요 누른 목록</span>
 <span id="liked-badge-count" class="px-1.5 py-0.2 rounded-full bg-red-600 text-white text-[10px]">3</span>
 </button>
@@ -134,20 +135,20 @@ oninput="handleSearchInput(this.value)"
 onkeydown="if(event.key==='Enter') executeSearch()"
 placeholder="관심 키워드 검색 (시사, 경제, IT, 역사)"
 class="w-full h-11 pl-4 pr-9 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-sm font-medium outline-none border border-transparent focus:bg-white dark:focus:bg-neutral-900 focus:border-black/20">
-<button onclick="clearSearch()" class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 font-bold text-sm">✕</button>
+<button type="button" onclick="clearSearch()" class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 font-bold text-sm">✕</button>
 </div>
-<button onclick="executeSearch()" class="h-11 px-4 rounded-xl bg-black dark:bg-white text-white dark:text-black font-bold text-xs shrink-0 active:scale-95 shadow-sm">
+<button type="button" onclick="executeSearch()" class="h-11 px-4 rounded-xl bg-black dark:bg-white text-white dark:text-black font-bold text-xs shrink-0 active:scale-95 shadow-sm">
 검색
 </button>
 </div>
 <div id="yt-suggestions" class="hidden flex flex-wrap gap-1.5 p-2 rounded-xl bg-neutral-50 dark:bg-neutral-800/50 border border-black/5 dark:border-white/5"></div>
 <div class="flex flex-wrap gap-1.5 pt-1">
-<button onclick="filterByTag('실시간 뉴스')" class="tag-btn px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-xs font-bold border border-black/5 dark:border-white/10 active:scale-95">#실시간 뉴스</button>
-<button onclick="filterByTag('경제/증시')" class="tag-btn px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-xs font-bold border border-black/5 dark:border-white/10 active:scale-95">#경제/증시</button>
-<button onclick="filterByTag('AI/테크')" class="tag-btn px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-xs font-bold border border-black/5 dark:border-white/10 active:scale-95">#AI/테크</button>
-<button onclick="filterByTag('세계사/지식')" class="tag-btn px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-xs font-bold border border-black/5 dark:border-white/10 active:scale-95">#세계사/지식</button>
-<button onclick="filterByTag('시사 팟캐스트')" class="tag-btn px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-xs font-bold border border-black/5 dark:border-white/10 active:scale-95">#시사 팟캐스트</button>
-<button onclick="filterByTag('')" class="tag-btn px-2.5 py-1 rounded-full bg-black dark:bg-white text-white dark:text-black text-xs font-bold active:scale-95">전체</button>
+<button type="button" onclick="filterByTag('실시간 뉴스')" class="tag-btn px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-xs font-bold border border-black/5 dark:border-white/10 active:scale-95">#실시간 뉴스</button>
+<button type="button" onclick="filterByTag('경제/증시')" class="tag-btn px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-xs font-bold border border-black/5 dark:border-white/10 active:scale-95">#경제/증시</button>
+<button type="button" onclick="filterByTag('AI/테크')" class="tag-btn px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-xs font-bold border border-black/5 dark:border-white/10 active:scale-95">#AI/테크</button>
+<button type="button" onclick="filterByTag('세계사/지식')" class="tag-btn px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-xs font-bold border border-black/5 dark:border-white/10 active:scale-95">#세계사/지식</button>
+<button type="button" onclick="filterByTag('시사 팟캐스트')" class="tag-btn px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-xs font-bold border border-black/5 dark:border-white/10 active:scale-95">#시사 팟캐스트</button>
+<button type="button" onclick="filterByTag('')" class="tag-btn px-2.5 py-1 rounded-full bg-black dark:bg-white text-white dark:text-black text-xs font-bold active:scale-95">전체</button>
 </div>
 <!-- 결과 리스트 -->
 <div class="pt-2 border-t border-black/[0.06] dark:border-white/[0.08] space-y-2">
@@ -159,7 +160,7 @@ class="w-full h-11 pl-4 pr-9 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-
 </div>
 </div>
 </section>
-<!-- 2. 문자 탭 -->
+<!-- [탭 2] 문자 탭 -->
 <section id="tab-sms" class="tab-content hidden space-y-4">
 <div class="flex justify-between items-center">
 <h2 class="text-xl font-extrabold tracking-tight">A25 문자 메시지</h2>
@@ -180,13 +181,13 @@ class="w-full h-11 pl-4 pr-9 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-
 <input type="text" id="sms-input" placeholder="A25 번호로 보낼 답장 입력..." 
 class="flex-1 h-10 px-4 rounded-full bg-neutral-100 dark:bg-neutral-800 text-sm outline-none focus:bg-white dark:focus:bg-neutral-900 focus:ring-1 focus:ring-blue-500"
 onkeydown="if(event.key==='Enter') sendSms()">
-<button onclick="sendSms()" class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center active:scale-95 font-bold shadow-sm">
+<button type="button" onclick="sendSms()" class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center active:scale-95 font-bold shadow-sm">
 ↑
 </button>
 </div>
 </div>
 </section>
-<!-- 3. 카톡 탭 -->
+<!-- [탭 3] 카톡 탭 -->
 <section id="tab-kakao" class="tab-content hidden space-y-4">
 <div class="flex justify-between items-center">
 <h2 class="text-xl font-extrabold tracking-tight">A25 카카오T / 카톡</h2>
@@ -207,13 +208,13 @@ onkeydown="if(event.key==='Enter') sendSms()">
 <input type="text" id="kakao-input" placeholder="카카오톡 답장 입력..." 
 class="flex-1 h-10 px-4 rounded-full bg-neutral-100 dark:bg-neutral-800 text-sm outline-none focus:bg-white dark:focus:bg-neutral-900 focus:ring-1 focus:ring-amber-500"
 onkeydown="if(event.key==='Enter') sendKakao()">
-<button onclick="sendKakao()" class="w-10 h-10 rounded-full bg-amber-400 text-black flex items-center justify-center active:scale-95 font-bold shadow-sm">
+<button type="button" onclick="sendKakao()" class="w-10 h-10 rounded-full bg-amber-400 text-black flex items-center justify-center active:scale-95 font-bold shadow-sm">
 ↑
 </button>
 </div>
 </div>
 </section>
-<!-- 4. 고객감사 탭 -->
+<!-- [탭 4] 고객감사 탭 -->
 <section id="tab-thanks" class="tab-content hidden space-y-4">
 <div class="flex items-center justify-between">
 <h2 class="text-xl font-extrabold tracking-tight">최근 탑승 고객 감사문자</h2>
@@ -234,104 +235,154 @@ onkeydown="if(event.key==='Enter') sendKakao()">
 <label class="text-xs font-bold text-neutral-600 dark:text-neutral-400">감사 메시지 템플릿</label>
 <textarea id="thanks-text" class="w-full h-24 rounded-xl bg-neutral-50 dark:bg-neutral-800 border border-black/10 dark:border-white/10 p-3 text-sm resize-none outline-none focus:bg-white dark:focus:bg-neutral-900 focus:border-black/30">오늘 택시 이용해 주셔서 감사합니다! 안전하게 귀가하셨길 바랍니다. 다음에도 수다택시 찾아주세요 😊 - 기사 박OO</textarea>
 </div>
-<button onclick="sendThanksMessage()" class="w-full h-12 rounded-xl bg-blue-600 text-white font-bold text-sm shadow active:scale-98">
+<button type="button" onclick="sendThanksMessage()" class="w-full h-12 rounded-xl bg-blue-600 text-white font-bold text-sm shadow active:scale-98">
 A25에서 감사문자 즉시 발송
 </button>
 </div>
 </section>
 </main>
 <!-- 토스트 알림창 -->
-<div id="toast" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full bg-black/90 dark:bg-white/90 text-white dark:text-black text-xs font-bold shadow-lg opacity-0 transition-opacity pointer-events-none"></div>
-<!-- 하단 고정 4개 탭 -->
-<nav class="safe-bottom bg-white/95 dark:bg-[#1a1a1a]/95 backdrop-blur-lg border-t border-black/[0.08] dark:border-white/[0.08] pt-2 px-3 shrink-0 z-20">
+<div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full bg-black/90 dark:bg-white/90 text-white dark:text-black text-xs font-bold shadow-lg opacity-0 transition-opacity pointer-events-none"></div>
+<!-- 3. 하단 고정 4개 탭 (터치 보장 네비게이션) -->
+<nav class="safe-bottom bg-white dark:bg-[#1a1a1a] border-t border-black/[0.08] dark:border-white/[0.08] pt-1.5 px-2 shrink-0 z-40 relative">
 <div class="flex justify-around items-center">
-<button onclick="switchTab('youtube')" class="tab-btn flex flex-col items-center justify-center gap-1 w-16 py-1 active:scale-95" data-tab="youtube">
-<div class="icon-box w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold bg-black dark:bg-white text-white dark:text-black shadow-sm">
+<!-- 유튜브 -->
+<button type="button" onclick="switchTab('youtube')" class="tab-btn flex flex-col items-center justify-center gap-1 w-16 py-1 cursor-pointer" data-tab="youtube">
+<div class="icon-box w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold bg-black dark:bg-white text-white dark:text-black shadow-sm pointer-events-none">
 ▶
 </div>
-<span class="text-xs font-bold text-black dark:text-white">유튜브</span>
+<span class="tab-text text-xs font-bold text-black dark:text-white pointer-events-none">유튜브</span>
 </button>
-<button onclick="switchTab('sms')" class="tab-btn flex flex-col items-center justify-center gap-1 w-16 py-1 active:scale-95" data-tab="sms">
-<div class="icon-box w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold text-neutral-400 relative">
+<!-- 문자 -->
+<button type="button" onclick="switchTab('sms')" class="tab-btn flex flex-col items-center justify-center gap-1 w-16 py-1 cursor-pointer" data-tab="sms">
+<div class="icon-box w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold text-neutral-400 relative pointer-events-none">
 💬
 <span id="sms-unread-badge" class="hidden absolute -top-1 -right-1 w-4 h-4 rounded-full bg-blue-600 text-white text-[10px] font-extrabold flex items-center justify-center border border-white">!</span>
 </div>
-<span class="text-xs font-bold text-neutral-500">문자</span>
+<span class="tab-text text-xs font-bold text-neutral-500 pointer-events-none">문자</span>
 </button>
-<button onclick="switchTab('kakao')" class="tab-btn flex flex-col items-center justify-center gap-1 w-16 py-1 active:scale-95" data-tab="kakao">
-<div class="icon-box w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold text-neutral-400 relative">
+<!-- 카톡 -->
+<button type="button" onclick="switchTab('kakao')" class="tab-btn flex flex-col items-center justify-center gap-1 w-16 py-1 cursor-pointer" data-tab="kakao">
+<div class="icon-box w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold text-neutral-400 relative pointer-events-none">
 🟡
 <span id="kakao-unread-badge" class="hidden absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-extrabold flex items-center justify-center border border-white">!</span>
 </div>
-<span class="text-xs font-bold text-neutral-500">카톡</span>
+<span class="tab-text text-xs font-bold text-neutral-500 pointer-events-none">카톡</span>
 </button>
-<button onclick="switchTab('thanks')" class="tab-btn flex flex-col items-center justify-center gap-1 w-16 py-1 active:scale-95" data-tab="thanks">
-<div class="icon-box w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold text-neutral-400 relative">
+<!-- 고객감사 -->
+<button type="button" onclick="switchTab('thanks')" class="tab-btn flex flex-col items-center justify-center gap-1 w-16 py-1 cursor-pointer" data-tab="thanks">
+<div class="icon-box w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold text-neutral-400 relative pointer-events-none">
 📄
 <span id="thanks-badge" class="hidden absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] font-extrabold flex items-center justify-center border border-white">1</span>
 </div>
-<span class="text-xs font-bold text-neutral-500">고객감사</span>
+<span class="tab-text text-xs font-bold text-neutral-500 pointer-events-none">고객감사</span>
 </button>
 </div>
 </nav>
 <!-- Firebase 및 실시간 리모콘 제어 스크립트 -->
 <script>
-// 0. Firebase 설정 및 초기화
+// 탭 전환 함수 (최우선 배치 및 안전 실행)
+function switchTab(tabId) {
+try {
+const tabs = document.querySelectorAll('.tab-content');
+tabs.forEach(el => el.classList.add('hidden'));
+const target = document.getElementById('tab-' + tabId);
+if (target) {
+target.classList.remove('hidden');
+}
+const smsBadge = document.getElementById('sms-unread-badge');
+if (smsBadge && tabId === 'sms') smsBadge.classList.add('hidden');
+const kakaoBadge = document.getElementById('kakao-unread-badge');
+if (kakaoBadge && tabId === 'kakao') kakaoBadge.classList.add('hidden');
+document.querySelectorAll('.tab-btn').forEach(btn => {
+const icon = btn.querySelector('.icon-box');
+const text = btn.querySelector('.tab-text');
+if (btn.getAttribute('data-tab') === tabId) {
+if (icon) icon.className = 'icon-box w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold bg-black dark:bg-white text-white dark:text-black shadow-sm pointer-events-none';
+if (text) text.className = 'tab-text text-xs font-bold text-black dark:text-white pointer-events-none';
+} else {
+if (icon) icon.className = 'icon-box w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold text-neutral-400 relative pointer-events-none';
+if (text) text.className = 'tab-text text-xs font-bold text-neutral-500 pointer-events-none';
+}
+});
+} catch (err) {
+console.error("Tab switch error:", err);
+}
+}
+// 0. Firebase 안전 초기화
+let db = null;
+let lastKnownPassengerNumber = "";
+try {
+if (typeof firebase !== 'undefined') {
 const firebaseConfig = {
 databaseURL: "https://sudataxi-bridge-default-rtdb.firebaseio.com/"
 };
 firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-let lastKnownPassengerNumber = "";
-// Firebase 연결 상태 감시 (.info/connected)
+db = firebase.database();
+// 연결 상태 감시
 db.ref(".info/connected").on("value", snap => {
 const isOnline = snap.val() === true;
 const badge = document.getElementById("conn-badge");
 const dot = document.getElementById("conn-dot");
 const text = document.getElementById("conn-text");
+if (!badge) return;
 if (isOnline) {
 badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#E6F4EA] dark:bg-emerald-950/60 text-[#0D652D] dark:text-emerald-300 border border-[#C8E8CE] dark:border-emerald-800 text-xs font-bold";
-dot.className = "w-2 h-2 rounded-full bg-[#1DBF4D] animate-pulse";
-text.innerText = "A25 클라우드 연결됨";
+if (dot) dot.className = "w-2 h-2 rounded-full bg-[#1DBF4D] animate-pulse";
+if (text) text.innerText = "A25 클라우드 연결됨";
 } else {
 badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-900 text-xs font-bold";
-dot.className = "w-2 h-2 rounded-full bg-red-500";
-text.innerText = "재연결 중...";
+if (dot) dot.className = "w-2 h-2 rounded-full bg-red-500";
+if (text) text.innerText = "재연결 중...";
 }
 });
-// A25에서 올라오는 실시간 승객 문자 수신 리스너
+// 실시간 SMS 수신 리스너
 db.ref("sudataxi/inbox/sms").limitToLast(20).on("child_added", snap => {
 const data = snap.val();
 if (!data) return;
 lastKnownPassengerNumber = data.sender || "";
-document.getElementById("sms-current-sender").innerText = lastKnownPassengerNumber;
-document.getElementById("thanks-target-phone").innerText = lastKnownPassengerNumber;
-document.getElementById("thanks-target-desc").innerText = "최근 문자 수신 승객 (" + (data.time || "방금") + ")";
-document.getElementById("thanks-status-tag").className = "text-xs font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded-full border border-orange-200";
-document.getElementById("thanks-status-tag").innerText = "자동 감지됨";
-document.getElementById("thanks-badge").classList.remove("hidden");
-document.getElementById("sms-unread-badge").classList.remove("hidden");
+const currentSender = document.getElementById("sms-current-sender");
+if (currentSender) currentSender.innerText = lastKnownPassengerNumber;
+const thanksPhone = document.getElementById("thanks-target-phone");
+if (thanksPhone) thanksPhone.innerText = lastKnownPassengerNumber;
+const thanksDesc = document.getElementById("thanks-target-desc");
+if (thanksDesc) thanksDesc.innerText = "최근 문자 수신 승객 (" + (data.time || "방금") + ")";
+const thanksTag = document.getElementById("thanks-status-tag");
+if (thanksTag) {
+thanksTag.className = "text-xs font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded-full border border-orange-200";
+thanksTag.innerText = "자동 감지됨";
+}
+document.getElementById("thanks-badge")?.classList.remove("hidden");
+document.getElementById("sms-unread-badge")?.classList.remove("hidden");
 const chatBox = document.getElementById("sms-chat-box");
+if (chatBox) {
 const isMe = data.type === "sent";
 const item = document.createElement("div");
 item.className = "flex " + (isMe ? "justify-end" : "justify-start");
 item.innerHTML = ⁠<div class="max-w-[80%] rounded-2xl ${isMe ? 'rounded-br-sm bg-blue-600 text-white' : 'rounded-bl-sm bg-white dark:bg-neutral-800 border border-black/5 dark:border-white/5'} px-3.5 py-2 text-sm shadow-sm"> ${!isMe ?⁠<span class="text-[10px] text-blue-500 font-bold block mb-0.5">${data.sender || '승객'}</span>⁠: ''} ${data.message} <div class="text-[9px] ${isMe ? 'text-white/60 text-right' : 'text-neutral-400'} mt-1">${data.time || ''}</div> </div>⁠;
 chatBox.appendChild(item);
 chatBox.scrollTop = chatBox.scrollHeight;
+}
 });
-// A25에서 올라오는 실시간 카카오T 알림 리스너
+// 실시간 카카오 알림 리스너
 db.ref("sudataxi/inbox/kakao").limitToLast(20).on("child_added", snap => {
 const data = snap.val();
 if (!data) return;
-document.getElementById("kakao-unread-badge").classList.remove("hidden");
+document.getElementById("kakao-unread-badge")?.classList.remove("hidden");
 const chatBox = document.getElementById("kakao-chat-box");
+if (chatBox) {
 const item = document.createElement("div");
 item.className = "flex justify-start";
 item.innerHTML = ⁠<div class="max-w-[85%] rounded-2xl rounded-bl-sm bg-white dark:bg-neutral-800 border border-black/5 dark:border-white/5 px-3.5 py-2 text-sm shadow-sm"> <span class="text-xs font-bold text-amber-700 dark:text-amber-400 block mb-1">🟡 ${data.title || '카카오T'}</span> <div>${data.text || ''}</div> <div class="text-[9px] text-neutral-400 mt-1">${data.time || ''}</div> </div>⁠;
 chatBox.appendChild(item);
 chatBox.scrollTop = chatBox.scrollHeight;
+}
 });
-// 1. 유튜브 원격 제어 명령 전송 (Firebase)
+}
+} catch (e) {
+console.warn("Firebase Init Error:", e);
+}
+// 유튜브 명령
 function playOnAndroid(id, title, channel, query) {
 currentPlayingVideo = { id, title, channel, query };
 document.getElementById('now-playing-title').innerText = title;
@@ -340,7 +391,7 @@ document.getElementById('player-status').innerText = 'A25에서 백그라운드 
 isPlaying = true;
 document.getElementById('btn-play').innerText = '❚❚';
 updateCurrentFavBtn();
-// Firebase로 A25에 명령 하달
+if (db) {
 db.ref("sudataxi/commands/youtube").set({
 action: "play",
 query: query,
@@ -349,28 +400,34 @@ timestamp: Date.now()
 }).then(() => {
 showToast('A25로 즉시 전송: "' + title + '"');
 }).catch(err => {
-showToast('명령 전송 실패: ' + err.message);
+showToast('전송 오류: ' + err.message);
 });
+} else {
+showToast('클라우드 연결 준비 중');
+}
 }
 function togglePlay() {
 isPlaying = !isPlaying;
 document.getElementById('btn-play').innerText = isPlaying ? '❚❚' : '▶';
 document.getElementById('player-status').innerText = isPlaying ? 'A25에서 재생 중' : 'A25 일시정지됨';
+if (db) {
 db.ref("sudataxi/commands/youtube").set({
 action: isPlaying ? "resume" : "pause",
 timestamp: Date.now()
 });
+}
 showToast(isPlaying ? 'A25: 재생 재개' : 'A25: 일시정지');
 }
 function sendRemoteControl(cmd, value) {
+if (db) {
 db.ref("sudataxi/commands/youtube").set({
 action: cmd,
 value: value,
 timestamp: Date.now()
 });
+}
 showToast('A25: ' + cmd + ' ' + value);
 }
-// 2. 문자 전송 명령 하달 (A25 SIM 발송)
 function sendSms() {
 const inp = document.getElementById('sms-input');
 const text = inp.value.trim();
@@ -379,6 +436,7 @@ showToast('보낼 메시지를 입력하세요');
 return;
 }
 const targetPhone = lastKnownPassengerNumber || "0504-0000-0000";
+if (db) {
 db.ref("sudataxi/commands/sms").push({
 to: targetPhone,
 message: text,
@@ -388,7 +446,7 @@ inp.value = '';
 showToast('A25로 문자 발송 명령 전달됨');
 });
 }
-// 3. 카카오톡 답장 전송
+}
 function sendKakao() {
 const inp = document.getElementById('kakao-input');
 const text = inp.value.trim();
@@ -396,6 +454,7 @@ if (!text) {
 showToast('카톡 메시지를 입력하세요');
 return;
 }
+if (db) {
 db.ref("sudataxi/commands/kakao").push({
 message: text,
 timestamp: Date.now()
@@ -404,7 +463,7 @@ inp.value = '';
 showToast('A25 카카오톡 발송 명령 전달됨');
 });
 }
-// 4. 고객 감사문자 즉시 발송
+}
 function sendThanksMessage() {
 const text = document.getElementById('thanks-text').value.trim();
 const targetPhone = lastKnownPassengerNumber;
@@ -412,17 +471,18 @@ if (!targetPhone) {
 showToast('수신된 승객 안심번호가 아직 없습니다');
 return;
 }
+if (db) {
 db.ref("sudataxi/commands/sms").push({
 to: targetPhone,
 message: text,
 isThanks: true,
 timestamp: Date.now()
 }).then(() => {
-showToast('A25에서 승객(' + targetPhone + ')에게 감사문자 발송됨');
-document.getElementById("thanks-badge").classList.add("hidden");
+showToast('A25에서 승객에게 감사문자 발송됨');
+document.getElementById("thanks-badge")?.classList.add("hidden");
 });
 }
-// 주야간 다크모드 초기화
+}
 function initTheme() {
 const savedTheme = localStorage.getItem('suda-theme');
 if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -440,7 +500,6 @@ document.getElementById('theme-btn').innerText = isDark ? '☀️' : '🌙';
 showToast(isDark ? '야간 운전 모드' : '주간 모드');
 }
 initTheme();
-// 정보성 콘텐츠 데이터베이스
 const infoVideoDatabase = [
 { id: 101, title: "오늘의 주요 시사 뉴스 15분 핵심 요약", channel: "뉴스룸 종합", time: "16:24", tag: "실시간 뉴스", query: "오늘의 주요 뉴스 핵심 요약", liked: true },
 { id: 102, title: "글로벌 경제 & 증시 브리핑 - 돈이 되는 흐름", channel: "삼프로TV 경제", time: "28:10", tag: "경제/증시", query: "삼프로TV 오늘 아침 브리핑", liked: true },
@@ -534,18 +593,20 @@ return;
 }
 listEl.innerHTML = currentVideos.map(v => {
 const liked = isVideoLiked(v.id);
-return ⁠<div onclick="playOnAndroid(${v.id}, '${escapeHtml(v.title)}', '${escapeHtml(v.channel)}', '${escapeHtml(v.query)}')" class="flex items-center gap-3 p-2.5 rounded-xl bg-neutral-50 dark:bg-neutral-800/80 hover:bg-neutral-100 dark:hover:bg-neutral-800 active:scale-[0.99] border border-black/[0.03] dark:border-white/[0.05] cursor-pointer"> <div class="w-12 h-10 rounded-lg bg-neutral-900 dark:bg-black text-white flex flex-col items-center justify-center shrink-0 text-xs font-bold"> <span class="text-amber-400 text-xs">🎙️</span> <span class="text-[9px] text-white/60">${v.time}</span> </div> <div class="flex-1 min-w-0"> <div class="text-xs font-bold truncate">${v.title}</div> <div class="text-[11px] text-neutral-400 mt-0.5 truncate">${v.channel} • #${v.tag}</div> </div> <div class="flex items-center gap-1.5 shrink-0"> <button onclick="toggleLike(${v.id}, event)" class="w-8 h-8 rounded-full flex items-center justify-center text-xs active:scale-90 hover:bg-black/5 dark:hover:bg-white/10"> ${liked ? '❤️' : '🤍'} </button> <button class="px-2.5 py-1.5 rounded-full bg-red-600 text-white text-[11px] font-bold shadow-sm"> A25 재생 </button> </div> </div>⁠;
+return ⁠<div onclick="playOnAndroid(${v.id}, '${escapeHtml(v.title)}', '${escapeHtml(v.channel)}', '${escapeHtml(v.query)}')" class="flex items-center gap-3 p-2.5 rounded-xl bg-neutral-50 dark:bg-neutral-800/80 hover:bg-neutral-100 dark:hover:bg-neutral-800 active:scale-[0.99] border border-black/[0.03] dark:border-white/[0.05] cursor-pointer"> <div class="w-12 h-10 rounded-lg bg-neutral-900 dark:bg-black text-white flex flex-col items-center justify-center shrink-0 text-xs font-bold"> <span class="text-amber-400 text-xs">🎙️</span> <span class="text-[9px] text-white/60">${v.time}</span> </div> <div class="flex-1 min-w-0"> <div class="text-xs font-bold truncate">${v.title}</div> <div class="text-[11px] text-neutral-400 mt-0.5 truncate">${v.channel} • #${v.tag}</div> </div> <div class="flex items-center gap-1.5 shrink-0"> <button type="button" onclick="toggleLike(${v.id}, event)" class="w-8 h-8 rounded-full flex items-center justify-center text-xs active:scale-90 hover:bg-black/5 dark:hover:bg-white/10"> ${liked ? '❤️' : '🤍'} </button> <button type="button" class="px-2.5 py-1.5 rounded-full bg-red-600 text-white text-[11px] font-bold shadow-sm"> A25 재생 </button> </div> </div>⁠;
 }).join('');
 }
 function escapeHtml(str) {
 return (str || '').replace(/'/g, "\'").replace(/"/g, '"');
 }
 function openLikedPlaylist() {
+if (db) {
 db.ref("sudataxi/commands/youtube").set({
 action: "playlist",
 list: "LL",
 timestamp: Date.now()
 });
+}
 showToast('A25에서 YouTube 좋아요 보관함 실행 명령 전송');
 }
 function handleSearchInput(keyword) {
@@ -582,7 +643,7 @@ if (data && data[1] && data[1].length > 0) {
 const suggestions = data[1].slice(0, 5);
 suggBox.innerHTML = suggestions.map(item => {
 const text = item[0];
-return ⁠<button onclick="selectSuggestion('${escapeHtml(text)}')" class="px-2.5 py-1 rounded-lg bg-white dark:bg-neutral-800 text-[11px] font-semibold border border-black/5 dark:border-white/10 active:scale-95 text-neutral-700 dark:text-neutral-300">🔍 ${text}</button>⁠;
+return ⁠<button type="button" onclick="selectSuggestion('${escapeHtml(text)}')" class="px-2.5 py-1 rounded-lg bg-white dark:bg-neutral-800 text-[11px] font-semibold border border-black/5 dark:border-white/10 active:scale-95 text-neutral-700 dark:text-neutral-300">🔍 ${text}</button>⁠;
 }).join('');
 suggBox.classList.remove('hidden');
 } else {
@@ -635,27 +696,10 @@ document.getElementById('result-label').innerText = ⁠#${tag} 정보 브리핑�
 renderVideos();
 showToast(⁠태그 #${tag} 브리핑 정렬⁠);
 }
-function switchTab(tabId) {
-document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-const target = document.getElementById('tab-' + tabId);
-if (target) target.classList.remove('hidden');
-if (tabId === 'sms') document.getElementById('sms-unread-badge').classList.add('hidden');
-if (tabId === 'kakao') document.getElementById('kakao-unread-badge').classList.add('hidden');
-document.querySelectorAll('.tab-btn').forEach(btn => {
-const icon = btn.querySelector('.icon-box');
-const text = btn.querySelector('span');
-if (btn.getAttribute('data-tab') === tabId) {
-icon.className = 'icon-box w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold bg-black dark:bg-white text-white dark:text-black shadow-sm';
-text.className = 'text-xs font-bold text-black dark:text-white';
-} else {
-icon.className = 'icon-box w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold text-neutral-400';
-text.className = 'text-xs font-bold text-neutral-500';
-}
-});
-}
 let toastTimer = null;
 function showToast(msg) {
 const t = document.getElementById('toast');
+if (!t) return;
 t.innerText = msg;
 t.classList.remove('opacity-0');
 if (toastTimer) clearTimeout(toastTimer);
