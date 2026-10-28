@@ -1,40 +1,51 @@
 plugins {
-id 'com.android.application'
-id 'org.jetbrains.kotlin.android'
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
 }
+
 android {
-namespace 'com.sudataxi.bridgemate'
-compileSdk 34
-defaultConfig {
-applicationId "com.sudataxi.bridgemate"
-minSdk 24
-targetSdk 34
-versionCode 2
-versionName "1.2.0"
-testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    namespace 'com.sudataxi'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.sudataxi"
+        minSdk 24
+        targetSdk 34
+        versionCode 36
+        versionName "1.3.6"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            minifyEnabled false
+            debuggable true
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    packaging {
+        resources {
+            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
+    }
 }
-buildTypes {
-release {
-minifyEnabled false
-proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-}
-}
-compileOptions {
-sourceCompatibility JavaVersion.VERSION_17
-targetCompatibility JavaVersion.VERSION_17
-}
-kotlinOptions {
-jvmTarget = '17'
-}
-buildFeatures {
-viewBinding false
-}
-}
+
 dependencies {
-implementation 'androidx.core:core-ktx:1.12.0'
-implementation 'androidx.appcompat:appcompat:1.6.1'
-implementation 'com.google.android.material:material:1.11.0'
-// Firebase Realtime Database
-implementation platform('com.google.firebase:firebase-bom:32.8.0')
-implementation 'com.google.firebase:firebase-database-ktx'
+    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.core:core:1.12.0'
+    
+    // Firebase Realtime Database - google-services.json 없이 URL로 연결
+    implementation 'com.google.firebase:firebase-database:20.3.1'
+    implementation 'com.google.firebase:firebase-database-ktx:20.3.1'
 }
