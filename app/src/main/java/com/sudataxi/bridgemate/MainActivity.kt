@@ -1,5 +1,7 @@
 package com.sudataxi.bridgemate
 
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -17,22 +19,18 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         const val DB_URL = "https://sudataxi-bridge-default-rtdb.firebaseio.com"
-        const val VERSION = "v1.3.6"
+        const val VERSION = "v1.3.7"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // R.layout 만 참조 - R.id는 절대 직접 참조 안 함
         setContentView(resources.getIdentifier("activity_main", "layout", packageName))
 
-        // 로그뷰 찾기 - ID 이름 상관없이 동적으로
         logView = findTextViewByNames("logView", "tvLog", "log", "tv_log", "log_text", "tvLogView")
-        
-        // 버전 텍스트 찾기 - 있으면 업데이트
         val versionView = findTextViewByNames("versionText", "subtitleText", "tvVersion", "version", "subtitle", "tvSubtitle", "version_text")
         versionView?.let {
             if (it.text.toString().contains("v1.") || it.text.toString().contains("데몬")) {
-                it.text = "아이폰 Firebase 실시간 원격 제어 데몬 ($VERSION)"
+                it.text = "아이폰 Firebase 실시간 원격 제어 데몬 ($VERSION) - 백그라운드 서비스"
             }
         }
 
@@ -40,10 +38,26 @@ class MainActivity : AppCompatActivity() {
         youtubeHelper.logCallback = { msg -> runOnUiThread { addLog(msg) } }
 
         initFirebase()
+        startBridgeService()
 
         addLog("🔥 Firebase Realtime DB 연결 성공!")
         addLog("✅ 수다택시 A25 통신 에이전트 준비 완료 ($VERSION)")
         addLog("📡 가짜 데이터 생성 금지 원칙 적용")
+        addLog("🛡️ 포그라운드 서비스 시작 - 앱을 꺼도 작동함")
+    }
+
+    private fun startBridgeService() {
+        try {
+            val svcIntent = Intent(this, MyBridgeService::class.java)
+            if (Build.VERSION.SDK_INT >= 26) {
+                startForegroundService(svcIntent)
+            } else {
+                startService(svcIntent)
+            }
+            addLog("🚀 MyBridgeService 시작 요청 완료")
+        } catch (e: Exception) {
+            addLog("서비스 시작 실패: ${e.message}")
+        }
     }
 
     private fun findTextViewByNames(vararg names: String): TextView? {
@@ -71,13 +85,10 @@ class MainActivity : AppCompatActivity() {
                 FirebaseApp.initializeApp(this, options)
             }
             db = FirebaseDatabase.getInstance()
-
             db.getReference(".info/connected").addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(s: DataSnapshot) {
                     val connected = s.getValue(Boolean::class.java) ?: false
-                    if (connected) {
-                        addLog("🟢 Firebase 클라우드 브릿지 활성화됨")
-                    }
+                    if (connected) addLog("🟢 Firebase 클라우드 브릿지 활성화됨")
                 }
                 override fun onCancelled(e: DatabaseError) {}
             })
