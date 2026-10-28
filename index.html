@@ -43,7 +43,7 @@ touch-action: manipulation;
 cursor: pointer;
 }
 </style>
-<!-- 탭 전환 스크립트 (최상단 즉각 실행) -->
+<!-- 탭 전환 및 기본 전역 스크립트 (최상단 즉각 실행) -->
 <script>
 function switchTab(tabId) {
 const tabIds = ['youtube', 'sms', 'kakao', 'thanks'];
@@ -98,7 +98,7 @@ if (navigator.vibrate) navigator.vibrate(15);
 <div class="text-base font-extrabold tracking-tight leading-none">수다택시 리모콘</div>
 <div class="text-[11px] text-neutral-400 dark:text-neutral-400 font-semibold mt-1 tracking-tight flex items-center gap-1.5">
 <span>TAXI REMOTE • A25</span>
-<span class="px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-700 dark:text-amber-300 text-[10px] font-extrabold">v1.2.1</span>
+<span class="px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-700 dark:text-amber-300 text-[10px] font-extrabold">v1.2.3</span>
 </div>
 </div>
 </div>
@@ -107,10 +107,10 @@ if (navigator.vibrate) navigator.vibrate(15);
 <button type="button" onclick="toggleDarkMode()" id="theme-btn" class="w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-sm border border-black/5 dark:border-white/10 active:scale-90 transition-transform">
 🌙
 </button>
-<!-- A25 연결 상태 표시 (터치 시 진단창) -->
-<button type="button" onclick="diagnoseConnection()" id="conn-badge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-xs font-bold transition-all active:scale-95">
+<!-- A25 연결 상태 뱃지 (터치 시 내부 진단 모달창 열림) -->
+<button type="button" onclick="openDiagModal()" id="conn-badge" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-amber-50 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-xs font-bold transition-all active:scale-95 shadow-sm">
 <span id="conn-dot" class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-<span id="conn-text">연결 중...</span>
+<span id="conn-text">연결 확인 중...</span>
 </button>
 </div>
 </header>
@@ -179,7 +179,6 @@ class="w-full h-11 pl-4 pr-9 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-
 검색
 </button>
 </div>
-<div id="yt-suggestions" class="hidden flex flex-wrap gap-1.5 p-2 rounded-xl bg-neutral-50 dark:bg-neutral-800/50 border border-black/5 dark:border-white/5"></div>
 <div class="flex flex-wrap gap-1.5 pt-1">
 <button type="button" onclick="filterByTag('실시간 뉴스')" class="tag-btn px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-xs font-bold border border-black/5 dark:border-white/10 active:scale-95">#실시간 뉴스</button>
 <button type="button" onclick="filterByTag('경제/증시')" class="tag-btn px-2.5 py-1 rounded-full bg-neutral-100 dark:bg-neutral-800 text-xs font-bold border border-black/5 dark:border-white/10 active:scale-95">#경제/증시</button>
@@ -197,9 +196,8 @@ class="w-full h-11 pl-4 pr-9 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-
 </div>
 </div>
 </section>
-<!-- [탭 2] 문자(SMS) 탭: 발신자별 대화방 목록 + 1:1 대화창 -->
+<!-- [탭 2] 문자(SMS) 탭 -->
 <section id="tab-sms" style="display: none;" class="space-y-3">
-<!-- 상단 헤더 / 뒤로가기 버튼 -->
 <div class="flex justify-between items-center">
 <div class="flex items-center gap-2">
 <button type="button" id="btn-sms-back" onclick="showSmsListView()" class="hidden w-8 h-8 rounded-full bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center font-bold text-sm active:scale-90">
@@ -211,14 +209,10 @@ class="w-full h-11 pl-4 pr-9 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-
 A25 SIM 연동
 </span>
 </div>
-<!-- 1) 문자 대화방 목록 (기본 보기) -->
 <div id="sms-list-view" class="space-y-2">
 <div class="text-[11px] text-neutral-400 font-medium px-1">대화할 승객이나 발신자를 선택하세요:</div>
-<div id="sms-thread-container" class="space-y-2">
-<!-- 동적으로 생성되는 발신자 목록 -->
+<div id="sms-thread-container" class="space-y-2"></div>
 </div>
-</div>
-<!-- 2) 선택된 발신자와의 1:1 대화창 (선택 시 열림) -->
 <div id="sms-chat-view" class="hidden bg-white dark:bg-[#1e1e1e] rounded-2xl overflow-hidden shadow-sm border border-black/[0.04] dark:border-white/[0.06]">
 <div class="p-3 border-b border-black/[0.06] dark:border-white/[0.08] flex justify-between items-center bg-neutral-50 dark:bg-neutral-800/50">
 <div class="flex items-center gap-2.5">
@@ -234,10 +228,7 @@ A25 SIM 연동
 감사문자 지정 ↗
 </button>
 </div>
-<!-- 1:1 대화 버블 영역 -->
-<div id="sms-chat-box" class="p-4 space-y-3 bg-[#FAFBFC] dark:bg-neutral-900/60 min-h-[240px] max-h-[340px] overflow-y-auto">
-</div>
-<!-- 답장 입력창 -->
+<div id="sms-chat-box" class="p-4 space-y-3 bg-[#FAFBFC] dark:bg-neutral-900/60 min-h-[240px] max-h-[340px] overflow-y-auto"></div>
 <div class="p-2.5 flex gap-2 border-t border-black/[0.06] dark:border-white/[0.08] bg-white dark:bg-[#1e1e1e]">
 <input type="text" id="sms-input" placeholder="이 승객에게 보낼 답장 입력..." 
 class="flex-1 h-10 px-4 rounded-full bg-neutral-100 dark:bg-neutral-800 text-sm outline-none focus:bg-white dark:focus:bg-neutral-900 focus:ring-1 focus:ring-blue-500"
@@ -248,7 +239,7 @@ onkeydown="if(event.key==='Enter') sendSms()">
 </div>
 </div>
 </section>
-<!-- [탭 3] 카톡 탭: 알림 채널 목록 + 상세 피드 -->
+<!-- [탭 3] 카톡 탭 -->
 <section id="tab-kakao" style="display: none;" class="space-y-3">
 <div class="flex justify-between items-center">
 <div class="flex items-center gap-2">
@@ -261,14 +252,10 @@ onkeydown="if(event.key==='Enter') sendSms()">
 기사앱 피드
 </span>
 </div>
-<!-- 1) 카톡 채널 목록 -->
 <div id="kakao-list-view" class="space-y-2">
 <div class="text-[11px] text-neutral-400 font-medium px-1">확인할 카톡/기사앱 채널을 선택하세요:</div>
-<div id="kakao-channel-container" class="space-y-2">
-<!-- 동적으로 생성되는 카톡 채널 목록 -->
+<div id="kakao-channel-container" class="space-y-2"></div>
 </div>
-</div>
-<!-- 2) 카톡 채널별 대화 피드 -->
 <div id="kakao-chat-view" class="hidden bg-white dark:bg-[#1e1e1e] rounded-2xl overflow-hidden shadow-sm border border-black/[0.04] dark:border-white/[0.06]">
 <div class="p-3 border-b border-black/[0.06] dark:border-white/[0.08] flex items-center gap-2.5 bg-amber-300 text-black">
 <div class="w-8 h-8 rounded-full bg-black text-amber-300 flex items-center justify-center font-black text-sm">K</div>
@@ -277,8 +264,7 @@ onkeydown="if(event.key==='Enter') sendSms()">
 <div class="text-[11px] text-amber-950 font-medium">A25 알림 자동 동기화</div>
 </div>
 </div>
-<div id="kakao-chat-box" class="p-4 space-y-3 bg-[#FEE500]/10 dark:bg-amber-950/20 min-h-[240px] max-h-[340px] overflow-y-auto">
-</div>
+<div id="kakao-chat-box" class="p-4 space-y-3 bg-[#FEE500]/10 dark:bg-amber-950/20 min-h-[240px] max-h-[340px] overflow-y-auto"></div>
 <div class="p-2.5 flex gap-2 border-t border-black/[0.06] dark:border-white/[0.08] bg-white dark:bg-[#1e1e1e]">
 <input type="text" id="kakao-input" placeholder="카카오톡 답장 입력..." 
 class="flex-1 h-10 px-4 rounded-full bg-neutral-100 dark:bg-neutral-800 text-sm outline-none focus:bg-white dark:focus:bg-neutral-900 focus:ring-1 focus:ring-amber-500"
@@ -306,7 +292,6 @@ onkeydown="if(event.key==='Enter') sendKakao()">
 </div>
 <span id="thanks-status-tag" class="text-xs font-bold text-neutral-500 bg-neutral-100 dark:bg-neutral-800 px-2 py-1 rounded-full">대기 중</span>
 </div>
-<!-- 최근 승객 선택 칩 목록 -->
 <div class="space-y-1">
 <label class="text-[11px] font-bold text-neutral-500">최근 대화 승객 목록에서 선택:</label>
 <div id="thanks-sender-chips" class="flex flex-wrap gap-1.5 pt-1">
@@ -323,9 +308,41 @@ A25에서 감사문자 즉시 발송
 </div>
 </section>
 </main>
+<!-- 3. 실시간 연결 진단 모달창 (화면 내장형 - 사파리 차단 불가) -->
+<div id="diag-modal" class="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+<div class="bg-white dark:bg-[#1e1e1e] w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-black/10 dark:border-white/10 space-y-4">
+<div class="flex justify-between items-center">
+<h3 class="text-base font-extrabold flex items-center gap-2">
+<span>📡 통신 진단 어시스턴트</span>
+</h3>
+<button type="button" onclick="closeDiagModal()" class="w-7 h-7 rounded-full bg-neutral-100 dark:bg-neutral-800 text-xs font-bold flex items-center justify-center">✕</button>
+</div>
+<div class="space-y-2 text-xs">
+<div class="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-800/60 border border-black/5 dark:border-white/5 space-y-1">
+<div class="font-bold text-neutral-400">연결 시도 DB 주소</div>
+<div id="modal-db-url" class="font-mono text-[11px] break-all font-bold text-blue-600 dark:text-blue-400"></div>
+</div>
+<div class="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-800/60 border border-black/5 dark:border-white/5 space-y-1">
+<div class="font-bold text-neutral-400">실시간 서버 응답 상태</div>
+<div id="modal-ping-status" class="font-bold text-sm text-amber-500">확인 중...</div>
+</div>
+<div id="modal-guide-box" class="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-300 text-[11px] leading-relaxed hidden">
+<!-- 진단 가이드 텍스트 -->
+</div>
+</div>
+<div class="space-y-2 pt-1">
+<button type="button" onclick="recheckConnectionNow()" class="w-full h-11 rounded-xl bg-black dark:bg-white text-white dark:text-black font-extrabold text-xs active:scale-95 shadow">
+🔄 지금 즉시 통신 재점검
+</button>
+<button type="button" onclick="hardReloadPwa()" class="w-full h-10 rounded-xl bg-neutral-100 dark:bg-neutral-800 font-bold text-xs text-neutral-600 dark:text-neutral-300 active:scale-95">
+⚡ 캐시 강제 삭제 & 재로딩
+</button>
+</div>
+</div>
+</div>
 <!-- 토스트 알림창 -->
 <div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full bg-black/90 dark:bg-white/90 text-white dark:text-black text-xs font-bold shadow-lg opacity-0 transition-opacity pointer-events-none"></div>
-<!-- 3. 하단 고정 4개 탭 네비게이션 -->
+<!-- 4. 하단 고정 4개 탭 네비게이션 -->
 <nav class="safe-bottom bg-white/95 dark:bg-[#1a1a1a]/95 backdrop-blur-lg border-t border-black/[0.08] dark:border-white/[0.08] pt-1.5 px-2 shrink-0 z-[100] relative">
 <div class="flex justify-around items-center">
 <!-- 유튜브 -->
@@ -361,11 +378,10 @@ A25에서 감사문자 즉시 발송
 </button>
 </div>
 </nav>
-<!-- 데이터 및 Firebase 양방향 통신 스크립트 -->
+<!-- 데이터 및 Firebase 통신 스크립트 -->
 <script>
 let db = null;
 const FIREBASE_DB_URL = "https://sudataxi-bridge-default-rtdb.firebaseio.com";
-// 대화방 데이터 구조: sender -> array of messages
 const smsThreads = {
 "0504-2345-6789": [
 { type: "received", message: "기사님 지금 파리바게트 앞에 도착하셨나요?", time: "14:20" },
@@ -395,72 +411,100 @@ const dot = document.getElementById("conn-dot");
 const text = document.getElementById("conn-text");
 if (!badge) return;
 if (isOnline) {
-badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#E6F4EA] dark:bg-emerald-950/60 text-[#0D652D] dark:text-emerald-300 border border-[#C8E8CE] dark:border-emerald-800 text-xs font-bold cursor-pointer active:scale-95";
+badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-[#E6F4EA] dark:bg-emerald-950/60 text-[#0D652D] dark:text-emerald-300 border border-[#C8E8CE] dark:border-emerald-800 text-xs font-bold cursor-pointer active:scale-95 shadow-sm";
 if (dot) dot.className = "w-2 h-2 rounded-full bg-[#1DBF4D] animate-pulse";
 if (text) text.innerText = customText || "A25 연결됨";
 } else {
-badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-900 text-xs font-bold cursor-pointer active:scale-95";
+badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-900 text-xs font-bold cursor-pointer active:scale-95 shadow-sm";
 if (dot) dot.className = "w-2 h-2 rounded-full bg-red-500";
-if (text) text.innerText = customText || "규칙 확인 필요";
+if (text) text.innerText = customText || "연결 확인 필요";
 }
 }
-// 초고속 REST 통신으로 규칙 게시 여부 즉각 진단
-function checkFirebaseRestPing() {
-fetch(⁠${FIREBASE_DB_URL}/sudataxi/ping.json⁠)
+// 통신 상태 체크 (REST 핑)
+function checkFirebaseRestPing(callback) {
+fetch(⁠${FIREBASE_DB_URL}/sudataxi/ping.json⁠, { method: 'GET', mode: 'cors' })
 .then(res => {
 if (res.ok) {
 setConnectionStatus(true, "A25 연결됨");
+if (callback) callback(true, "200 정상 연결됨");
 } else if (res.status === 401) {
 setConnectionStatus(false, "규칙 미게시 (401)");
-showToast("Firebase 화면에서 파란색 [규칙 게시] 버튼을 눌러주세요!");
+if (callback) callback(false, "401 권한 없음 (규칙 게시 필요)");
 } else {
-setConnectionStatus(false, ⁠오류 ${res.status}⁠);
-}
-})
-.catch(() => {
-// 오프라인이거나 네트워크 차단
-});
-}
-function diagnoseConnection() {
-fetch(⁠${FIREBASE_DB_URL}/sudataxi/ping.json⁠)
-.then(res => {
-if (res.ok) {
-alert(⁠[정상 연결 완료]\nFirebase 주소: ${FIREBASE_DB_URL}\n보안 규칙이 정상 게시되어 A25와 실시간 통신 중입니다.⁠);
-} else if (res.status === 401) {
-alert(⁠[Firebase 규칙 미게시 상태]\n현재 데이터베이스가 잠겨 있습니다.\nFirebase 콘솔의 [규칙] 화면에서 파란색 [규칙 게시] 버튼을 꼭 눌러주세요!⁠);
-} else {
-alert(⁠[접속 상태 코드: ${res.status}]\n주소를 다시 확인해주세요.⁠);
+setConnectionStatus(false, ⁠상태: ${res.status}⁠);
+if (callback) callback(false, ⁠서버 응답 코드: ${res.status}⁠);
 }
 })
 .catch(err => {
-alert(⁠[네트워크 통신 오류]\n${err.message}\n인터넷 연결 상태를 확인해주세요.⁠);
+setConnectionStatus(false, "오프라인");
+if (callback) callback(false, ⁠네트워크 오류: ${err.message}⁠);
 });
 }
+// 내장 모달창 제어 (사파리 차단 우회)
+function openDiagModal() {
+const modal = document.getElementById("diag-modal");
+if (!modal) return;
+document.getElementById("modal-db-url").innerText = FIREBASE_DB_URL;
+document.getElementById("modal-ping-status").innerText = "구글 서버 응답 검사 중...";
+modal.classList.remove("hidden");
+checkFirebaseRestPing((ok, msg) => {
+const statusEl = document.getElementById("modal-ping-status");
+const guideEl = document.getElementById("modal-guide-box");
+if (!statusEl) return;
+if (ok) {
+statusEl.innerText = "🟢 정상 연결 성공 (" + msg + ")";
+statusEl.className = "font-bold text-sm text-emerald-600 dark:text-emerald-400";
+guideEl.classList.remove("hidden");
+guideEl.innerHTML = "구글 Firebase 실시간 통신망과 연결되었습니다. 아이폰에서 누르는 모든 제어 명령이 A25로 즉시 전달됩니다.";
+} else {
+statusEl.innerText = "🔴 연결 실패: " + msg;
+statusEl.className = "font-bold text-sm text-red-600 dark:text-red-400";
+guideEl.classList.remove("hidden");
+guideEl.innerHTML = "<b>조치 요령:</b>
+1. Firebase 콘솔의 [규칙] 화면에서 파란색 <b>[규칙 게시]</b> 버튼이 눌렸는지 확인해 주세요.
+2. 인터넷 연결 상태를 확인해 주세요.";
+}
+});
+}
+function closeDiagModal() {
+const modal = document.getElementById("diag-modal");
+if (modal) modal.classList.add("hidden");
+}
+function recheckConnectionNow() {
+showToast("서버 연결 재확인 중...");
+openDiagModal();
+}
+function hardReloadPwa() {
+showToast("최신 버전으로 강제 새로고침...");
+setTimeout(() => {
+window.location.href = window.location.pathname + '?v=' + Date.now();
+}, 300);
+}
+// 최초 즉각 실행 및 주기적 감시
+checkFirebaseRestPing();
+setInterval(checkFirebaseRestPing, 6000);
+// Firebase SDK 초기화 및 실시간 동기화
 try {
 if (typeof firebase !== 'undefined') {
 const firebaseConfig = {
+apiKey: "AIzaSyDummyKeyForRestConnectionOnly",
+projectId: "sudataxi-bridge",
 databaseURL: FIREBASE_DB_URL
 };
 if (!firebase.apps.length) {
 firebase.initializeApp(firebaseConfig);
 }
 db = firebase.database();
-// 1. 소켓 레벨 연결 확인
 db.ref(".info/connected").on("value", snap => {
 if (snap.val() === true) {
-setConnectionStatus(true);
+setConnectionStatus(true, "A25 연결됨");
 }
 });
-// 2. 초기 REST 핑 체크 (규칙 즉각 감지)
-checkFirebaseRestPing();
-// 3. 실시간 SMS 리스너
 db.ref("sudataxi/inbox/sms").limitToLast(30).on("child_added", snap => {
 const data = snap.val();
 if (!data || !data.sender) return;
 const sender = data.sender;
-if (!smsThreads[sender]) {
-smsThreads[sender] = [];
-}
+if (!smsThreads[sender]) smsThreads[sender] = [];
 smsThreads[sender].push({
 type: data.type || "received",
 message: data.message || "",
@@ -476,14 +520,11 @@ if (sb) sb.style.display = 'flex';
 var tb = document.getElementById("thanks-badge");
 if (tb) tb.style.display = 'flex';
 });
-// 4. 실시간 카카오 알림 리스너
 db.ref("sudataxi/inbox/kakao").limitToLast(30).on("child_added", snap => {
 const data = snap.val();
 if (!data) return;
 const chName = data.title && data.title.includes("카카오T") ? "카카오T 기사앱" : (data.title || "카카오 알림");
-if (!kakaoChannels[chName]) {
-kakaoChannels[chName] = [];
-}
+if (!kakaoChannels[chName]) kakaoChannels[chName] = [];
 kakaoChannels[chName].push({
 title: data.title || "카카오",
 text: data.text || "",
@@ -565,17 +606,17 @@ if (!smsThreads[activeSmsSender]) smsThreads[activeSmsSender] = [];
 smsThreads[activeSmsSender].push({ type: 'sent', message: text, time: nowTime });
 appendSmsBubble(true, text, nowTime);
 inp.value = '';
-if (db) {
-db.ref("sudataxi/commands/sms").push({
-to: activeSmsSender,
-message: text,
-timestamp: Date.now()
-}).then(() => {
-showToast(⁠A25 유심으로 ${activeSmsSender}에게 문자 발송⁠);
+// REST 및 SDK 이중 발송 (절대 유실 방지)
+const payload = { to: activeSmsSender, message: text, timestamp: Date.now() };
+fetch(⁠${FIREBASE_DB_URL}/sudataxi/commands/sms.json⁠, {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify(payload)
 });
-} else {
-showToast('클라우드 연결 준비 중');
+if (db) {
+db.ref("sudataxi/commands/sms").push(payload);
 }
+showToast(⁠A25 유심으로 ${activeSmsSender}에게 문자 발송⁠);
 }
 function importToThanks() {
 setThanksTarget(activeSmsSender);
@@ -633,16 +674,15 @@ if (!text) {
 showToast('카톡 메시지를 입력하세요');
 return;
 }
-if (db) {
-db.ref("sudataxi/commands/kakao").push({
-target: activeKakaoChannel,
-message: text,
-timestamp: Date.now()
-}).then(() => {
+const payload = { target: activeKakaoChannel, message: text, timestamp: Date.now() };
+fetch(⁠${FIREBASE_DB_URL}/sudataxi/commands/kakao.json⁠, {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify(payload)
+});
+if (db) db.ref("sudataxi/commands/kakao").push(payload);
 inp.value = '';
 showToast('A25 카카오톡 발송 명령 전달됨');
-});
-}
 }
 // ==========================================
 // 고객감사 탭 제어
@@ -672,18 +712,16 @@ if (!currentThanksTarget) {
 showToast('발송 대상 승객 번호를 선택하세요');
 return;
 }
-if (db) {
-db.ref("sudataxi/commands/sms").push({
-to: currentThanksTarget,
-message: text,
-isThanks: true,
-timestamp: Date.now()
-}).then(() => {
+const payload = { to: currentThanksTarget, message: text, isThanks: true, timestamp: Date.now() };
+fetch(⁠${FIREBASE_DB_URL}/sudataxi/commands/sms.json⁠, {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify(payload)
+});
+if (db) db.ref("sudataxi/commands/sms").push(payload);
 showToast(⁠A25에서 ${currentThanksTarget}에게 감사문자 발송됨⁠);
 var tb = document.getElementById("thanks-badge");
 if (tb) tb.style.display = 'none';
-});
-}
 }
 // ==========================================
 // 유튜브 & 시스템 기본 제어
@@ -698,47 +736,46 @@ document.getElementById('player-status').innerText = 'A25에서 백그라운드 
 isPlaying = true;
 document.getElementById('btn-play').innerText = '❚❚';
 updateCurrentFavBtn();
-if (db) {
-db.ref("sudataxi/commands/youtube").set({
-action: "play",
-query: query,
-title: title,
-timestamp: Date.now()
-}).then(() => {
-showToast('A25로 즉시 전송: "' + title + '"');
+const payload = { action: "play", query: query, title: title, timestamp: Date.now() };
+fetch(⁠${FIREBASE_DB_URL}/sudataxi/commands/youtube.json⁠, {
+method: 'PUT',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify(payload)
 });
-}
+if (db) db.ref("sudataxi/commands/youtube").set(payload);
+showToast('A25로 즉시 전송: "' + title + '"');
 }
 function togglePlay() {
 isPlaying = !isPlaying;
 document.getElementById('btn-play').innerText = isPlaying ? '❚❚' : '▶';
 document.getElementById('player-status').innerText = isPlaying ? 'A25에서 재생 중' : 'A25 일시정지됨';
-if (db) {
-db.ref("sudataxi/commands/youtube").set({
-action: isPlaying ? "resume" : "pause",
-timestamp: Date.now()
+const payload = { action: isPlaying ? "resume" : "pause", timestamp: Date.now() };
+fetch(⁠${FIREBASE_DB_URL}/sudataxi/commands/youtube.json⁠, {
+method: 'PUT',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify(payload)
 });
-}
+if (db) db.ref("sudataxi/commands/youtube").set(payload);
 showToast(isPlaying ? 'A25: 재생 재개' : 'A25: 일시정지');
 }
 function sendRemoteControl(cmd, value) {
-if (db) {
-db.ref("sudataxi/commands/youtube").set({
-action: cmd,
-value: value,
-timestamp: Date.now()
+const payload = { action: cmd, value: value, timestamp: Date.now() };
+fetch(⁠${FIREBASE_DB_URL}/sudataxi/commands/youtube.json⁠, {
+method: 'PUT',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify(payload)
 });
-}
+if (db) db.ref("sudataxi/commands/youtube").set(payload);
 showToast('A25: ' + cmd + ' ' + value);
 }
 function openLikedPlaylist() {
-if (db) {
-db.ref("sudataxi/commands/youtube").set({
-action: "playlist",
-list: "LL",
-timestamp: Date.now()
+const payload = { action: "playlist", list: "LL", timestamp: Date.now() };
+fetch(⁠${FIREBASE_DB_URL}/sudataxi/commands/youtube.json⁠, {
+method: 'PUT',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify(payload)
 });
-}
+if (db) db.ref("sudataxi/commands/youtube").set(payload);
 showToast('A25 YouTube 좋아요 보관함 실행');
 }
 function initTheme() {
@@ -768,7 +805,6 @@ const infoVideoDatabase = [
 let likedVideos = infoVideoDatabase.filter(v => v.liked);
 let viewMode = 'info';
 let currentVideos = [...infoVideoDatabase];
-let suggestDebounce = null;
 currentPlayingVideo = infoVideoDatabase[0];
 function setViewMode(mode) {
 viewMode = mode;
@@ -835,8 +871,6 @@ function handleSearchInput(keyword) {
 const q = keyword.trim();
 if (!q) {
 currentVideos = viewMode === 'likes' ? [...likedVideos] : [...infoVideoDatabase];
-const s = document.getElementById('yt-suggestions');
-if (s) s.classList.add('hidden');
 renderVideos();
 return;
 }
