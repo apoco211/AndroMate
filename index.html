@@ -43,22 +43,16 @@ touch-action: manipulation;
 cursor: pointer;
 }
 </style>
-<!-- 탭 전환 핵심 스크립트 (외부 라이브러리 로딩 지연과 무관하게 0초 즉시 실행 보장) -->
+<!-- 탭 전환 핵심 스크립트 -->
 <script>
 function switchTab(tabId) {
 const tabIds = ['youtube', 'sms', 'kakao', 'thanks'];
-// 1. 모든 탭 섹션 숨김 및 타겟 탭 표시 (인라인 스타일로 100% 강제 적용)
 tabIds.forEach(function(id) {
 var el = document.getElementById('tab-' + id);
 if (el) {
-if (id === tabId) {
-el.style.display = 'block';
-} else {
-el.style.display = 'none';
-}
+el.style.display = (id === tabId) ? 'block' : 'none';
 }
 });
-// 2. 알림 뱃지 숨김 처리
 if (tabId === 'sms') {
 var sb = document.getElementById('sms-unread-badge');
 if (sb) sb.style.display = 'none';
@@ -67,7 +61,6 @@ if (tabId === 'kakao') {
 var kb = document.getElementById('kakao-unread-badge');
 if (kb) kb.style.display = 'none';
 }
-// 3. 하단 네비게이션 버튼 활성화 스타일 동기화
 tabIds.forEach(function(id) {
 var btn = document.getElementById('btn-nav-' + id);
 if (!btn) return;
@@ -89,7 +82,6 @@ text.className = 'tab-text text-xs font-bold text-neutral-400 mt-1';
 }
 }
 });
-// 가벼운 진동 피드백 (지원 기기)
 if (navigator.vibrate) navigator.vibrate(15);
 }
 </script>
@@ -106,7 +98,7 @@ if (navigator.vibrate) navigator.vibrate(15);
 <div class="text-base font-extrabold tracking-tight leading-none">수다택시 리모콘</div>
 <div class="text-[11px] text-neutral-400 dark:text-neutral-400 font-semibold mt-1 tracking-tight flex items-center gap-1.5">
 <span>TAXI REMOTE • A25</span>
-<span class="px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-700 dark:text-amber-300 text-[10px] font-extrabold">v1.1.2</span>
+<span class="px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-700 dark:text-amber-300 text-[10px] font-extrabold">v1.1.3</span>
 </div>
 </div>
 </div>
@@ -289,7 +281,7 @@ A25에서 감사문자 즉시 발송
 </main>
 <!-- 토스트 알림창 -->
 <div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-full bg-black/90 dark:bg-white/90 text-white dark:text-black text-xs font-bold shadow-lg opacity-0 transition-opacity pointer-events-none"></div>
-<!-- 3. 하단 고정 4개 탭 (최우선 터치 보장: z-[100]) -->
+<!-- 3. 하단 고정 4개 탭 -->
 <nav class="safe-bottom bg-white/95 dark:bg-[#1a1a1a]/95 backdrop-blur-lg border-t border-black/[0.08] dark:border-white/[0.08] pt-1.5 px-2 shrink-0 z-[100] relative">
 <div class="flex justify-around items-center">
 <!-- 유튜브 -->
@@ -327,19 +319,9 @@ A25에서 감사문자 즉시 발송
 </nav>
 <!-- 데이터 및 Firebase 백엔드 연동 스크립트 -->
 <script>
-// 0. Firebase 안전 초기화
 let db = null;
 let lastKnownPassengerNumber = "";
-try {
-if (typeof firebase !== 'undefined') {
-const firebaseConfig = {
-databaseURL: "https://sudataxi-bridge-default-rtdb.firebaseio.com/"
-};
-firebase.initializeApp(firebaseConfig);
-db = firebase.database();
-// 연결 상태 감시
-db.ref(".info/connected").on("value", snap => {
-const isOnline = snap.val() === true;
+function setConnectionStatus(isOnline) {
 const badge = document.getElementById("conn-badge");
 const dot = document.getElementById("conn-dot");
 const text = document.getElementById("conn-text");
@@ -353,6 +335,28 @@ badge.className = "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-
 if (dot) dot.className = "w-2 h-2 rounded-full bg-red-500";
 if (text) text.innerText = "재연결 중...";
 }
+}
+try {
+if (typeof firebase !== 'undefined') {
+const firebaseConfig = {
+apiKey: "AIzaSyDummyKeyForRestConnectionOnly",
+projectId: "sudataxi-bridge",
+databaseURL: "https://sudataxi-bridge-default-rtdb.firebaseio.com/"
+};
+if (!firebase.apps.length) {
+firebase.initializeApp(firebaseConfig);
+}
+db = firebase.database();
+// 1. 소켓 레벨 연결 확인
+db.ref(".info/connected").on("value", snap => {
+const isOnline = snap.val() === true;
+setConnectionStatus(isOnline);
+});
+// 2. 백엔드 실시간 읽기 테스트 (즉시 온라인 전환 보장)
+db.ref("sudataxi/commands/youtube").limitToLast(1).once("value").then(() => {
+setConnectionStatus(true);
+}).catch(err => {
+console.warn("Firebase Read Check:", err);
 });
 // 실시간 SMS 수신 리스너
 db.ref("sudataxi/inbox/sms").limitToLast(20).on("child_added", snap => {
