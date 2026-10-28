@@ -3,10 +3,7 @@ package com.sudataxi.bridgemate
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.content.BroadcastReceiver
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -21,22 +18,24 @@ import android.provider.Telephony
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.telephony.SmsManager
-import android.view.Gravity
 import android.view.View
-import android.widget.*
+import android.widget.Button
+import android.widget.LinearLayout
+import android.widget.ScrollView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.firebase.database.ChildEventListener
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
-/**
- * [A25 전용 수다택시 브릿지 에이전트]
- * 역할:
- * 1. 차량 백그라운드에서 상시 대기하며 승객 문자 및 카카오T 알림 감지
- * 2. 아이폰 PWA에서 명령을 받아 유튜브 실행 및 문자(감사문자/답장) 발송
- * 3. XML 레이아웃 ID 충돌을 방지하기 위해 순수 코드로 대시보드 UI를 구성
- */
 class MainActivity : AppCompatActivity() {
 
     private lateinit var statusText: TextView
@@ -49,10 +48,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         BridgeManager.activeActivity = this
 
-        // A25 브릿지 관리 대시보드 화면 생성
         setContentView(createDashboardView())
-
         checkAllPermissions()
+
+        // Firebase 실시간 명령 리스너 활성화
+        BridgeManager.initFirebase(this)
         addLog("✅ 수다택시 A25 통신 에이전트 준비 완료")
     }
 
@@ -68,7 +68,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // 1. 대시보드 뷰 프로그래밍 방식 생성 (XML 에러 방지)
     private fun createDashboardView(): View {
         val root = ScrollView(this).apply {
             setBackgroundColor(Color.parseColor("#121212"))
@@ -80,7 +79,6 @@ class MainActivity : AppCompatActivity() {
             setPadding(48, 64, 48, 64)
         }
 
-        // 헤더
         val title = TextView(this).apply {
             text = "수다택시 A25 브릿지 에이전트"
             textSize = 22f
@@ -90,23 +88,21 @@ class MainActivity : AppCompatActivity() {
         mainLayout.addView(title)
 
         val subTitle = TextView(this).apply {
-            text = "아이폰 PWA 리모콘 연동 백그라운드 데몬"
+            text = "아이폰 Firebase 실시간 원격 제어 데몬 (v1.2.0)"
             textSize = 13f
             setTextColor(Color.parseColor("#9E9E9E"))
             setPadding(0, 8, 0, 32)
         }
         mainLayout.addView(subTitle)
 
-        // 상태 카드
         val card = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setBackgroundColor(Color.parseColor("#1E1E1E"))
             setPadding(40, 40, 40, 40)
-            elevation = 8f
         }
 
         statusText = TextView(this).apply {
-            text = "● 백그라운드 브릿지 활성화됨"
+            text = "● Firebase 클라우드 브릿지 활성화됨"
             textSize = 15f
             setTextColor(Color.parseColor("#4CAF50"))
             typeface = Typeface.DEFAULT_BOLD
@@ -122,7 +118,6 @@ class MainActivity : AppCompatActivity() {
         card.addView(desc)
         mainLayout.addView(card)
 
-        // 권한 설정 섹션 헤더
         val permTitle = TextView(this).apply {
             text = "필수 권한 설정 상태"
             textSize = 16f
@@ -132,18 +127,16 @@ class MainActivity : AppCompatActivity() {
         }
         mainLayout.addView(permTitle)
 
-        // 1) 문자 권한 버튼
         btnSmsPerm = Button(this).apply {
-            text = "1. 문자 수발신 권한 허용하기"
+            text = "1. 문자 수발신 권한"
             setBackgroundColor(Color.parseColor("#2C2C2C"))
             setTextColor(Color.WHITE)
             setOnClickListener { requestSmsPermissions() }
         }
         mainLayout.addView(btnSmsPerm)
 
-        // 2) 알림 읽기 권한 버튼
         btnNotiPerm = Button(this).apply {
-            text = "2. 카카오T 알림 감지 권한 허용하기"
+            text = "2. 카카오T 알림 감지 권한"
             setBackgroundColor(Color.parseColor("#2C2C2C"))
             setTextColor(Color.WHITE)
             val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
@@ -154,9 +147,8 @@ class MainActivity : AppCompatActivity() {
         }
         mainLayout.addView(btnNotiPerm)
 
-        // 3) 배터리 최적화 제외 버튼
         btnBatteryPerm = Button(this).apply {
-            text = "3. 백그라운드 절전 제외 (상시 유지)"
+            text = "3. 백그라운드 절전 제외"
             setBackgroundColor(Color.parseColor("#2C2C2C"))
             setTextColor(Color.WHITE)
             val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
@@ -167,29 +159,8 @@ class MainActivity : AppCompatActivity() {
         }
         mainLayout.addView(btnBatteryPerm)
 
-        // 빠른 테스트 도구 (유튜브 실행 & 테스트 문자)
-        val testTitle = TextView(this).apply {
-            text = "동작 테스트 (아이폰 명령 수신 시뮬레이션)"
-            textSize = 16f
-            setTextColor(Color.WHITE)
-            typeface = Typeface.DEFAULT_BOLD
-            setPadding(0, 48, 0, 16)
-        }
-        mainLayout.addView(testTitle)
-
-        val btnTestYoutube = Button(this).apply {
-            text = "▶ 유튜브 백그라운드 실행 테스트"
-            setBackgroundColor(Color.parseColor("#D32F2F"))
-            setTextColor(Color.WHITE)
-            setOnClickListener {
-                BridgeManager.playYoutube(this@MainActivity, "오늘의 뉴스 핵심 요약")
-            }
-        }
-        mainLayout.addView(btnTestYoutube)
-
-        // 실시간 수신 이벤트 로그
         val logTitle = TextView(this).apply {
-            text = "실시간 수신 이벤트 로그"
+            text = "실시간 Firebase 통신 이벤트 로그"
             textSize = 16f
             setTextColor(Color.WHITE)
             typeface = Typeface.DEFAULT_BOLD
@@ -208,7 +179,6 @@ class MainActivity : AppCompatActivity() {
         return root
     }
 
-    // 2. 권한 검사 및 업데이트
     private fun checkAllPermissions() {
         val requiredPerms = mutableListOf<String>()
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECEIVE_SMS) != PackageManager.PERMISSION_GRANTED) {
@@ -259,7 +229,6 @@ class MainActivity : AppCompatActivity() {
     private fun openNotificationAccessSettings() {
         val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
         startActivity(intent)
-        Toast.makeText(this, "'수다택시 A25 브릿지'를 찾아서 권한을 켜주세요", Toast.LENGTH_LONG).show()
     }
 
     @SuppressLint("BatteryLife")
@@ -269,9 +238,7 @@ class MainActivity : AppCompatActivity() {
                 data = Uri.parse("package:$packageName")
             }
             startActivity(intent)
-        } catch (e: Exception) {
-            Toast.makeText(this, "설정 > 배터리 최적화에서 수다택시를 제외해주세요", Toast.LENGTH_LONG).show()
-        }
+        } catch (_: Exception) {}
     }
 
     fun addLog(message: String) {
@@ -288,23 +255,76 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-/**
- * [BridgeManager]
- * 아이폰 PWA와 A25 단말기 사이의 통신 및 제어를 중앙 처리하는 객체
- */
 object BridgeManager {
     var activeActivity: MainActivity? = null
+    private const val FIREBASE_URL = "https://sudataxi-bridge-default-rtdb.firebaseio.com/"
+    private var isFirebaseInitialized = false
 
-    // 1. 유튜브 원격 재생 실행 (A25 유튜브 앱 백그라운드 구동)
+    fun initFirebase(context: Context) {
+        if (isFirebaseInitialized) return
+        try {
+            val db = FirebaseDatabase.getInstance(FIREBASE_URL)
+            isFirebaseInitialized = true
+            activeActivity?.addLog("🔥 Firebase Realtime DB 연결 완료")
+
+            // 1. 유튜브 원격 명령 구독
+            db.getReference("sudataxi/commands/youtube").addValueEventListener(object : ValueEventListener {
+                private var lastTimestamp = 0L
+
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val ts = snapshot.child("timestamp").getValue(Long::class.java) ?: return
+                    if (ts <= lastTimestamp) return
+                    lastTimestamp = ts
+
+                    val action = snapshot.child("action").getValue(String::class.java) ?: ""
+                    when (action) {
+                        "play" -> {
+                            val query = snapshot.child("query").getValue(String::class.java) ?: ""
+                            playYoutube(context, query)
+                        }
+                        "playlist" -> {
+                            openYoutubePlaylist(context, "LL")
+                        }
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {}
+            })
+
+            // 2. 문자 발송 원격 명령 구독
+            db.getReference("sudataxi/commands/sms").addChildEventListener(object : ChildEventListener {
+                override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                    val to = snapshot.child("to").getValue(String::class.java) ?: return
+                    val message = snapshot.child("message").getValue(String::class.java) ?: return
+                    val ts = snapshot.child("timestamp").getValue(Long::class.java) ?: 0L
+
+                    // 1분 이내의 새로운 명령만 실행
+                    if (System.currentTimeMillis() - ts < 60000) {
+                        sendSms(context, to, message)
+                        snapshot.ref.removeValue() // 처리 완료 후 삭제
+                    }
+                }
+
+                override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {}
+                override fun onChildRemoved(snapshot: DataSnapshot) {}
+                override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
+                override fun onCancelled(error: DatabaseError) {}
+            })
+
+        } catch (e: Exception) {
+            activeActivity?.addLog("❌ Firebase 초기화 실패: ${e.message}")
+        }
+    }
+
     fun playYoutube(context: Context, query: String) {
         try {
-            activeActivity?.addLog("📱 [아이폰 명령] YouTube 재생: $query")
+            activeActivity?.addLog("📱 [아이폰 명령] YouTube 실행: $query")
             val uri = Uri.parse("vnd.youtube://results?search_query=" + Uri.encode(query))
             val intent = Intent(Intent.ACTION_VIEW, uri).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
             context.startActivity(intent)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             val webIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/results?search_query=" + Uri.encode(query))).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
@@ -312,7 +332,17 @@ object BridgeManager {
         }
     }
 
-    // 2. A25 유심을 통한 승객 감사문자/답장 즉시 발송
+    private fun openYoutubePlaylist(context: Context, listId: String) {
+        try {
+            activeActivity?.addLog("📱 [아이폰 명령] YouTube 좋아요 보관함 실행")
+            val uri = Uri.parse("vnd.youtube://playlist?list=$listId")
+            val intent = Intent(Intent.ACTION_VIEW, uri).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(intent)
+        } catch (_: Exception) {}
+    }
+
     fun sendSms(context: Context, phone: String, message: String) {
         try {
             activeActivity?.addLog("📤 [SMS 발송] To: $phone, 내용: $message")
@@ -323,29 +353,60 @@ object BridgeManager {
                 SmsManager.getDefault()
             }
             smsManager.sendTextMessage(phone, null, message, null, null)
-            Toast.makeText(context, "A25에서 승객($phone)에게 문자 발송 완료", Toast.LENGTH_SHORT).show()
+
+            // Firebase에도 발신 기록 추가
+            val db = FirebaseDatabase.getInstance(FIREBASE_URL)
+            val time = SimpleDateFormat("HH:mm", Locale.KOREA).format(Date())
+            db.getReference("sudataxi/inbox/sms").push().setValue(
+                mapOf(
+                    "sender" to phone,
+                    "message" to message,
+                    "type" to "sent",
+                    "time" to time
+                )
+            )
+            Toast.makeText(context, "승객($phone)에게 문자 발송 완료", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             activeActivity?.addLog("❌ SMS 발송 실패: ${e.message}")
         }
     }
 
-    // 3. 승객 수신 메시지를 아이폰 PWA로 포워딩
     fun onSmsReceived(sender: String, message: String) {
         activeActivity?.addLog("📩 [승객 문자 수신] $sender: $message")
-        // TODO: 향후 Firebase Realtime DB / 서버로 전송하여 아이폰 PWA 화면에 즉시 표시
+        try {
+            val db = FirebaseDatabase.getInstance(FIREBASE_URL)
+            val time = SimpleDateFormat("HH:mm", Locale.KOREA).format(Date())
+            db.getReference("sudataxi/inbox/sms").push().setValue(
+                mapOf(
+                    "sender" to sender,
+                    "message" to message,
+                    "type" to "received",
+                    "time" to time
+                )
+            )
+        } catch (e: Exception) {
+            activeActivity?.addLog("❌ Firebase 전송 실패: ${e.message}")
+        }
     }
 
-    // 4. 카카오T 알림을 아이폰 PWA로 포워딩
     fun onKakaoNotificationReceived(title: String, text: String) {
         activeActivity?.addLog("🟡 [카카오T 감지] $title: $text")
-        // TODO: 향후 Firebase Realtime DB / 서버로 전송하여 아이폰 PWA 화면에 즉시 표시
+        try {
+            val db = FirebaseDatabase.getInstance(FIREBASE_URL)
+            val time = SimpleDateFormat("HH:mm", Locale.KOREA).format(Date())
+            db.getReference("sudataxi/inbox/kakao").push().setValue(
+                mapOf(
+                    "title" to title,
+                    "text" to text,
+                    "time" to time
+                )
+            )
+        } catch (e: Exception) {
+            activeActivity?.addLog("❌ Firebase 카카오 전송 실패: ${e.message}")
+        }
     }
 }
 
-/**
- * [SmsReceiver]
- * A25 단말기에 승객의 문자(안심번호 0504 등)가 도착했을 때 가로채는 리시버
- */
 class SmsReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == Telephony.Sms.Intents.SMS_RECEIVED_ACTION) {
@@ -359,18 +420,12 @@ class SmsReceiver : BroadcastReceiver() {
     }
 }
 
-/**
- * [KakaoNotificationService]
- * 카카오T 기사앱, 카카오톡 알림을 백그라운드에서 실시간 추출하는 리스너 서비스
- */
 class KakaoNotificationService : NotificationListenerService() {
-
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         super.onNotificationPosted(sbn)
         sbn ?: return
 
         val pkg = sbn.packageName
-        // 카카오톡 및 카카오T 기사앱 패키지 감지
         if (pkg == "com.kakao.talk" || pkg.contains("taxi") || pkg.contains("driver")) {
             val extras = sbn.notification.extras
             val title = extras.getString(Notification.EXTRA_TITLE) ?: ""
