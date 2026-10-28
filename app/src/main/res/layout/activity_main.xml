@@ -1,72 +1,154 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootScroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5F5">
+    android:background="#0F0F0F">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp">
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="수다택시 브릿지 - AndroMate" android:textSize="20sp" android:textStyle="bold" />
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:text="최근 탑승 고객 1명 - 바로 발송 (안심번호 10분 내)" android:textSize="12sp" />
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:layout_marginTop="16dp" app:cardCornerRadius="12dp" app:cardElevation="2dp">
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:orientation="vertical" android:padding="16dp">
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-                    <TextView android:id="@+id/tvNumber" android:layout_width="0dp" android:layout_height="wrap_content"
-                        android:layout_weight="1" android:text="0504-****-1234" android:textSize="18sp" android:textStyle="bold" />
-                    <TextView android:id="@+id/tvBadge" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:background="#FF6D00" android:padding="6dp" android:text="안심번호" android:textColor="#FFFFFF" android:textSize="10sp" />
-                </LinearLayout>
-                <TextView android:id="@+id/tvDuration" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="7초 통화" android:textSize="12sp" />
-                <TextView android:id="@+id/tvStatus" android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="대기 중" android:textSize="11sp" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-        <com.google.android.material.button.MaterialButton android:id="@+id/btnRefresh"
-            android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:layout_marginTop="8dp" android:text="최근 통화 새로고침" />
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:layout_marginTop="20dp" android:text="템플릿 1: 감사문자" android:textStyle="bold" />
-        <com.google.android.material.textfield.TextInputLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:layout_marginTop="8dp">
-            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etTemplate1"
-                android:layout_width="match_parent" android:layout_height="wrap_content"
-                android:minLines="3" android:text="[수다택시] 오늘 탑승 감사합니다!" />
-        </com.google.android.material.textfield.TextInputLayout>
-        <com.google.android.material.button.MaterialButton android:id="@+id/btnSendThankYou"
-            android:layout_width="match_parent" android:layout_height="56dp"
-            android:layout_marginTop="8dp" android:text="감사문자 바로 발송" />
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-            android:layout_marginTop="24dp" android:text="유튜브 리모컨" android:textStyle="bold" />
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal"
-            android:layout_marginTop="8dp">
-            <com.google.android.material.button.MaterialButton android:id="@+id/btnYouTube"
-                android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="유튜브 실행" />
-            <com.google.android.material.button.MaterialButton android:id="@+id/btnYouTubeMusic"
-                android:layout_width="0dp" android:layout_weight="1" android:layout_marginStart="8dp"
-                android:layout_height="wrap_content" android:text="뮤직 실행" />
+
+        <TextView
+            android:id="@+id/titleText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="수다택시 A25 브릿지 에이전트"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/versionText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="아이폰 Firebase 실시간 원격 제어 데몬 (v1.3.6)"
+            android:textColor="#AAAAAA"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/subtitleText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="아이폰 Firebase 실시간 원격 제어 데몬 (v1.3.6)"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tvVersion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:text="v1.3.6" />
+
+        <LinearLayout
+            android:id="@+id/firebaseStatusBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="#1E2A1E"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:id="@+id/firebaseStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="● Firebase 클라우드 브릿지 활성화됨"
+                android:textColor="#4CAF50"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvFirebaseStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="A25는 운전 중 조작하지 마세요. 손안의 아이폰에서 모든 기능을 원격 조종합니다."
+                android:textColor="#CCCCCC"
+                android:textSize="12sp"
+                android:layout_marginTop="4dp" />
         </LinearLayout>
-        <com.google.android.material.textfield.TextInputLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:layout_marginTop="8dp">
-            <com.google.android.material.textfield.TextInputEditText android:id="@+id/etYouTubeQuery"
-                android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="유튜브 검색" />
-        </com.google.android.material.textfield.TextInputLayout>
-        <com.google.android.material.button.MaterialButton android:id="@+id/btnYouTubeSearch"
-            android:layout_width="match_parent" android:layout_height="wrap_content" android:text="A25에서 검색 열기" />
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal"
-            android:layout_marginTop="8dp">
-            <com.google.android.material.chip.Chip android:id="@+id/chipTrot" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="#트로트" />
-            <com.google.android.material.chip.Chip android:id="@+id/chipLatest" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="#최신가요" />
-            <com.google.android.material.chip.Chip android:id="@+id/chipCho" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="#조용필" />
-        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="필수 권한 설정 상태"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/permSms"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="✓ 1. 문자 수발신 권한 [허용됨]"
+            android:textColor="#4CAF50" />
+
+        <TextView
+            android:id="@+id/statusSms"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="✓ 1. 문자 수발신 권한 [허용됨]"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/permNoti"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="✓ 2. 카카오T 알림 감지 권한 [허용됨]"
+            android:textColor="#4CAF50" />
+
+        <TextView
+            android:id="@+id/statusNoti"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="✓ 2. 카카오T 알림 감지 권한 [허용됨]"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/permBattery"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="✓ 3. 배터리 절전 제외 [완료됨]"
+            android:textColor="#4CAF50" />
+
+        <TextView
+            android:id="@+id/statusBattery"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="✓ 3. 배터리 절전 제외 [완료됨]"
+            android:visibility="gone" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="실시간 Firebase 통신 이벤트 로그"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/logView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="#1A1A1A"
+            android:fontFamily="monospace"
+            android:padding="10dp"
+            android:textColor="#00FF88"
+            android:textSize="11sp"
+            android:minHeight="300dp" />
+
+        <TextView
+            android:id="@+id/tvLog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+
     </LinearLayout>
 </ScrollView>
