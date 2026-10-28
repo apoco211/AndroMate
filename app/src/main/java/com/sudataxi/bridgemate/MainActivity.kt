@@ -1,11 +1,8 @@
-package com.sudataxi
+package com.sudataxi.bridgemate
 
-import android.Manifest
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.google.firebase.database.*
@@ -14,17 +11,9 @@ import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var versionText: TextView
-    private lateinit var firebaseStatus: TextView
-    private lateinit var permSms: TextView
-    private lateinit var permNoti: TextView
-    private lateinit var permBattery: TextView
-    private lateinit var logView: TextView
-
-    private lateinit var youtubeHelper: YouTubeHelper
-    private lateinit var smsHelper: SmsHelper
-    private lateinit var callLogManager: CallLogManager
+    private var logView: TextView? = null
     private lateinit var db: FirebaseDatabase
+    private lateinit var youtubeHelper: YouTubeHelper
 
     companion object {
         const val DB_URL = "https://sudataxi-bridge-default-rtdb.firebaseio.com"
@@ -35,29 +24,34 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // 뷰 연결 - 너의 activity_main.xml ID에 맞춰놨음
-        versionText = findViewById(R.id.versionText) ?: findViewById(R.id.subtitleText) ?: findViewById(R.id.tvVersion)
-        firebaseStatus = findViewById(R.id.firebaseStatus) ?: findViewById(R.id.tvFirebaseStatus)
-        permSms = findViewById(R.id.permSms) ?: findViewById(R.id.statusSms)
-        permNoti = findViewById(R.id.permNoti) ?: findViewById(R.id.statusNoti)
-        permBattery = findViewById(R.id.permBattery) ?: findViewById(R.id.statusBattery)
-        logView = findViewById(R.id.logView) ?: findViewById(R.id.tvLog)
+        logView = findViewById(R.id.logView)
+        if (logView == null) {
+            try {
+                val id = resources.getIdentifier("tvLog", "id", packageName)
+                if (id != 0) logView = findViewById(id)
+            } catch (e: Exception) {}
+        }
 
-        // 헬퍼 초기화
-        youtubeHelper = YouTubeHelper(this)
-        smsHelper = SmsHelper(this)
-        callLogManager = CallLogManager(this)
-
-        youtubeHelper.logCallback = { msg -> runOnUiThread { addLog(msg) } }
-        smsHelper.logCallback = { msg -> runOnUiThread { addLog(msg) } }
-
-        // v1.3.6 버전 표시 - 사진 속 (v1.2.1) 이 부분이 여기야
+        // 버전 텍스트 - ID가 달라도 빌드 안 터지게
         try {
-            versionText.text = "아이폰 Firebase 실시간 원격 제어 데몬 ($VERSION)"
+            val possibleIds = listOf("versionText", "subtitleText", "tvVersion", "version", "subtitle", "tvSubtitle")
+            for (name in possibleIds) {
+                val vid = resources.getIdentifier(name, "id", packageName)
+                if (vid != 0) {
+                    val tv = findViewById<TextView>(vid)
+                    if (tv != null && tv.text.contains("v1.")) {
+                        tv.text = "아이폰 Firebase 실시간 원격 제어 데몬 ($VERSION)"
+                        break
+                    }
+                }
+            }
         } catch (e: Exception) {}
 
+        youtubeHelper = YouTubeHelper(this)
+        youtubeHelper.logCallback = { msg -> runOnUiThread { addLog(msg) } }
+
         initFirebase()
-        checkPermissions()
+
         addLog("🔥 Firebase Realtime DB 연결 성공!")
         addLog("✅ 수다택시 A25 통신 에이전트 준비 완료 ($VERSION)")
         addLog("📡 가짜 데이터 생성 금지 원칙 적용")
@@ -71,4 +65,53 @@ class MainActivity : AppCompatActivity() {
                     .setProjectId("sudataxi-bridge")
                     .setApplicationId("1:000000000:android:000000")
                     .setApiKey("dummy-key")
-                   
+                    .build()
+                FirebaseApp.initializeApp(this, options)
+            }
+            db = FirebaseDatabase.getInstance()
+
+            db.getReference(".info/connected").addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(s: DataSnapshot) {
+                    val connected = s.getValue(Boolean::class.java) ?: false
+                    if (connected) {
+                        addLog("🟢 Firebase 클라우드 브릿지 활성화됨")
+                    }
+                }
+                override fun onCancelled(e: DatabaseError) {}
+            })
+
+            val ytPaths = listOf(
+                "sudataxi/commands/youtube",
+                "sudataxi/commands/youtube_compat",
+                "sudataxi/commands/system",
+                "sudataxi/commands/youtube_play"
+            )
+            ytPaths.forEach { path ->
+                db.getReference(path).addValueEventListener(object : ValueEventListener {
+                    override fun onDataChange(snap: DataSnapshot) {
+                        val map = snap.value as? Map<*, *> ?: return
+                        val ts = (map["timestamp"] as? Long) ?: 0L
+                        if (System.currentTimeMillis() - ts > 30000) return
+                        val action = (map["action"] as? String ?: "").lowercase()
+                        if (action.contains("youtube") || action.contains("play") || action == "search" || action == "pause" || action == "resume") {
+                            val vid = map["videoId"] as? String ?: map["url"] as? String ?: action
+                            addLog("📱 [아이폰 원격 명령] YouTube 실행: $vid")
+                            youtubeHelper.handleCommand(map)
+                        }
+                    }
+                    override fun onCancelled(e: DatabaseError) {}
+                })
+            }
+        } catch (e: Exception) {
+            addLog("Firebase 초기화 실패: " + e.message)
+        }
+    }
+
+    private fun addLog(msg: String) {
+        try {
+            val sdf = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+            val line = "[" + sdf.format(Date()) + "] " + msg + "\n"
+            logView?.append(line)
+        } catch (e: Exception) {}
+    }
+}
