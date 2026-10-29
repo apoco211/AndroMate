@@ -1,32 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/rootScroll"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0F0F0F">
-    <LinearLayout
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center">
+
+    <TextView
+        android:id="@+id/statusText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
-        <TextView android:id="@+id/titleText" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="수다택시 A25 브릿지 에이전트" android:textColor="#FFFFFF" android:textSize="20sp" android:textStyle="bold" />
-        <TextView android:id="@+id/versionText" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="아이폰 Firebase 실시간 원격 제어 데몬 (v1.3.7) - 백그라운드 서비스" android:textColor="#AAAAAA" android:textSize="13sp" />
-        <TextView android:id="@+id/subtitleText" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="v1.3.7" android:visibility="gone" />
-        <TextView android:id="@+id/tvVersion" android:layout_width="match_parent" android:layout_height="wrap_content" android:visibility="gone" android:text="v1.3.7" />
-        <LinearLayout android:id="@+id/firebaseStatusBox" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:background="#1E2A1E" android:orientation="vertical" android:padding="12dp">
-            <TextView android:id="@+id/firebaseStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="● Firebase 클라우드 브릿지 활성화됨 (포그라운드 서비스)" android:textColor="#4CAF50" android:textSize="14sp" android:textStyle="bold" />
-            <TextView android:id="@+id/tvFirebaseStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="A25는 운전 중 조작하지 마세요. 앱을 닫아도 알림바에서 서비스가 유지됩니다." android:textColor="#CCCCCC" android:textSize="12sp" android:layout_marginTop="4dp" />
-        </LinearLayout>
-        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="필수 권한 설정 상태" android:textColor="#FFFFFF" android:textSize="15sp" android:textStyle="bold" />
-        <TextView android:id="@+id/permSms" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="✓ 1. 문자 수발신 권한 [허용됨]" android:textColor="#4CAF50" />
-        <TextView android:id="@+id/statusSms" android:layout_width="match_parent" android:layout_height="wrap_content" android:visibility="gone" />
-        <TextView android:id="@+id/permNoti" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="✓ 2. 카카오T 알림 감지 권한 [허용됨]" android:textColor="#4CAF50" />
-        <TextView android:id="@+id/statusNoti" android:layout_width="match_parent" android:layout_height="wrap_content" android:visibility="gone" />
-        <TextView android:id="@+id/permBattery" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="✓ 3. 배터리 절전 제외 [완료됨]" android:textColor="#4CAF50" />
-        <TextView android:id="@+id/statusBattery" android:layout_width="match_parent" android:layout_height="wrap_content" android:visibility="gone" />
-        <TextView android:id="@+id/permForeground" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="✓ 4. 포그라운드 서비스 [v1.3.7 신규 - 앱 종료 후에도 작동]" android:textColor="#4CAF50" />
-        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="실시간 Firebase 통신 이벤트 로그" android:textColor="#FFFFFF" android:textSize="15sp" android:textStyle="bold" />
-        <TextView android:id="@+id/logView" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:background="#1A1A1A" android:fontFamily="monospace" android:padding="10dp" android:textColor="#00FF88" android:textSize="11sp" android:minHeight="300dp" />
-        <TextView android:id="@+id/tvLog" android:layout_width="match_parent" android:layout_height="wrap_content" android:visibility="gone" />
-    </LinearLayout>
-</ScrollView>
+        android:text="수다택시 브릿지 v1.3.29\n권한 확인 중..."
+        android:textSize="14sp"
+        android:lineSpacingExtra="4dp"
+        android:padding="16dp"
+        android:background="#F5F5F5"
+        android:layout_marginBottom="24dp" />
+
+    <Button
+        android:id="@+id/btnStartService"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="서비스 시작"
+        android:layout_marginBottom="12dp" />
+
+    <Button
+        android:id="@+id/btnSyncSms"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="📡 SMS 200건 동기화" />
+
+</LinearLayout>
