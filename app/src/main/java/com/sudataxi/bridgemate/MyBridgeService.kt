@@ -1,170 +1,212 @@
-package com.sudataxi.bridgemate
+package com.sudataxi.bridge
 
 import android.app.*
+import android.content.ContentResolver
+import android.content.Context
 import android.content.Intent
+import android.database.Cursor
+import android.net.Uri
 import android.os.Build
 import android.os.IBinder
-import androidx.core.app.NotificationCompat
-import com.google.firebase.FirebaseApp
-import com.google.firebase.FirebaseOptions
-import com.google.firebase.database.*
+import android.provider.ContactsContract
+import android.provider.Telephony
+import android.util.Log
+import com.google.firebase.database.FirebaseDatabase
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MyBridgeService : Service() {
 
-    private lateinit var db: FirebaseDatabase
-    private lateinit var youtubeHelper: YouTubeHelper
-    private lateinit var smsHelper: SmsHelper
-    private val channelId = "bridge_foreground_v1414"
-
     companion object {
-        const val DB_URL = "https://sudataxi-bridge-default-rtdb.firebaseio.com"
-        const val VERSION = "v1.3.14"
+        private const val TAG = "SudaBridge"
+        private const val FIREBASE_DB_URL = "https://sudataxi-bridge-default-rtdb.firebaseio.com"
+        private const val NOTIFICATION_ID = 1001
+        private const val CHANNEL_ID = "suda_bridge_channel"
+
+        fun startService(context: Context) {
+            val intent = Intent(context, MyBridgeService::class.java)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(intent)
+            } else {
+                context.startService(intent)
+            }
+        }
+
+        // iPhone 웹에서 /sudataxi/commands/system {action:sync_sms_inbox} 오면 호출됨
+        fun syncSmsInbox(context: Context) {
+            val service = MyBridgeService()
+            service.syncAllSms(context)
+        }
     }
+
+    override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
-        val notification = buildNotification("아이폰 원격 제어 대기 중 ($VERSION)")
-        startForeground(1, notification)
+        startForeground(NOTIFICATION_ID, createNotification("A25 브릿지 실행 중 - SMS 200건 대기"))
 
-        youtubeHelper = YouTubeHelper(this)
-        youtubeHelper.logCallback = { msg -> updateNotification(msg) }
-        smsHelper = SmsHelper()
-        initFirebase()
+        // Firebase 명령 리스너
+        listenForCommands()
+        
+        // 시작시 1회 자동 동기화
+        syncAllSms(this)
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        syncAllSms(this)
+        return START_STICKY
     }
 
     private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= 26) {
-            val channel = NotificationChannel(channelId, "수다택시 브릿지 서비스", NotificationManager.IMPORTANCE_LOW)
-            channel.description = "앱을 꺼도 아이폰 원격 명령을 받기 위한 서비스 ($VERSION)"
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                "수다택시 브릿지",
+                NotificationManager.IMPORTANCE_LOW
+            )
             val manager = getSystemService(NotificationManager::class.java)
             manager.createNotificationChannel(channel)
         }
     }
 
-    private fun buildNotification(content: String): Notification {
-        val intent = Intent(this, MainActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
-        return NotificationCompat.Builder(this, channelId)
-            .setContentTitle("수다택시 A25 브릿지 실행 중 ($VERSION)")
+    private fun createNotification(content: String): Notification {
+        val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Notification.Builder(this, CHANNEL_ID)
+        } else {
+            Notification.Builder(this)
+        }
+        return builder
+            .setContentTitle("수다택시 브릿지 v1.3.29")
             .setContentText(content)
-            .setSmallIcon(android.R.drawable.stat_sys_data_bluetooth)
-            .setContentIntent(pendingIntent)
-            .setOngoing(true)
-            .setOnlyAlertOnce(true)
+            .setSmallIcon(android.R.drawable.stat_notify_sync)
             .build()
     }
 
-    private fun updateNotification(msg: String) {
+    private fun listenForCommands() {
         try {
-            val nm = getSystemService(NotificationManager::class.java)
-            nm.notify(1, buildNotification(msg))
-        } catch (e: Exception) {}
-    }
-
-    private fun initFirebase() {
-        try {
-            if (FirebaseApp.getApps(this).isEmpty()) {
-                val options = FirebaseOptions.Builder()
-                    .setDatabaseUrl(DB_URL)
-                    .setProjectId("sudataxi-bridge")
-                    .setApplicationId("1:000000000:android:000000")
-                    .setApiKey("dummy-key")
-                    .build()
-                FirebaseApp.initializeApp(this, options)
-            }
-            db = FirebaseDatabase.getInstance()
-
-            // ✅ v1.3.14: 유튜브 명령 6중 경로 모두 수신 (PWA 6중 발사 대응)
-            val ytPaths = listOf(
-                "sudataxi/commands/youtube",
-                "sudataxi/commands/youtube_compat",
-                "sudataxi/commands/system",
-                "sudataxi/commands/youtube_play",
-                "sudataxi/commands/media",
-                "sudataxi/commands/play"
-            )
-            ytPaths.forEach { path ->
-                db.getReference(path).addValueEventListener(object : ValueEventListener {
-                    override fun onDataChange(snap: DataSnapshot) {
-                        val map = snap.value as? Map<*, *> ?: return
-                        val ts = (map["timestamp"] as? Long) ?: 0L
-                        if (System.currentTimeMillis() - ts > 60000) return // 60초 이내만
-                        val action = (map["action"] as? String ?: "").lowercase()
-                        val actionAlt = (map["actionAlt"] as? String ?: "").lowercase()
-                        val actionCompat = (map["actionCompat"] as? String ?: "").lowercase()
-                        // ✅ v1.3.14 필터 확장: seek, next, prev, forward, rewind 등 모두 포함
-                        if (action.contains("youtube") || action.contains("play") || action.contains("pause") || action.contains("resume") ||
-                            action.contains("seek") || action.contains("forward") || action.contains("rewind") ||
-                            action.contains("next") || action.contains("prev") || action.contains("volume") ||
-                            actionAlt.contains("seek") || actionAlt.contains("next") || actionAlt.contains("prev") ||
-                            actionCompat.contains("forward") || actionCompat.contains("rewind") ||
-                            action == "search" || action == "next_video" || action == "prev_video") {
-                            updateNotification("명령 수신[$path]: $action")
-                            youtubeHelper.handleCommand(map)
-                        }
-                    }
-                    override fun onCancelled(e: DatabaseError) {}
-                })
-            }
-
-            // ✅ v1.3.14: SMS 동기화 명령 수신 (5중 경로)
-            val smsSyncPaths = listOf(
-                "sudataxi/commands/system",
-                "sudataxi/commands/sms_sync",
-                "sudataxi/commands/sync",
-                "sudataxi/commands/sms",
-                "sudataxi/commands/inbox"
-            )
-            smsSyncPaths.forEach { path ->
-                db.getReference(path).addValueEventListener(object : ValueEventListener {
-                    override fun onDataChange(snap: DataSnapshot) {
-                        val map = snap.value as? Map<*, *> ?: return
-                        val ts = (map["timestamp"] as? Long) ?: 0L
-                        if (System.currentTimeMillis() - ts > 60000) return
-                        val action = (map["action"] as? String ?: "").lowercase()
-                        if (action.contains("sms") || action.contains("sync") || action.contains("read_sms") || action == "sync_sms_inbox" || action == "request_sms_sync") {
-                            updateNotification("📱 SMS 동기화 요청 수신: $action")
-                            try {
-                                smsHelper.readAndPushAllSms(this@MyBridgeService, db) { msg -> updateNotification(msg) }
-                            } catch (e: Exception) {
-                                updateNotification("SMS 동기화 실패: ${e.message}")
-                            }
-                        }
-                    }
-                    override fun onCancelled(e: DatabaseError) {}
-                })
-            }
-
-            // SMS 발송 명령 수신
-            db.getReference("sudataxi/commands/sms").addChildEventListener(object : ChildEventListener {
-                override fun onChildAdded(snap: DataSnapshot, prev: String?) {
-                    val map = snap.value as? Map<*, *> ?: return
-                    val to = map["to"] as? String ?: return
-                    val msg = map["message"] as? String ?: return
-                    val ts = (map["timestamp"] as? Long) ?: 0L
-                    if (System.currentTimeMillis() - ts > 60000) return
-                    // 발송 명령은 sync와 구분: to 필드가 있으면 발송
-                    if (to.isNotEmpty() && msg.isNotEmpty() && map["action"] == null) {
-                        updateNotification("📤 SMS 발송 요청: $to")
-                        smsHelper.sendImmediate(this@MyBridgeService, to, msg)
+            val db = FirebaseDatabase.getInstance(FIREBASE_DB_URL).reference
+            db.child("sudataxi/commands/system").addValueEventListener(object : com.google.firebase.database.ValueEventListener {
+                override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
+                    val data = snapshot.value as? Map<*, *> ?: return
+                    val action = data["action"] as? String ?: return
+                    if (action == "sync_sms_inbox" || action == "sync_sms") {
+                        Log.d(TAG, "명령 수신: $action -> SMS 동기화")
+                        syncAllSms(this@MyBridgeService)
                     }
                 }
-                override fun onChildChanged(s: DataSnapshot, p: String?) {}
-                override fun onChildRemoved(s: DataSnapshot) {}
-                override fun onChildMoved(s: DataSnapshot, p: String?) {}
-                override fun onCancelled(e: DatabaseError) {}
+                override fun onCancelled(error: com.google.firebase.database.DatabaseError) {
+                    Log.e(TAG, "Firebase error: ${error.message}")
+                }
             })
-
-            updateNotification("Firebase 연결됨 - $VERSION 명령 대기 중")
         } catch (e: Exception) {
-            updateNotification("Firebase 실패: ${e.message}")
+            Log.e(TAG, "listenForCommands error", e)
         }
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        return START_STICKY
+    // ✅ 연락처 이름 조회 - Google Messages처럼 표시
+    private fun getContactName(context: Context, phoneNumber: String): String {
+        return try {
+            val uri = Uri.withAppendedPath(
+                ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
+                Uri.encode(phoneNumber)
+            )
+            val cursor = context.contentResolver.query(
+                uri,
+                arrayOf(ContactsContract.PhoneLookup.DISPLAY_NAME),
+                null, null, null
+            )
+            cursor?.use {
+                if (it.moveToFirst()) {
+                    it.getString(0) ?: ""
+                } else ""
+            } ?: ""
+        } catch (e: Exception) {
+            ""
+        }
     }
 
-    override fun onBind(intent: Intent?): IBinder? = null
+    // ✅ 200건 (수신 100 + 발신 100) 읽기
+    fun syncAllSms(context: Context) {
+        try {
+            val db = FirebaseDatabase.getInstance(FIREBASE_DB_URL).reference.child("sudataxi/inbox/sms")
+            val contentResolver: ContentResolver = context.contentResolver
+            
+            // 1. 수신함 100건
+            val inboxCursor: Cursor? = contentResolver.query(
+                Telephony.Sms.Inbox.CONTENT_URI,
+                null, null, null,
+                "${Telephony.Sms.DATE} DESC LIMIT 100"
+            )
+
+            // 2. 발신함 100건
+            val sentCursor: Cursor? = contentResolver.query(
+                Telephony.Sms.Sent.CONTENT_URI,
+                null, null, null,
+                "${Telephony.Sms.DATE} DESC LIMIT 100"
+            )
+
+            var count = 0
+            val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
+
+            fun processCursor(cursor: Cursor?, type: String) {
+                cursor?.use {
+                    val idxAddress = it.getColumnIndex(Telephony.Sms.ADDRESS)
+                    val idxBody = it.getColumnIndex(Telephony.Sms.BODY)
+                    val idxDate = it.getColumnIndex(Telephony.Sms.DATE)
+                    val idxType = it.getColumnIndex(Telephony.Sms.TYPE)
+
+                    while (it.moveToNext()) {
+                        try {
+                            val address = if (idxAddress >= 0) it.getString(idxAddress) ?: "" else ""
+                            val body = if (idxBody >= 0) it.getString(idxBody) ?: "" else ""
+                            val date = if (idxDate >= 0) it.getLong(idxDate) else System.currentTimeMillis()
+                            
+                            if (address.isBlank() || body.isBlank()) continue
+
+                            val contactName = getContactName(context, address)
+                            val timeStr = sdf.format(Date(date))
+
+                            val data = hashMapOf(
+                                "sender" to address,
+                                "address" to address, // 웹 호환
+                                "phone" to address,
+                                "message" to body,
+                                "body" to body,
+                                "text" to body,
+                                "timestamp" to date,
+                                "date" to date,
+                                "time" to timeStr,
+                                "type" to type,
+                                "contactName" to contactName,
+                                "displayName" to contactName,
+                                "name" to contactName
+                            )
+
+                            // Firebase에 push (key는 timestamp+random으로 중복 방지)
+                            val key = "${date}_${count}_${address.hashCode()}"
+                            db.child(key).setValue(data)
+                            count++
+                        } catch (e: Exception) {
+                            Log.e(TAG, "SMS parse error", e)
+                        }
+                    }
+                }
+            }
+
+            processCursor(inboxCursor, "received")
+            processCursor(sentCursor, "sent")
+
+            Log.d(TAG, "SMS 동기화 완료: ${count}건")
+
+            // ping 갱신
+            FirebaseDatabase.getInstance(FIREBASE_DB_URL).reference.child("sudataxi/ping").setValue(true)
+
+        } catch (e: SecurityException) {
+            Log.e(TAG, "권한 오류 - 제한된 설정 확인 필요", e)
+            // Android 13+ Restricted Settings 에러시 로그
+        } catch (e: Exception) {
+            Log.e(TAG, "syncAllSms error", e)
+        }
+    }
 }
