@@ -45,7 +45,7 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>AndroMate v1.3.22 - Search &amp; SMS Fix</title>
+<title>AndroMate v1.3.29 - Stable</title>
 <script>
   tailwind = window.tailwind || {};
   tailwind.config = { darkMode: 'class' };
@@ -86,7 +86,7 @@ html, body {
   cursor: pointer;
 }
 
-/* 타임라인 커스텀 시크바 - v1.3.22 터치 개선 */
+/* 타임라인 커스텀 시크바 - v1.3.29 터치 개선 */
 input[type=range].yt-progressbar {
   -webkit-appearance: none;
   appearance: none;
@@ -192,7 +192,7 @@ html:not(.dark) nav {
 html.dark .text-neutral-900 { color: #f0f0f0 !important; }
 html:not(.dark) .text-neutral-100 { color: #111827 !important; }
 
-/* === v1.3.22 다크모드 가독성 완전 수정 === */
+/* === v1.3.29 다크모드 가독성 완전 수정 === */
 html.dark .bg-neutral-50,
 html.dark .bg-neutral-100,
 html.dark .bg-neutral-100\/70 {
@@ -240,7 +240,7 @@ html.dark .tab-text.text-neutral-400 { color: #a3a3a3 !important; }
 html.dark .icon-box.bg-neutral-100 { background-color: #2a2a2a !important; }
 html.dark .icon-box.text-neutral-400 { color: #a3a3a3 !important; }
 
-/* === v1.3.22 주간 모드 강제 복구 (라이트 모드에서 검게 나오는 버그 수정) === */
+/* === v1.3.29 주간 모드 강제 복구 (라이트 모드에서 검게 나오는 버그 수정) === */
 html:not(.dark) .bg-neutral-50,
 html:not(.dark) .bg-neutral-100,
 html:not(.dark) .bg-neutral-100\/70 {
@@ -368,7 +368,7 @@ function switchTab(tabId) {
       <div class="text-base font-extrabold tracking-tight leading-none">수다택시 리모콘</div>
       <div class="text-[11px] text-neutral-400 dark:text-neutral-400 font-semibold mt-1 tracking-tight flex items-center gap-1.5">
         <span>TAXI REMOTE • A25</span>
-        <span class="px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-700 dark:text-blue-300 text-[9px] font-extrabold">v1.3.22</span>
+        <span class="px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-700 dark:text-blue-300 text-[9px] font-extrabold">v1.3.29</span>
       </div>
     </div>
   </div>
@@ -524,7 +524,7 @@ function switchTab(tabId) {
     <div id="sms-list-view" class="space-y-1.5">
       <div class="flex justify-between items-center px-1 pb-1">
         <div class="text-[10px] text-neutral-400 font-medium">A25 단말기 실제 수신/발신 내역</div>
-        <span id="sms-thread-count" class="text-[10px] font-bold text-blue-600 dark:text-blue-400">0개 대화방</span>
+        <span id="sms-thread-count" class="text-[10px] font-bold text-blue-600 dark:text-blue-400">0개 대화방 · 0건</span>
       </div>
       <div id="sms-thread-container" class="space-y-1.5"><div class="p-6 text-center bg-white dark:bg-[#1e1e1e] rounded-xl border border-black/[0.04] dark:border-white/[0.06] space-y-3"><div class="text-[12px] font-bold text-neutral-400">단말기 문자가 비어있습니다.</div><div class="text-[11px] text-neutral-400 leading-relaxed">1. A25 단말기 상단바에서 AndroMate가 실행 중인지 확인<br>2. 우측 상단 A25 뱃지가 <span class="text-emerald-600 font-bold">연결됨</span>인지 확인<br>3. 아래 동기화 버튼 클릭</div><div class="flex gap-2 justify-center pt-1 flex-wrap"><button onclick="requestA25SmsSync()" class="px-3 py-1.5 rounded-full bg-blue-600 text-white text-[11px] font-bold">📡 동기화 요청</button><button onclick="openDiagModal()" class="px-3 py-1.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-[11px] font-bold border border-black/10 dark:border-white/10">📡 연결 진단</button><button onclick="debugShowRawSms()" class="px-3 py-1.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 text-[10px] font-bold">🔍 원본 확인</button></div></div></div>
     </div>
@@ -674,6 +674,24 @@ function switchTab(tabId) {
   </div>
 </div>
 
+
+<!-- 좋아요 보관함 모달 - v1.3.29 -->
+<div id="liked-modal" class="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+  <div class="bg-white dark:bg-[#1e1e1e] w-full max-w-md rounded-3xl shadow-2xl border border-black/10 dark:border-white/10 flex flex-col max-h-[80vh]">
+    <div class="flex justify-between items-center p-5 pb-3 border-b border-black/5 dark:border-white/10 shrink-0">
+      <h3 class="text-[14px] font-extrabold flex items-center gap-2">
+        <span>❤️</span><span>좋아요 보관함</span><span id="liked-count" class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-300">0개</span>
+      </h3>
+      <button type="button" onclick="closeLikedModal()" class="w-7 h-7 rounded-full bg-neutral-100 dark:bg-neutral-800 text-xs font-bold flex items-center justify-center">✕</button>
+    </div>
+    <div id="liked-list-container" class="flex-1 overflow-y-auto p-3 space-y-2 min-h-[120px]"></div>
+    <div class="p-3 border-t border-black/5 dark:border-white/10 shrink-0 flex gap-2">
+      <button type="button" onclick="playAllLiked()" class="flex-1 h-9 rounded-xl bg-red-600 text-white font-bold text-[12px] active:scale-95 shadow">▶️ 전체 재생</button>
+      <button type="button" onclick="clearAllLiked()" class="px-3 h-9 rounded-xl bg-neutral-100 dark:bg-neutral-800 font-bold text-[11px] active:scale-95">🗑️ 전체 삭제</button>
+    </div>
+  </div>
+</div>
+
 <!-- 통신 진단 모달창 -->
 <div id="diag-modal" class="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
   <div class="bg-white dark:bg-[#1e1e1e] w-full max-w-sm rounded-3xl p-5 shadow-2xl border border-black/10 dark:border-white/10 space-y-4">
@@ -743,7 +761,7 @@ function switchTab(tabId) {
 <script>
 let db = null;
 const FIREBASE_DB_URL = "https://sudataxi-bridge-default-rtdb.firebaseio.com";
-const EMBEDDED_YT_API_KEY = "AIzaSyCBOwims25QvRUSO2RggHkcreytDpEJGBU"; // 🔑 YouTube API 내장 v1.3.22
+const EMBEDDED_YT_API_KEY = "AIzaSyCBOwims25QvRUSO2RggHkcreytDpEJGBU"; // 🔑 YouTube API 내장 v1.3.29
 
 // ==========================================
 // 1. 순수 데이터 구조 초기화
@@ -773,8 +791,12 @@ let currentRealVideos = [];
 let currentPlayingVideo = null;
 let currentPlayingIndex = -1; // ✅ 다음/이전 트랙용
 let likedVideos = JSON.parse(localStorage.getItem('suda-yt-liked') || '[]');
+let likedVideosData = JSON.parse(localStorage.getItem('suda-yt-liked-data') || '[]');
 
-function saveLikedVideos() { localStorage.setItem('suda-yt-liked', JSON.stringify(likedVideos)); }
+function saveLikedVideos() { 
+  localStorage.setItem('suda-yt-liked', JSON.stringify(likedVideos));
+  localStorage.setItem('suda-yt-liked-data', JSON.stringify(likedVideosData));
+}
 
 // ==========================================
 // 3. 통신 상태 관리
@@ -906,6 +928,7 @@ try {
         // 🔧 A25 호환: 다양한 필드명 지원 (sender/address/phone, message/body/text)
         const sender = item.sender || item.address || item.phone || item.from || item.number;
         const message = item.message || item.body || item.text || item.content || "";
+        const contactName = item.contactName || item.displayName || item.name || "";
         if (!sender) { 
           console.log('[SMS] sender 없음, 스킵:', item);
           skipped++; 
@@ -918,13 +941,19 @@ try {
           smsThreads[sender].push({
             type: item.type || (item.type === 1 ? "received" : "received") || "received",
             message: message,
+            contactName: item.contactName || item.displayName || "",
+            displayName: item.displayName || item.contactName || "",
             time: item.time || (ts ? new Date(ts).toTimeString().substring(0,5) : new Date().toTimeString().substring(0,5)),
             timestamp: ts
           });
           hasNew = true;
         }
       });
-      console.log('[SMS] 처리 결과 - 신규:', hasNew, '스킵:', skipped, '전체 대화방:', Object.keys(smsThreads).length);
+      // 각 대화방 내부 시간순 정렬
+      Object.keys(smsThreads).forEach(sender => {
+        smsThreads[sender].sort((a,b)=> (a.timestamp||0) - (b.timestamp||0));
+      });
+      console.log('[SMS] 처리 결과 - 신규:', hasNew, '스킵:', skipped, '전체 대화방:', Object.keys(smsThreads).length, '전체 메시지:', Object.values(smsThreads).reduce((a,b)=>a+b.length,0));
       if (hasNew) { 
         saveSmsThreads(); 
         renderSmsThreadList(); 
@@ -947,14 +976,14 @@ try {
     }
     
 
-    db.ref("sudataxi/inbox/sms").limitToLast(30).once("value", snap => {
+    db.ref("sudataxi/inbox/sms").limitToLast(150).once("value", snap => {
       const data = snap.val();
       console.log('[SMS] SDK once 수신:', data);
       const processed = processSmsData(data);
       console.log('[SMS] SDK 로드:', data ? Object.keys(data).length+'건' : '0건', '신규:', processed);
       if (!data || Object.keys(data).length===0) {
         console.log('[SMS] SDK 0건 -> REST 재시도');
-        fetch(FIREBASE_DB_URL + '/sudataxi/inbox/sms.json?orderBy="$key"&limitToLast=30')
+        fetch(FIREBASE_DB_URL + '/sudataxi/inbox/sms.json?orderBy="$key"&limitToLast=150')
           .then(r=>{ 
             console.log('[SMS] REST status', r.status); 
             return r.json(); 
@@ -1043,7 +1072,7 @@ function requestA25SmsSync() {
     // 3초 후 SMS 재로드 시도
     setTimeout(()=>{
       console.log('[SYNC] 3초 후 재로드 시도');
-      db.ref("sudataxi/inbox/sms").limitToLast(30).once("value", snap => {
+      db.ref("sudataxi/inbox/sms").limitToLast(150).once("value", snap => {
         const data = snap.val();
         if (data) {
           let hasNew = false;
@@ -1512,12 +1541,112 @@ function sendRemoteControl(cmd, value) {
   if (cmd === 'seek') { currentProgressSec = Math.max(0, Math.min(totalDurationSec, currentProgressSec + Number(value))); updateProgressBarUI(); }
   if (db) db.ref("sudataxi/commands/youtube").set({ action: cmd, value: value, currentSec: currentProgressSec, timestamp: Date.now() });
 }
-function openLikedPlaylist() { if (db) db.ref("sudataxi/commands/youtube").set({ action: "playlist", list: "LL", timestamp: Date.now() }); showToast('좋아요 보관함 실행'); }
+function openLikedPlaylist() {
+  const modal = document.getElementById('liked-modal');
+  const container = document.getElementById('liked-list-container');
+  const countEl = document.getElementById('liked-count');
+  if (!modal || !container) return;
+  if (likedVideosData.length === 0 && likedVideos.length > 0) {
+    likedVideos.forEach(id => {
+      const v = currentRealVideos.find(x=>x.id===id) || (currentPlayingVideo && currentPlayingVideo.id===id ? currentPlayingVideo : null);
+      if (v && !likedVideosData.some(d=>d.id===id)) {
+        likedVideosData.push({ id: v.id, title: v.title, channel: v.channel, thumb: v.thumb, dateStr: v.dateStr || '', time: v.time || '' });
+      }
+    });
+    if (likedVideosData.length>0) saveLikedVideos();
+  }
+  if (countEl) countEl.innerText = likedVideosData.length + '개';
+  if (likedVideosData.length === 0) {
+    container.innerHTML = '<div class="p-8 text-center"><div class="text-[24px] mb-2">🤍</div><div class="text-[12px] font-bold text-neutral-500">아직 좋아요한 영상이 없어요</div><div class="text-[10px] text-neutral-400 mt-1">영상에서 ❤️ 버튼을 눌러 보관함에 추가하세요</div></div>';
+  } else {
+    container.innerHTML = likedVideosData.map((v, idx) => {
+      return '<div class="flex items-center gap-2 p-2 rounded-xl bg-neutral-50 dark:bg-neutral-800/60 border border-black/[0.03] dark:border-white/[0.05] hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all">' +
+        '<div onclick="playLikedVideo(' + idx + ')" class="relative w-[64px] h-[36px] rounded-md overflow-hidden bg-black shrink-0 cursor-pointer active:scale-95">' +
+          '<img src="' + (v.thumb || 'https://i.ytimg.com/vi/' + v.id + '/mqdefault.jpg') + '" class="w-full h-full object-cover">' +
+        '</div>' +
+        '<div onclick="playLikedVideo(' + idx + ')" class="flex-1 min-w-0 cursor-pointer">' +
+          '<div class="text-[11px] font-bold leading-tight line-clamp-2">' + escapeHtml(v.title || v.id) + '</div>' +
+          '<div class="text-[9px] text-neutral-500 mt-0.5 truncate">' + escapeHtml(v.channel || '') + (v.dateStr ? ' • ' + v.dateStr : '') + '</div>' +
+        '</div>' +
+        '<div class="flex flex-col gap-1 shrink-0">' +
+          '<button onclick="playLikedVideo(' + idx + ')" class="px-2 py-1 rounded-md bg-red-600 text-white text-[9px] font-bold active:scale-95">재생</button>' +
+          '<button onclick="removeLikedVideo(' + idx + ', event)" class="px-2 py-0.5 rounded-md bg-neutral-200 dark:bg-neutral-700 text-[8px] active:scale-95">삭제</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+  modal.classList.remove('hidden');
+}
+function closeLikedModal() {
+  const modal = document.getElementById('liked-modal');
+  if (modal) modal.classList.add('hidden');
+}
+function playLikedVideo(idx) {
+  const v = likedVideosData[idx];
+  if (!v) return;
+  let realIdx = currentRealVideos.findIndex(x=>x.id===v.id);
+  if (realIdx < 0) {
+    currentRealVideos.unshift(v);
+    realIdx = 0;
+    renderRealVideoList();
+  }
+  closeLikedModal();
+  playRealVideo(realIdx);
+  showToast('❤️ 보관함 재생: ' + v.title);
+}
+function playAllLiked() {
+  if (likedVideosData.length===0) { showToast('보관함이 비어있어요'); return; }
+  currentRealVideos = [...likedVideosData];
+  renderRealVideoList();
+  closeLikedModal();
+  playRealVideo(0);
+  showToast('▶️ 보관함 전체 ' + likedVideosData.length + '곡 재생');
+  if (db) db.ref("sudataxi/commands/youtube").set({ action: "playlist", list: "liked", videos: likedVideosData.map(v=>v.id), timestamp: Date.now() });
+}
+function removeLikedVideo(idx, event) {
+  if (event) event.stopPropagation();
+  const v = likedVideosData[idx];
+  if (!v) return;
+  likedVideosData.splice(idx, 1);
+  const idIdx = likedVideos.indexOf(v.id);
+  if (idIdx>=0) likedVideos.splice(idIdx, 1);
+  saveLikedVideos();
+  updateCurrentQueryLikeBtn();
+  renderRealVideoList();
+  openLikedPlaylist();
+  showToast('삭제됨');
+}
+function clearAllLiked() {
+  if (!confirm('좋아요 보관함을 모두 삭제할까요?')) return;
+  likedVideos = [];
+  likedVideosData = [];
+  saveLikedVideos();
+  updateCurrentQueryLikeBtn();
+  renderRealVideoList();
+  openLikedPlaylist();
+  showToast('보관함 비움');
+}
 function toggleVideoLike(id, event) {
   if (event) event.stopPropagation();
   const idx = likedVideos.indexOf(id);
-  if (idx >= 0) { likedVideos.splice(idx, 1); showToast('좋아요 취소됨'); } else { likedVideos.unshift(id); showToast('❤️ 좋아요 추가됨'); }
-  saveLikedVideos(); updateCurrentQueryLikeBtn(); renderRealVideoList();
+  if (idx >= 0) {
+    likedVideos.splice(idx, 1);
+    const dataIdx = likedVideosData.findIndex(d=>d.id===id);
+    if (dataIdx>=0) likedVideosData.splice(dataIdx, 1);
+    showToast('좋아요 취소됨');
+  } else {
+    likedVideos.unshift(id);
+    let v = currentRealVideos.find(x=>x.id===id) || currentPlayingVideo;
+    if (v && v.id===id) {
+      likedVideosData.unshift({ id: v.id, title: v.title, channel: v.channel, thumb: v.thumb || 'https://i.ytimg.com/vi/'+v.id+'/mqdefault.jpg', dateStr: v.dateStr || '', time: v.time || '' });
+    } else {
+      likedVideosData.unshift({ id: id, title: id, channel: 'YouTube', thumb: 'https://i.ytimg.com/vi/'+id+'/mqdefault.jpg', dateStr: '', time: '' });
+    }
+    showToast('❤️ 좋아요 추가됨');
+  }
+  saveLikedVideos();
+  updateCurrentQueryLikeBtn();
+  renderRealVideoList();
 }
 function toggleCurrentQueryLike() { if (currentPlayingVideo) toggleVideoLike(currentPlayingVideo.id); }
 function updateCurrentQueryLikeBtn() {
@@ -1541,7 +1670,8 @@ function renderSmsThreadList() {
   const container = document.getElementById("sms-thread-container");
   if (!container) return;
   const senders = Object.keys(smsThreads).sort((a,b) => (smsThreads[b][smsThreads[b].length-1]?.timestamp || 0) - (smsThreads[a][smsThreads[a].length-1]?.timestamp || 0));
-  document.getElementById("sms-thread-count").innerText = senders.length + "개 대화방";
+  const totalMsgs = Object.values(smsThreads).reduce((a,b)=>a+b.length,0);
+  document.getElementById("sms-thread-count").innerText = senders.length + "개 대화방 · " + totalMsgs + "건";
 
   if (senders.length === 0) {
     container.innerHTML = '<div class="p-6 text-center bg-white dark:bg-[#1e1e1e] rounded-xl border border-black/[0.04] dark:border-white/[0.06] space-y-3"><div class="text-[12px] font-bold text-neutral-400">단말기 문자가 비어있습니다.</div><div class="text-[11px] text-neutral-400 leading-relaxed">1. A25 단말기 상단바에서 AndroMate가 실행 중인지 확인<br>2. 우측 상단 A25 뱃지가 <span class="text-emerald-600 font-bold">연결됨</span>인지 확인<br>3. 아래 동기화 버튼 클릭</div><div class="flex gap-2 justify-center pt-1 flex-wrap"><button onclick="requestA25SmsSync()" class="px-3 py-1.5 rounded-full bg-blue-600 text-white text-[11px] font-bold">📡 동기화 요청</button><button onclick="openDiagModal()" class="px-3 py-1.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-[11px] font-bold border border-black/10 dark:border-white/10">📡 연결 진단</button><button onclick="debugShowRawSms()" class="px-3 py-1.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 text-[10px] font-bold">🔍 원본 확인</button></div></div>';
