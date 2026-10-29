@@ -1,16 +1,16 @@
 package com.sudataxi.bridgemate
 
 import android.Manifest
+import android.app.Activity
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : Activity() {
 
     private val PERMISSION_REQUEST_CODE = 1001
     private lateinit var statusText: TextView
@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity() {
         btnStart.setOnClickListener { checkAndRequestPermissions() }
         btnSync.setOnClickListener {
             MyBridgeService.syncSmsInbox(this)
-            statusText.text = "📡 SMS 동기화 요청 중... 200건 읽기"
+            statusText.text = "📡 SMS 200건 동기화 중..."
         }
         checkAndRequestPermissions()
     }
@@ -44,11 +44,11 @@ class MainActivity : AppCompatActivity() {
         }
         if (missing.isNotEmpty()) {
             if (Build.VERSION.SDK_INT >= 33) {
-                statusText.text = "⚠️ 권한 필요\n\n설정 > 앱 > 수다택시 브릿지 > ⋮ > 제한된 설정 허용\n후 권한 허용"
+                statusText.text = "⚠️ 권한 필요\n\n설정 > 앱 > 수다택시 브릿지 > ⋮ > 제한된 설정 허용\n후 허용 필요:\n${missing.joinToString("\n")}"
             }
             ActivityCompat.requestPermissions(this, missing.toTypedArray(), PERMISSION_REQUEST_CODE)
         } else {
-            statusText.text = "✅ 모든 권한 허용됨"
+            statusText.text = "✅ 권한 OK - 서비스 시작"
             MyBridgeService.startService(this)
         }
     }
@@ -57,11 +57,11 @@ class MainActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PERMISSION_REQUEST_CODE) {
             val allGranted = grantResults.all { it == PackageManager.PERMISSION_GRANTED }
-            if (allGranted) {
-                statusText.text = "✅ 권한 허용 완료"
+            statusText.text = if (allGranted) {
                 MyBridgeService.startService(this)
+                "✅ 권한 허용 완료 - 실행 중"
             } else {
-                statusText.text = "❌ 권한 거부됨 - Play 프로텍트 끄고 제한된 설정 허용"
+                "❌ 권한 거부됨\nPlay 프로텍트 끄고\n제한된 설정 허용 후 재시도"
             }
         }
     }
