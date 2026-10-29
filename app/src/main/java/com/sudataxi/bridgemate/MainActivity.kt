@@ -15,7 +15,6 @@ class MainActivity : AppCompatActivity() {
     private val PERMISSION_REQUEST_CODE = 1001
     private lateinit var statusText: TextView
 
-    // v1.3.29 - READ_SMS + READ_CONTACTS 분리 체크 (Android 13+ 제한된 설정 대응)
     private val REQUIRED_PERMISSIONS = arrayOf(
         Manifest.permission.READ_SMS,
         Manifest.permission.RECEIVE_SMS,
@@ -31,16 +30,11 @@ class MainActivity : AppCompatActivity() {
         val btnStart = findViewById<Button>(R.id.btnStartService)
         val btnSync = findViewById<Button>(R.id.btnSyncSms)
 
-        btnStart.setOnClickListener {
-            checkAndRequestPermissions()
-        }
-
+        btnStart.setOnClickListener { checkAndRequestPermissions() }
         btnSync.setOnClickListener {
-            // 수동 SMS 동기화
             MyBridgeService.syncSmsInbox(this)
             statusText.text = "📡 SMS 동기화 요청 중... 200건 읽기"
         }
-
         checkAndRequestPermissions()
     }
 
@@ -48,11 +42,9 @@ class MainActivity : AppCompatActivity() {
         val missing = REQUIRED_PERMISSIONS.filter {
             ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
         }
-
         if (missing.isNotEmpty()) {
-            // Android 13+ 제한된 설정 안내
             if (Build.VERSION.SDK_INT >= 33) {
-                statusText.text = "⚠️ 권한 필요\n\n설정 > 앱 > 수다택시 브릿지 > ⋮ > 제한된 설정 허용\n그 후 아래 권한 허용:\n${missing.joinToString("\n")}"
+                statusText.text = "⚠️ 권한 필요\n\n설정 > 앱 > 수다택시 브릿지 > ⋮ > 제한된 설정 허용\n후 권한 허용:\n${missing.joinToString("\n")}"
             }
             ActivityCompat.requestPermissions(this, missing.toTypedArray(), PERMISSION_REQUEST_CODE)
         } else {
@@ -61,20 +53,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PERMISSION_REQUEST_CODE) {
             val allGranted = grantResults.all { it == PackageManager.PERMISSION_GRANTED }
             if (allGranted) {
-                statusText.text = "✅ 권한 허용 완료\n서비스 시작..."
+                statusText.text = "✅ 권한 허용 완료"
                 MyBridgeService.startService(this)
             } else {
                 val denied = permissions.filterIndexed { i, _ -> grantResults[i] != PackageManager.PERMISSION_GRANTED }
-                statusText.text = "❌ 권한 거부됨:\n${denied.joinToString("\n")}\n\nPlay 프로텍트 끄고\n설정 > 앱 > ... > 제한된 설정 허용 후 다시 시도"
+                statusText.text = "❌ 거부됨:\n${denied.joinToString("\n")}\nPlay 프로텍트 끄고 제한된 설정 허용 후 재시도"
             }
         }
     }
