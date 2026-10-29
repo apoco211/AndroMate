@@ -1,4 +1,4 @@
-<html lang="ko" class=""><head><style>
+<html lang="ko" class="dark"><head><style>
 @font-face {
   font-family: "Optimistic";
   font-style: normal;
@@ -45,7 +45,7 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>AndroMate v1.3.17 - Dark Mode Fix</title>
+<title>AndroMate v1.3.21 - Light Fix</title>
 <script>
   tailwind = window.tailwind || {};
   tailwind.config = { darkMode: 'class' };
@@ -185,15 +185,13 @@ html:not(.dark) nav {
 html.dark .text-neutral-900 { color: #f0f0f0 !important; }
 html:not(.dark) .text-neutral-100 { color: #111827 !important; }
 
-/* === v1.3.17 다크모드 가독성 완전 수정 (스크린샷 이슈) === */
+/* === v1.3.21 다크모드 가독성 완전 수정 === */
 html.dark .bg-neutral-50,
 html.dark .bg-neutral-100,
 html.dark .bg-neutral-100\/70 {
   background-color: #2a2a2a !important;
 }
-html.dark .bg-neutral-200 {
-  background-color: #3a3a3a !important;
-}
+html.dark .bg-neutral-200 { background-color: #3a3a3a !important; }
 html.dark .bg-neutral-800,
 html.dark .bg-neutral-800\/80,
 html.dark .bg-neutral-800\/60,
@@ -201,14 +199,9 @@ html.dark .bg-neutral-800\/50,
 html.dark .bg-neutral-700 {
   background-color: #2a2a2a !important;
 }
-html.dark .bg-neutral-900 {
-  background-color: #1a1a1a !important;
-}
-html.dark .bg-white {
-  background-color: #1e1e1e !important;
-}
+html.dark .bg-neutral-900 { background-color: #1a1a1a !important; }
+html.dark .bg-white { background-color: #1e1e1e !important; }
 
-/* 입력창 */
 html.dark #yt-search-input,
 html.dark input[type="text"],
 html.dark input[type="tel"] {
@@ -216,48 +209,91 @@ html.dark input[type="tel"] {
   color: #f0f0f0 !important;
   border-color: rgba(255,255,255,0.12) !important;
 }
-html.dark #yt-search-input::placeholder {
-  color: #a3a3a3 !important;
-}
+html.dark #yt-search-input::placeholder { color: #a3a3a3 !important; }
 
-/* 해시태그 버튼 - 하얀바탕에 하얀글씨 문제 해결 */
 html.dark .tag-btn,
 html.dark button.tag-btn {
   background-color: #2a2a2a !important;
   color: #e5e5e5 !important;
   border-color: rgba(255,255,255,0.12) !important;
 }
-html.dark .tag-btn:active {
-  background-color: #3a3a3a !important;
-}
+html.dark .tag-btn:active { background-color: #3a3a3a !important; }
 
-/* 일반 텍스트 가독성 */
 html.dark .text-neutral-700 { color: #e5e5e5 !important; }
 html.dark .text-neutral-400 { color: #a3a3a3 !important; }
 html.dark .text-neutral-300 { color: #d4d4d4 !important; }
 
-/* 검색 결과 카드 */
 html.dark #real-video-list > div {
   background-color: #262626 !important;
   border-color: rgba(255,255,255,0.06) !important;
 }
 html.dark #real-video-list .text-neutral-900 { color: #f0f0f0 !important; }
 
-/* 하단 네비 비활성 상태도 잘 보이게 */
 html.dark .tab-text.text-neutral-400 { color: #a3a3a3 !important; }
 html.dark .icon-box.bg-neutral-100 { background-color: #2a2a2a !important; }
 html.dark .icon-box.text-neutral-400 { color: #a3a3a3 !important; }
 
-/* 볼륨 슬라이더 카드 */
-html.dark .bg-neutral-50\/80,
-html.dark .bg-neutral-50 {
-  background-color: #262626 !important;
+/* === v1.3.21 주간 모드 강제 복구 (라이트 모드에서 검게 나오는 버그 수정) === */
+html:not(.dark) .bg-neutral-50,
+html:not(.dark) .bg-neutral-100,
+html:not(.dark) .bg-neutral-100\/70 {
+  background-color: #f5f5f5 !important;
+}
+html:not(.dark) .bg-neutral-200 {
+  background-color: #e5e5e5 !important;
+}
+html:not(.dark) .bg-neutral-800,
+html:not(.dark) .bg-neutral-800\/80,
+html:not(.dark) .bg-neutral-800\/60,
+html:not(.dark) .bg-neutral-800\/50 {
+  background-color: #f5f5f5 !important;
+}
+html:not(.dark) .bg-neutral-900 {
+  background-color: #ffffff !important;
 }
 
-/* 70% 텍스트 등 */
-html.dark .text-neutral-400.font-bold,
-html.dark span.text-neutral-400 {
-  color: #d4d4d4 !important;
+html:not(.dark) #yt-search-input,
+html:not(.dark) input[type="text"],
+html:not(.dark) input[type="tel"] {
+  background-color: #f3f4f6 !important;
+  color: #111827 !important;
+  border-color: rgba(0,0,0,0.06) !important;
+}
+html:not(.dark) #yt-search-input::placeholder {
+  color: #9ca3af !important;
+}
+
+html:not(.dark) .tag-btn,
+html:not(.dark) button.tag-btn {
+  background-color: #f3f4f6 !important;
+  color: #111827 !important;
+  border-color: rgba(0,0,0,0.06) !important;
+}
+html:not(.dark) .tag-btn:active {
+  background-color: #e5e7eb !important;
+}
+
+html:not(.dark) .text-neutral-700 { color: #374151 !important; }
+html:not(.dark) .text-neutral-400 { color: #9ca3af !important; }
+
+html:not(.dark) #real-video-list > div {
+  background-color: #f9fafb !important;
+  border-color: rgba(0,0,0,0.04) !important;
+}
+
+html:not(.dark) .icon-box.bg-neutral-100 {
+  background-color: #f3f4f6 !important;
+}
+html:not(.dark) .icon-box.text-neutral-400 {
+  color: #9ca3af !important;
+}
+
+/* Tailwind 다크 클래스가 미디어쿼리로 잘못 적용되는 것 방지 - 라이트 모드에서 다크 배경 강제 무효화 */
+html:not(.dark) .dark\:bg-neutral-800 {
+  background-color: #f5f5f5 !important;
+}
+html:not(.dark) .dark\:bg-\[\#1e1e1e\] {
+  background-color: #ffffff !important;
 }
 
 
@@ -315,7 +351,7 @@ function switchTab(tabId) {
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
-<body class="flex flex-col h-full w-full bg-[#f6f7f9] dark:bg-[#121212] text-neutral-900 dark:text-neutral-100 transition-colors duration-200" style="background-color: rgb(246, 247, 249); color: rgb(17, 24, 39);">
+<body class="flex flex-col h-full w-full bg-[#f6f7f9] dark:bg-[#121212] text-neutral-900 dark:text-neutral-100 transition-colors duration-200" style="background-color: rgb(18, 18, 18); color: rgb(240, 240, 240);">
 
 <!-- 1. 상단 고정 헤더 -->
 <header class="safe-top px-4 pb-2.5 bg-white/95 dark:bg-[#1e1e1e]/95 backdrop-blur-md border-b border-black/[0.06] dark:border-white/[0.08] flex items-center justify-between shrink-0 z-30">
@@ -325,13 +361,13 @@ function switchTab(tabId) {
       <div class="text-base font-extrabold tracking-tight leading-none">수다택시 리모콘</div>
       <div class="text-[11px] text-neutral-400 dark:text-neutral-400 font-semibold mt-1 tracking-tight flex items-center gap-1.5">
         <span>TAXI REMOTE • A25</span>
-        <span class="px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-700 dark:text-blue-300 text-[9px] font-extrabold">v1.3.17</span>
+        <span class="px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-700 dark:text-blue-300 text-[9px] font-extrabold">v1.3.21</span>
       </div>
     </div>
   </div>
   <div class="flex items-center gap-2">
     <!-- 다크모드 토글 버튼 -->
-    <button type="button" onclick="toggleDarkMode()" id="theme-btn" class="w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-sm border border-black/5 dark:border-white/10 active:scale-90 transition-transform">🌙</button>
+    <button type="button" onclick="toggleDarkMode()" id="theme-btn" class="w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-sm border border-black/5 dark:border-white/10 active:scale-90 transition-transform">☀️</button>
     <button type="button" onclick="promptAndSaveYTKey()" class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-sm border border-blue-200 active:scale-90" title="API 키">🔑</button>
     <!-- A25 통신 연결 상태 뱃지 -->
     <button type="button" onclick="openDiagModal()" id="conn-badge" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-900 text-[11px] font-bold cursor-pointer active:scale-95 shadow-sm">
@@ -483,7 +519,7 @@ function switchTab(tabId) {
         <div class="text-[10px] text-neutral-400 font-medium">A25 단말기 실제 수신/발신 내역</div>
         <span id="sms-thread-count" class="text-[10px] font-bold text-blue-600 dark:text-blue-400">0개 대화방</span>
       </div>
-      <div id="sms-thread-container" class="space-y-1.5"><div class="p-6 text-center bg-white dark:bg-[#1e1e1e] rounded-xl border border-black/[0.04] dark:border-white/[0.06]"><div class="text-[12px] font-bold text-neutral-400">단말기 문자가 비어있습니다. 상단 동기화 버튼을 눌러주세요.</div></div></div>
+      <div id="sms-thread-container" class="space-y-1.5"><div class="p-6 text-center bg-white dark:bg-[#1e1e1e] rounded-xl border border-black/[0.04] dark:border-white/[0.06] space-y-3"><div class="text-[12px] font-bold text-neutral-400">단말기 문자가 비어있습니다.</div><div class="text-[11px] text-neutral-400 leading-relaxed">1. A25 단말기 상단바에서 AndroMate가 실행 중인지 확인<br>2. 우측 상단 A25 뱃지가 <span class="text-emerald-600 font-bold">연결됨</span>인지 확인<br>3. 아래 동기화 버튼 클릭</div><div class="flex gap-2 justify-center pt-1 flex-wrap"><button onclick="requestA25SmsSync()" class="px-3 py-1.5 rounded-full bg-blue-600 text-white text-[11px] font-bold">📡 동기화 요청</button><button onclick="openDiagModal()" class="px-3 py-1.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-[11px] font-bold border border-black/10 dark:border-white/10">📡 연결 진단</button><button onclick="debugShowRawSms()" class="px-3 py-1.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 text-[10px] font-bold">🔍 원본 확인</button></div></div></div>
     </div>
 
     <!-- 1:1 대화방 뷰 -->
@@ -700,7 +736,7 @@ function switchTab(tabId) {
 <script>
 let db = null;
 const FIREBASE_DB_URL = "https://sudataxi-bridge-default-rtdb.firebaseio.com";
-const EMBEDDED_YT_API_KEY = "AIzaSyCBOwims25QvRUSO2RggHkcreytDpEJGBU"; // 🔑 YouTube Data API 키 내장됨 v1.3.17
+const EMBEDDED_YT_API_KEY = "AIzaSyCBOwims25QvRUSO2RggHkcreytDpEJGBU"; // 🔑 YouTube API 내장 v1.3.21
 
 // ==========================================
 // 1. 순수 데이터 구조 초기화
@@ -848,39 +884,94 @@ try {
       });
     } catch(e) { console.log("info/connected err", e); }
 
-    // SMS 내역 초기 1회 로드
+    // SMS 내역 초기 1회 로드 (SDK)
+    function processSmsData(data) {
+      if (!data) {
+        console.log('[SMS] processSmsData: 데이터 없음');
+        return false;
+      }
+      console.log('[SMS] processSmsData 원본:', data);
+      let hasNew = false;
+      let skipped = 0;
+      Object.keys(data).forEach(key => {
+        const item = data[key];
+        if (!item) { skipped++; return; }
+        // 🔧 A25 호환: 다양한 필드명 지원 (sender/address/phone, message/body/text)
+        const sender = item.sender || item.address || item.phone || item.from || item.number;
+        const message = item.message || item.body || item.text || item.content || "";
+        if (!sender) { 
+          console.log('[SMS] sender 없음, 스킵:', item);
+          skipped++; 
+          return; 
+        }
+        if (!smsThreads[sender]) smsThreads[sender] = [];
+        const ts = item.timestamp || item.date || item.timeStamp || Date.now();
+        // 중복 체크 (timestamp 또는 message 기준)
+        if (!smsThreads[sender].some(m => m.timestamp === ts && m.message === message)) {
+          smsThreads[sender].push({
+            type: item.type || (item.type === 1 ? "received" : "received") || "received",
+            message: message,
+            time: item.time || (ts ? new Date(ts).toTimeString().substring(0,5) : new Date().toTimeString().substring(0,5)),
+            timestamp: ts
+          });
+          hasNew = true;
+        }
+      });
+      console.log('[SMS] 처리 결과 - 신규:', hasNew, '스킵:', skipped, '전체 대화방:', Object.keys(smsThreads).length);
+      if (hasNew) { 
+        saveSmsThreads(); 
+        renderSmsThreadList(); 
+        updateThanksChips(); 
+      }
+      // 데이터는 있지만 신규가 없어도 (이미 저장된 경우) 리스트 갱신
+      if (Object.keys(smsThreads).length > 0) {
+        renderSmsThreadList();
+      }
+      return hasNew;
+    }
+
+    // 🔧 디버깅용: Firebase 원본 데이터 확인
+    function debugShowRawSms() {
+      const url = FIREBASE_DB_URL + '/sudataxi/inbox/sms.json?orderBy="$key"&limitToLast=5';
+      fetch(url).then(r=>r.text()).then(t=>{
+        console.log('[SMS RAW]', t);
+        alert('Firebase 원본 (최근 5건):\n' + t.substring(0,1000));
+      }).catch(e=>alert('조회 실패: '+e));
+    }
+    
+
     db.ref("sudataxi/inbox/sms").limitToLast(30).once("value", snap => {
       const data = snap.val();
-      if (data) {
-        let hasNew = false;
-        Object.keys(data).forEach(key => {
-          const item = data[key];
-          if (!item || !item.sender) return;
-          const sender = item.sender;
-          if (!smsThreads[sender]) smsThreads[sender] = [];
-          if (!smsThreads[sender].some(m => m.timestamp === item.timestamp)) {
-            smsThreads[sender].push({
-              type: item.type || "received", message: item.message || "",
-              time: item.time || new Date(item.timestamp || Date.now()).toTimeString().substring(0,5),
-              timestamp: item.timestamp || Date.now()
-            });
-            hasNew = true;
-          }
-        });
-        if (hasNew) { saveSmsThreads(); renderSmsThreadList(); updateThanksChips(); }
+      const processed = processSmsData(data);
+      console.log('[SMS] SDK 로드:', data ? Object.keys(data).length+'건' : '0건', '신규:', processed);
+      // SDK로 0건이면 REST로 재시도 (Firebase SDK 캐시/권한 이슈 대응)
+      if (!data || Object.keys(data).length===0) {
+        console.log('[SMS] SDK 0건 -> REST 재시도');
+        fetch(FIREBASE_DB_URL + '/sudataxi/inbox/sms.json?orderBy="$key"&limitToLast=30')
+          .then(r=>r.json()).then(restData=>{
+            console.log('[SMS] REST 로드:', restData ? Object.keys(restData).length+'건' : '0건');
+            processSmsData(restData);
+          }).catch(e=>console.log('[SMS] REST 실패', e));
       }
     });
 
-    // SMS 실시간 추가 리스너
+    // SMS 실시간 추가 리스너 (A25 호환)
     db.ref("sudataxi/inbox/sms").limitToLast(1).on("child_added", snap => {
       const data = snap.val();
-      if (!data || !data.sender) return;
-      const sender = data.sender;
+      console.log('[SMS] child_added 수신:', data);
+      if (!data) return;
+      const sender = data.sender || data.address || data.phone || data.from;
+      const message = data.message || data.body || data.text || "";
+      if (!sender) {
+        console.log('[SMS] child_added sender 없음, 스킵');
+        return;
+      }
       if (!smsThreads[sender]) smsThreads[sender] = [];
-      if (!smsThreads[sender].some(m => m.timestamp === data.timestamp)) {
+      const ts = data.timestamp || data.date || Date.now();
+      if (!smsThreads[sender].some(m => m.timestamp === ts && m.message === message)) {
         smsThreads[sender].push({
-          type: data.type || "received", message: data.message || "",
-          time: data.time || new Date().toTimeString().substring(0,5), timestamp: data.timestamp || Date.now()
+          type: data.type || "received", message: message,
+          time: data.time || new Date().toTimeString().substring(0,5), timestamp: ts
         });
         saveSmsThreads(); updateThanksChips();
         if (activeSmsSender === sender && document.getElementById("sms-chat-view").style.display !== 'none') {
@@ -924,9 +1015,37 @@ function requestA25SmsSync() {
     setTimeout(() => icon.classList.remove('animate-spin'), 1500);
   }
   const payload = { action: "sync_sms_inbox", timestamp: Date.now() };
-  fetch(FIREBASE_DB_URL + '/sudataxi/commands/system.json', { method: 'PUT', body: JSON.stringify(payload) }).catch(e=>e);
-  if (db) db.ref("sudataxi/commands/system").set(payload);
-  showToast("📡 단말기 문자 동기화 요청 완료");
+  // REST + SDK 이중 전송 (A25가 어떤 방식으로 듣든 받도록)
+  fetch(FIREBASE_DB_URL + '/sudataxi/commands/system.json', { method: 'PUT', body: JSON.stringify(payload) }).then(r=>console.log('[SYNC] REST 전송', r.status)).catch(e=>console.log('[SYNC] REST 실패', e));
+  if (db) {
+    db.ref("sudataxi/commands/system").set(payload).then(()=>console.log('[SYNC] SDK 전송 완료')).catch(e=>console.log('[SYNC] SDK 실패', e));
+    // 3초 후 SMS 재로드 시도
+    setTimeout(()=>{
+      console.log('[SYNC] 3초 후 재로드 시도');
+      db.ref("sudataxi/inbox/sms").limitToLast(30).once("value", snap => {
+        const data = snap.val();
+        if (data) {
+          let hasNew = false;
+          Object.keys(data).forEach(key => {
+            const item = data[key];
+            if (!item || !item.sender) return;
+            const sender = item.sender;
+            if (!smsThreads[sender]) smsThreads[sender] = [];
+            if (!smsThreads[sender].some(m => m.timestamp === item.timestamp)) {
+              smsThreads[sender].push({
+                type: item.type || "received", message: item.message || "",
+                time: item.time || new Date(item.timestamp || Date.now()).toTimeString().substring(0,5),
+                timestamp: item.timestamp || Date.now()
+              });
+              hasNew = true;
+            }
+          });
+          if (hasNew) { saveSmsThreads(); renderSmsThreadList(); updateThanksChips(); showToast('문자 '+Object.keys(data).length+'건 동기화됨'); }
+        }
+      });
+    }, 3000);
+  }
+  showToast("📡 단말기 문자 동기화 요청 완료 - 3초 후 재확인");
 }
 
 // ==========================================
@@ -1142,7 +1261,6 @@ async function executeRealSearch() {
 
   let success = false;
   let lastError = '';
-  console.log('[YT] v1.3.17 키 내장됨:', !!((localStorage.getItem('YT_API_KEY') || EMBEDDED_YT_API_KEY)));
 
   // 1) YouTube Data API 키 있으면 최우선 (100% 정확)
   const ytKey = ((localStorage.getItem('YT_API_KEY') || (typeof EMBEDDED_YT_API_KEY !== 'undefined' ? EMBEDDED_YT_API_KEY : '')).trim());
@@ -1352,7 +1470,7 @@ function renderSmsThreadList() {
   document.getElementById("sms-thread-count").innerText = senders.length + "개 대화방";
 
   if (senders.length === 0) {
-    container.innerHTML = '<div class="p-6 text-center bg-white dark:bg-[#1e1e1e] rounded-xl border border-black/[0.04] dark:border-white/[0.06]"><div class="text-[12px] font-bold text-neutral-400">단말기 문자가 비어있습니다. 상단 동기화 버튼을 눌러주세요.</div></div>';
+    container.innerHTML = '<div class="p-6 text-center bg-white dark:bg-[#1e1e1e] rounded-xl border border-black/[0.04] dark:border-white/[0.06] space-y-3"><div class="text-[12px] font-bold text-neutral-400">단말기 문자가 비어있습니다.</div><div class="text-[11px] text-neutral-400 leading-relaxed">1. A25 단말기 상단바에서 AndroMate가 실행 중인지 확인<br>2. 우측 상단 A25 뱃지가 <span class="text-emerald-600 font-bold">연결됨</span>인지 확인<br>3. 아래 동기화 버튼 클릭</div><div class="flex gap-2 justify-center pt-1 flex-wrap"><button onclick="requestA25SmsSync()" class="px-3 py-1.5 rounded-full bg-blue-600 text-white text-[11px] font-bold">📡 동기화 요청</button><button onclick="openDiagModal()" class="px-3 py-1.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-[11px] font-bold border border-black/10 dark:border-white/10">📡 연결 진단</button><button onclick="debugShowRawSms()" class="px-3 py-1.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 text-[10px] font-bold">🔍 원본 확인</button></div></div>';
     return;
   }
   container.innerHTML = senders.map(sender => {
