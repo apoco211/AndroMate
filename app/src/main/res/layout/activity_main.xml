@@ -2,18 +2,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="match_parent"
     android:orientation="vertical" android:padding="16dp">
-
     <TextView android:id="@+id/statusText"
         android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:text="수다택시 브릿지 v1.3.29&#10;권한 확인 중..."
-        android:textSize="13sp" android:lineSpacingExtra="4dp"
-        android:padding="16dp" android:background="#F5F5F5"
+        android:text="수다택시 브릿지 v1.3.30&#10;권한 확인 중..."
+        android:textSize="13sp" android:padding="16dp" android:background="#F5F5F5"
         android:layout_marginBottom="16dp" />
-
     <Button android:id="@+id/btnStartService"
         android:layout_width="match_parent" android:layout_height="56dp"
         android:text="서비스 시작" android:layout_marginBottom="12dp" />
-
     <Button android:id="@+id/btnSyncSms"
         android:layout_width="match_parent" android:layout_height="56dp"
         android:text="📡 SMS 200건 동기화 (수신100+발신100)" />
