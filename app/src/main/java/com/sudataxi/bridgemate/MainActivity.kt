@@ -1,4 +1,4 @@
-package com.sudataxi.bridge
+package com.sudataxi.bridgemate
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -44,11 +44,11 @@ class MainActivity : AppCompatActivity() {
         }
         if (missing.isNotEmpty()) {
             if (Build.VERSION.SDK_INT >= 33) {
-                statusText.text = "⚠️ 권한 필요\n\n설정 > 앱 > 수다택시 브릿지 > ⋮ > 제한된 설정 허용\n후 권한 허용:\n${missing.joinToString("\n")}"
+                statusText.text = "⚠️ 권한 필요\n\n설정 > 앱 > 수다택시 브릿지 > ⋮ > 제한된 설정 허용\n후 권한 허용"
             }
             ActivityCompat.requestPermissions(this, missing.toTypedArray(), PERMISSION_REQUEST_CODE)
         } else {
-            statusText.text = "✅ 모든 권한 허용됨\nA25 연결 대기 중..."
+            statusText.text = "✅ 모든 권한 허용됨"
             MyBridgeService.startService(this)
         }
     }
@@ -61,8 +61,7 @@ class MainActivity : AppCompatActivity() {
                 statusText.text = "✅ 권한 허용 완료"
                 MyBridgeService.startService(this)
             } else {
-                val denied = permissions.filterIndexed { i, _ -> grantResults[i] != PackageManager.PERMISSION_GRANTED }
-                statusText.text = "❌ 거부됨:\n${denied.joinToString("\n")}\nPlay 프로텍트 끄고 제한된 설정 허용 후 재시도"
+                statusText.text = "❌ 권한 거부됨 - Play 프로텍트 끄고 제한된 설정 허용"
             }
         }
     }
