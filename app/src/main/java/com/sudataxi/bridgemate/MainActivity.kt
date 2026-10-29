@@ -12,10 +12,9 @@ import androidx.core.content.ContextCompat
 
 class MainActivity : Activity() {
 
-    private val PERMISSION_REQUEST_CODE = 1001
-    private lateinit var statusText: TextView
-
-    private val REQUIRED_PERMISSIONS = arrayOf(
+    private val REQ = 1001
+    private lateinit var tv: TextView
+    private val PERMS = arrayOf(
         Manifest.permission.READ_SMS,
         Manifest.permission.RECEIVE_SMS,
         Manifest.permission.SEND_SMS,
@@ -24,45 +23,56 @@ class MainActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        try {
+            setContentView(R.layout.activity_main)
+            tv = findViewById(R.id.statusText)
+            val btnStart = findViewById<Button>(R.id.btnStartService)
+            val btnSync = findViewById<Button>(R.id.btnSyncSms)
 
-        statusText = findViewById(R.id.statusText)
-        val btnStart = findViewById<Button>(R.id.btnStartService)
-        val btnSync = findViewById<Button>(R.id.btnSyncSms)
-
-        btnStart.setOnClickListener { checkAndRequestPermissions() }
-        btnSync.setOnClickListener {
-            MyBridgeService.syncSmsInbox(this)
-            statusText.text = "📡 SMS 200건 동기화 중..."
+            btnStart.setOnClickListener { checkPerms() }
+            btnSync.setOnClickListener {
+                try {
+                    MyBridgeService.syncSmsInbox(this)
+                    tv.text = "📡 200건 동기화 요청 (백그라운드)"
+                } catch (e: Exception) {
+                    tv.text = "동기화 오류: ${e.message}"
+                }
+            }
+            checkPerms()
+        } catch (e: Exception) {
+            val t = TextView(this)
+            t.text = "onCreate 오류: ${e.message}"
+            setContentView(t)
         }
-        checkAndRequestPermissions()
     }
 
-    private fun checkAndRequestPermissions() {
-        val missing = REQUIRED_PERMISSIONS.filter {
-            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
-        }
+    private fun checkPerms() {
+        val missing = PERMS.filter { ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED }
         if (missing.isNotEmpty()) {
             if (Build.VERSION.SDK_INT >= 33) {
-                statusText.text = "⚠️ 권한 필요\n\n설정 > 앱 > 수다택시 브릿지 > ⋮ > 제한된 설정 허용\n후 허용 필요:\n${missing.joinToString("\n")}"
+                tv.text = "⚠️ 권한 필요\n설정 > 앱 > 수다택시 브릿지 > ⋮ > 제한된 설정 허용 후 다시 실행"
             }
-            ActivityCompat.requestPermissions(this, missing.toTypedArray(), PERMISSION_REQUEST_CODE)
+            ActivityCompat.requestPermissions(this, missing.toTypedArray(), REQ)
         } else {
-            statusText.text = "✅ 권한 OK - 서비스 시작"
+            tv.text = "✅ 권한 OK - 서비스 시작"
+            safeStart()
+        }
+    }
+
+    private fun safeStart() {
+        try {
             MyBridgeService.startService(this)
+            tv.text = "✅ 서비스 실행 중\n200건 자동 동기화 진행"
+        } catch (e: Exception) {
+            tv.text = "❌ 서비스 실패: ${e.message}"
         }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == PERMISSION_REQUEST_CODE) {
-            val allGranted = grantResults.all { it == PackageManager.PERMISSION_GRANTED }
-            statusText.text = if (allGranted) {
-                MyBridgeService.startService(this)
-                "✅ 권한 허용 완료 - 실행 중"
-            } else {
-                "❌ 권한 거부됨\nPlay 프로텍트 끄고\n제한된 설정 허용 후 재시도"
-            }
+        if (requestCode == REQ) {
+            if (grantResults.all { it == PackageManager.PERMISSION_GRANTED }) safeStart()
+            else tv.text = "❌ 권한 거부됨 - 설정에서 허용 필요"
         }
     }
 }
