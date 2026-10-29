@@ -45,7 +45,7 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>AndroMate v1.3.21 - Light Fix</title>
+<title>AndroMate v1.3.22 - Search &amp; SMS Fix</title>
 <script>
   tailwind = window.tailwind || {};
   tailwind.config = { darkMode: 'class' };
@@ -86,15 +86,22 @@ html, body {
   cursor: pointer;
 }
 
-/* 타임라인 커스텀 시크바 */
+/* 타임라인 커스텀 시크바 - v1.3.22 터치 개선 */
 input[type=range].yt-progressbar {
   -webkit-appearance: none;
   appearance: none;
   background: transparent;
   width: 100%;
-  height: 24px;
+  height: 36px;
   margin: 0;
   display: block;
+  touch-action: none;
+  cursor: pointer;
+}
+.yt-progress-wrap {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 input[type=range].yt-progressbar:focus { outline: none; }
 input[type=range].yt-progressbar::-webkit-slider-runnable-track {
@@ -185,7 +192,7 @@ html:not(.dark) nav {
 html.dark .text-neutral-900 { color: #f0f0f0 !important; }
 html:not(.dark) .text-neutral-100 { color: #111827 !important; }
 
-/* === v1.3.21 다크모드 가독성 완전 수정 === */
+/* === v1.3.22 다크모드 가독성 완전 수정 === */
 html.dark .bg-neutral-50,
 html.dark .bg-neutral-100,
 html.dark .bg-neutral-100\/70 {
@@ -233,7 +240,7 @@ html.dark .tab-text.text-neutral-400 { color: #a3a3a3 !important; }
 html.dark .icon-box.bg-neutral-100 { background-color: #2a2a2a !important; }
 html.dark .icon-box.text-neutral-400 { color: #a3a3a3 !important; }
 
-/* === v1.3.21 주간 모드 강제 복구 (라이트 모드에서 검게 나오는 버그 수정) === */
+/* === v1.3.22 주간 모드 강제 복구 (라이트 모드에서 검게 나오는 버그 수정) === */
 html:not(.dark) .bg-neutral-50,
 html:not(.dark) .bg-neutral-100,
 html:not(.dark) .bg-neutral-100\/70 {
@@ -361,7 +368,7 @@ function switchTab(tabId) {
       <div class="text-base font-extrabold tracking-tight leading-none">수다택시 리모콘</div>
       <div class="text-[11px] text-neutral-400 dark:text-neutral-400 font-semibold mt-1 tracking-tight flex items-center gap-1.5">
         <span>TAXI REMOTE • A25</span>
-        <span class="px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-700 dark:text-blue-300 text-[9px] font-extrabold">v1.3.21</span>
+        <span class="px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-700 dark:text-blue-300 text-[9px] font-extrabold">v1.3.22</span>
       </div>
     </div>
   </div>
@@ -422,7 +429,7 @@ function switchTab(tabId) {
         </div>
 
         <div class="relative z-10 w-full pt-1 space-y-1">
-          <div class="relative flex items-center">
+          <div class="relative flex items-center yt-progress-wrap">
             <div class="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-red-600 rounded-full pointer-events-none transition-all duration-200" id="yt-progress-fill" style="width: 24.889381%;"></div>
             <input type="range" id="yt-seek-slider" min="0" max="100" value="25" class="yt-progressbar w-full relative z-20 cursor-pointer" oninput="onSeekSliderInput(this.value)" onchange="onSeekSliderChange(this.value)">
           </div>
@@ -736,7 +743,7 @@ function switchTab(tabId) {
 <script>
 let db = null;
 const FIREBASE_DB_URL = "https://sudataxi-bridge-default-rtdb.firebaseio.com";
-const EMBEDDED_YT_API_KEY = "AIzaSyCBOwims25QvRUSO2RggHkcreytDpEJGBU"; // 🔑 YouTube API 내장 v1.3.21
+const EMBEDDED_YT_API_KEY = "AIzaSyCBOwims25QvRUSO2RggHkcreytDpEJGBU"; // 🔑 YouTube API 내장 v1.3.22
 
 // ==========================================
 // 1. 순수 데이터 구조 초기화
@@ -942,17 +949,31 @@ try {
 
     db.ref("sudataxi/inbox/sms").limitToLast(30).once("value", snap => {
       const data = snap.val();
+      console.log('[SMS] SDK once 수신:', data);
       const processed = processSmsData(data);
       console.log('[SMS] SDK 로드:', data ? Object.keys(data).length+'건' : '0건', '신규:', processed);
-      // SDK로 0건이면 REST로 재시도 (Firebase SDK 캐시/권한 이슈 대응)
       if (!data || Object.keys(data).length===0) {
         console.log('[SMS] SDK 0건 -> REST 재시도');
         fetch(FIREBASE_DB_URL + '/sudataxi/inbox/sms.json?orderBy="$key"&limitToLast=30')
-          .then(r=>r.json()).then(restData=>{
-            console.log('[SMS] REST 로드:', restData ? Object.keys(restData).length+'건' : '0건');
-            processSmsData(restData);
-          }).catch(e=>console.log('[SMS] REST 실패', e));
+          .then(r=>{ 
+            console.log('[SMS] REST status', r.status); 
+            return r.json(); 
+          }).then(restData=>{
+            console.log('[SMS] REST 로드:', restData ? Object.keys(restData).length+'건' : '0건', restData);
+            if (restData) processSmsData(restData);
+            else {
+              // Firebase 비어있음 - 로컬 데이터라도 표시
+              console.log('[SMS] Firebase 비어있음, 로컬 데이터:', Object.keys(smsThreads).length+'개');
+              renderSmsThreadList();
+            }
+          }).catch(e=>{ console.log('[SMS] REST 실패', e); renderSmsThreadList(); });
       }
+    }, err=>{
+      console.log('[SMS] SDK once 실패:', err);
+      // SDK 실패시 REST로
+      fetch(FIREBASE_DB_URL + '/sudataxi/inbox/sms.json')
+        .then(r=>r.json()).then(restData=>{ if(restData) processSmsData(restData); renderSmsThreadList(); })
+        .catch(e=>{ renderSmsThreadList(); });
     });
 
     // SMS 실시간 추가 리스너 (A25 호환)
@@ -1077,16 +1098,65 @@ function updateProgressBarUI() {
   document.getElementById("yt-total-time-txt").innerText = currentPlayingVideo.time || formatSecToTime(totalDurationSec);
 }
 function onSeekSliderInput(val) {
-  document.getElementById("yt-progress-fill").style.width = val + "%";
-  currentProgressSec = Math.floor((val / 100) * totalDurationSec);
-  document.getElementById("yt-current-time-txt").innerText = formatSecToTime(currentProgressSec);
+  const pct = parseFloat(val);
+  if (isNaN(pct)) return;
+  document.getElementById("yt-progress-fill").style.width = pct + "%";
+  if (totalDurationSec > 0) {
+    currentProgressSec = Math.floor((pct / 100) * totalDurationSec);
+    document.getElementById("yt-current-time-txt").innerText = formatSecToTime(currentProgressSec);
+  }
 }
 function onSeekSliderChange(val) {
-  currentProgressSec = Math.floor((val / 100) * totalDurationSec);
+  const pct = parseFloat(val);
+  if (isNaN(pct) || totalDurationSec <=0) return;
+  currentProgressSec = Math.floor((pct / 100) * totalDurationSec);
   updateProgressBarUI();
   sendRemoteControl("seekTo", currentProgressSec);
+  if (db) {
+    db.ref("sudataxi/commands/youtube").set({ action: "seekTo", value: currentProgressSec, currentSec: currentProgressSec, timestamp: Date.now() });
+  }
   showToast("⏩ " + formatSecToTime(currentProgressSec) + " 지점 이동");
 }
+function setupSeekBarTouch() {
+  const wrap = document.querySelector('.yt-progress-wrap') || document.getElementById('yt-seek-slider')?.parentElement;
+  const slider = document.getElementById('yt-seek-slider');
+  if (!wrap || !slider) return;
+  let isDragging = false;
+  function getPctFromEvent(e) {
+    const rect = wrap.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    let x = clientX - rect.left;
+    x = Math.max(0, Math.min(rect.width, x));
+    return (x / rect.width) * 100;
+  }
+  function handleMove(e) {
+    if (!isDragging) return;
+    e.preventDefault();
+    const pct = getPctFromEvent(e);
+    slider.value = pct;
+    onSeekSliderInput(pct);
+  }
+  function handleEnd(e) {
+    if (!isDragging) return;
+    isDragging = false;
+    const pct = getPctFromEvent(e.changedTouches ? e.changedTouches[0] : e);
+    onSeekSliderChange(pct);
+  }
+  wrap.addEventListener('touchstart', (e)=>{ isDragging=true; const pct=getPctFromEvent(e); slider.value=pct; onSeekSliderInput(pct); }, {passive:false});
+  wrap.addEventListener('touchmove', handleMove, {passive:false});
+  wrap.addEventListener('touchend', handleEnd);
+  wrap.addEventListener('mousedown', (e)=>{ isDragging=true; const pct=getPctFromEvent(e); slider.value=pct; onSeekSliderInput(pct); });
+  window.addEventListener('mousemove', handleMove);
+  window.addEventListener('mouseup', handleEnd);
+  // 클릭으로 이동
+  wrap.addEventListener('click', (e)=>{
+    if (e.target === slider) return;
+    const pct=getPctFromEvent(e);
+    slider.value=pct;
+    onSeekSliderChange(pct);
+  });
+}
+setTimeout(setupSeekBarTouch, 500);
 function startProgressTimer() {
   if (progressInterval) clearInterval(progressInterval);
   progressInterval = setInterval(() => {
@@ -1124,22 +1194,20 @@ function renderRealVideoList() {
   container.innerHTML = currentRealVideos.map((v, idx) => {
     const isLiked = likedVideos.includes(v.id);
     const thumbUrl = v.thumb || ('https://i.ytimg.com/vi/' + v.id + '/mqdefault.jpg');
-    return '<div class="flex items-center gap-2 p-1.5 rounded-xl bg-neutral-50 dark:bg-neutral-800/80 hover:bg-neutral-100 dark:hover:bg-neutral-800 border border-black/[0.03] dark:border-white/[0.05] shadow-sm transition-all">' +
-      '<div onclick="previewVideoByIndex(' + idx + ')" class="relative w-[100px] h-[56px] rounded-lg overflow-hidden bg-black shrink-0 cursor-pointer active:scale-95 transition-transform">' +
-        '<img src="' + thumbUrl + '" onerror="this.onerror=null;this.src=\'https://placehold.co/120x68/202020/ffffff?text=YouTube\';" class="w-full h-full object-cover">' +
-        '<span class="absolute bottom-1 right-1 px-1 py-0.5 rounded bg-black/80 text-[9px] font-bold text-white tracking-tight">' + (v.time || '15:00') + '</span>' +
+    const dateDisplay = v.dateStr || (v.publishedAt ? new Date(v.publishedAt).toLocaleDateString('ko-KR') : '');
+    return '<div class="flex items-center gap-2 p-2 rounded-xl bg-neutral-50 dark:bg-neutral-800/80 hover:bg-neutral-100 dark:hover:bg-neutral-800 border border-black/[0.03] dark:border-white/[0.05] shadow-sm transition-all">' +
+      '<div onclick="previewVideoByIndex(' + idx + ')" class="relative w-[68px] h-[38px] rounded-md overflow-hidden bg-black shrink-0 cursor-pointer active:scale-95 transition-transform">' +
+        '<img src="' + thumbUrl + '" onerror="this.onerror=null;this.src=\'https://placehold.co/68x38/202020/ffffff?text=YT\';" class="w-full h-full object-cover">' +
+        '<span class="absolute bottom-0 right-0 px-0.5 py-0 rounded-sm bg-black/80 text-[7px] font-bold text-white">' + (v.time || '') + '</span>' +
       '</div>' +
-      '<div onclick="previewVideoByIndex(' + idx + ')" class="flex-1 min-w-0 cursor-pointer pl-1">' +
-        '<div class="text-[12px] font-bold leading-tight line-clamp-2 text-neutral-900 dark:text-neutral-100">' + escapeHtml(v.title) + '</div>' +
-        '<div class="text-[10px] text-neutral-400 mt-1 truncate font-medium">' + escapeHtml(v.channel) + '</div>' +
+      '<div onclick="previewVideoByIndex(' + idx + ')" class="flex-1 min-w-0 cursor-pointer">' +
+        '<div class="text-[11px] font-bold leading-tight line-clamp-2 text-neutral-900 dark:text-neutral-100">' + escapeHtml(v.title) + '</div>' +
+        '<div class="flex items-center gap-1.5 mt-0.5"><span class="text-[9px] text-neutral-500 dark:text-neutral-400 truncate max-w-[90px]">' + escapeHtml(v.channel) + '</span>' +
+        (dateDisplay ? '<span class="text-[8px] text-neutral-400">•</span><span class="text-[8px] text-neutral-400">' + dateDisplay + '</span>' : '') + '</div>' +
       '</div>' +
-      '<div class="flex flex-col items-center gap-1 shrink-0 ml-1">' +
-        '<button type="button" onclick="playRealVideo(' + idx + ')" class="px-2 py-1.5 rounded-lg bg-red-600 text-white text-[10px] font-extrabold shadow-sm active:scale-95 flex items-center gap-1">' +
-          'A25 재생' +
-        '</button>' +
-        '<button type="button" onclick="toggleVideoLike(\'' + v.id + '\', event)" class="w-full py-1 rounded bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center text-[10px] active:scale-90 transition-transform">' +
-          (isLiked ? '❤️ 담음' : '🤍 찜') +
-        '</button>' +
+      '<div class="flex flex-col items-center gap-1 shrink-0">' +
+        '<button type="button" onclick="playRealVideo(' + idx + ')" class="px-2 py-1 rounded-md bg-red-600 text-white text-[9px] font-extrabold shadow-sm active:scale-95">A25</button>' +
+        '<button type="button" onclick="toggleVideoLike(\'' + v.id + '\', event)" class="w-full py-0.5 rounded text-[9px] active:scale-90">' + (isLiked ? '❤️' : '🤍') + '</button>' +
       '</div>' +
     '</div>';
   }).join('');
@@ -1266,7 +1334,7 @@ async function executeRealSearch() {
   const ytKey = ((localStorage.getItem('YT_API_KEY') || (typeof EMBEDDED_YT_API_KEY !== 'undefined' ? EMBEDDED_YT_API_KEY : '')).trim());
   if (ytKey) {
     try {
-      const apiUrl = 'https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=10&q=' + encodeURIComponent(q) + '&key=' + ytKey;
+      const apiUrl = 'https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=10&order=date&q=' + encodeURIComponent(q) + '&key=' + ytKey;
       const res = await fetch(apiUrl, { signal: AbortSignal.timeout(7000) });
       if (res.ok) {
         const data = await res.json();
@@ -1276,7 +1344,9 @@ async function executeRealSearch() {
             title: item.snippet.title,
             channel: item.snippet.channelTitle,
             time: '',
-            thumb: item.snippet.thumbnails?.medium?.url || ('https://i.ytimg.com/vi/' + item.id.videoId + '/mqdefault.jpg')
+            thumb: item.snippet.thumbnails?.medium?.url || ('https://i.ytimg.com/vi/' + item.id.videoId + '/mqdefault.jpg'),
+            publishedAt: item.snippet.publishedAt || '',
+            dateStr: item.snippet.publishedAt ? new Date(item.snippet.publishedAt).toLocaleDateString('ko-KR') : ''
           }));
           success = true;
         }
@@ -1314,9 +1384,13 @@ async function executeRealSearch() {
                 title: item.title || q + ' 영상',
                 channel: item.uploaderName || item.uploader || 'YouTube',
                 time: item.duration ? formatSecToTime(item.duration) : '',
-                thumb: item.thumbnail || ('https://i.ytimg.com/vi/' + id + '/mqdefault.jpg')
+                thumb: item.thumbnail || ('https://i.ytimg.com/vi/' + id + '/mqdefault.jpg'),
+                publishedAt: item.uploadedDate || '',
+                dateStr: item.uploadedDate || ''
               };
             }).filter(Boolean);
+            // 최신순 정렬
+            currentRealVideos.sort((a,b)=> new Date(b.publishedAt||0) - new Date(a.publishedAt||0));
             if (currentRealVideos.length > 0) success = true;
           }
         }
