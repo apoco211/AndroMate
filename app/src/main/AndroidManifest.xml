@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- v1.3.29 필수 권한 -->
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
@@ -17,13 +14,11 @@
         android:icon="@android:mipmap/sym_def_app_icon"
         android:roundIcon="@android:mipmap/sym_def_app_icon"
         android:label="수다택시 브릿지"
-        android:theme="@android:style/Theme.Material.Light.DarkActionBar"
-        android:supportsRtl="true">
-        
+        android:theme="@android:style/Theme.Material.Light.DarkActionBar">
+
         <activity
             android:name=".MainActivity"
-            android:exported="true"
-            android:label="수다택시 브릿지 v1.3.29">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -35,6 +30,5 @@
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
-
     </application>
 </manifest>
