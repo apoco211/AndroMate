@@ -1,4 +1,4 @@
-package com.sudataxi.bridge
+package com.sudataxi.bridgemate
 
 import android.app.*
 import android.content.ContentResolver
@@ -67,14 +67,11 @@ class MyBridgeService : Service() {
                 override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
                     val data = snapshot.value as? Map<*, *> ?: return
                     val action = data["action"] as? String ?: return
-                    if (action == "sync_sms_inbox" || action == "sync_sms") {
-                        Log.d(TAG, "명령 수신: $action")
-                        syncAllSms(this@MyBridgeService)
-                    }
+                    if (action == "sync_sms_inbox") syncAllSms(this@MyBridgeService)
                 }
                 override fun onCancelled(error: com.google.firebase.database.DatabaseError) {}
             })
-        } catch (e: Exception) { Log.e(TAG, "listen error", e) }
+        } catch (e: Exception) {}
     }
 
     private fun getContactName(context: Context, phoneNumber: String): String {
@@ -100,29 +97,25 @@ class MyBridgeService : Service() {
                     val idxBody = it.getColumnIndex(Telephony.Sms.BODY)
                     val idxDate = it.getColumnIndex(Telephony.Sms.DATE)
                     while (it.moveToNext()) {
-                        try {
-                            val address = if (idxAddress >= 0) it.getString(idxAddress) ?: "" else ""
-                            val body = if (idxBody >= 0) it.getString(idxBody) ?: "" else ""
-                            val date = if (idxDate >= 0) it.getLong(idxDate) else System.currentTimeMillis()
-                            if (address.isBlank() || body.isBlank()) continue
-                            val contactName = getContactName(context, address)
-                            val data = hashMapOf(
-                                "sender" to address, "address" to address, "phone" to address,
-                                "message" to body, "body" to body, "text" to body,
-                                "timestamp" to date, "date" to date, "time" to sdf.format(Date(date)),
-                                "type" to type, "contactName" to contactName, "displayName" to contactName, "name" to contactName
-                            )
-                            val key = "${date}_${count}_${address.hashCode()}"
-                            db.child(key).setValue(data)
-                            count++
-                        } catch (e: Exception) { Log.e(TAG, "parse error", e) }
+                        val address = if (idxAddress >= 0) it.getString(idxAddress) ?: "" else ""
+                        val body = if (idxBody >= 0) it.getString(idxBody) ?: "" else ""
+                        val date = if (idxDate >= 0) it.getLong(idxDate) else System.currentTimeMillis()
+                        if (address.isBlank() || body.isBlank()) continue
+                        val contactName = getContactName(context, address)
+                        val data = hashMapOf(
+                            "sender" to address, "address" to address, "phone" to address,
+                            "message" to body, "body" to body, "text" to body,
+                            "timestamp" to date, "date" to date, "time" to sdf.format(Date(date)),
+                            "type" to type, "contactName" to contactName, "displayName" to contactName, "name" to contactName
+                        )
+                        db.child("${date}_${count}_${address.hashCode()}").setValue(data)
+                        count++
                     }
                 }
             }
             processCursor(inboxCursor, "received")
             processCursor(sentCursor, "sent")
-            Log.d(TAG, "SMS 동기화 완료: ${count}건")
             FirebaseDatabase.getInstance(FIREBASE_DB_URL).reference.child("sudataxi/ping").setValue(true)
-        } catch (e: Exception) { Log.e(TAG, "sync error", e) }
+        } catch (e: Exception) { Log.e("SudaBridge", "sync error", e) }
     }
 }
